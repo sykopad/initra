@@ -58,6 +58,9 @@ export default function WizardPage() {
   const [includeBoilerplate, setIncludeBoilerplate] = useState(true);
   const [user, setUser] = useState<any>(null);
   const [isPushing, setIsPushing] = useState(false);
+  const [importRepoUrl, setImportRepoUrl] = useState("");
+  const [isImporting, setIsImporting] = useState(false);
+  const [selectionMethod, setSelectionMethod] = useState<'browse' | 'import'>('browse');
 
   useEffect(() => {
     const supabase = createClient();
@@ -350,6 +353,42 @@ export default function WizardPage() {
     }
   }, [projectName, generatedFiles]);
 
+  // Handle GitHub Import
+  const handleRepoImport = useCallback(async () => {
+    if (!importRepoUrl) return;
+    setIsImporting(true);
+    setToast("🔍 Scanning repository...");
+
+    try {
+      const response = await fetch("/api/github/import", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ repoUrl: importRepoUrl }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Failed to import repo");
+
+      const { config } = data;
+      const template = PROJECT_TEMPLATES.find(t => t.slug === config.templateSlug);
+      
+      if (template) {
+        setSelectedTemplate(template);
+        setProjectName(config.projectName || "");
+        setStackConfig(config.stackConfig || {});
+        setSelectedPackages(config.selectedPackages || []);
+        
+        setToast("✅ Repository detected! Reviewing configuration...");
+        setTimeout(() => setStep(6), 1500);
+      }
+    } catch (err: any) {
+      console.error(err);
+      setToast(`❌ Error: ${err.message}`);
+    } finally {
+      setIsImporting(false);
+    }
+  }, [importRepoUrl]);
+
   // Get core and advanced stack options
   const coreOptions = selectedTemplate?.stackOptions.filter((o) => o.section === "core") || [];
   const advancedOptions = selectedTemplate?.stackOptions.filter((o) => o.section === "advanced") || [];
@@ -508,10 +547,57 @@ export default function WizardPage() {
                   </div>
                 </div>
               ) : (
-                <>
-                  <h2 className="wizard-step-title">What project type?</h2>
-                <p className="wizard-step-subtitle">Choose a project type to get started</p>
+                 <>
+                  <h2 className="wizard-step-title">Start Your Project</h2>
+                <p className="wizard-step-subtitle">Select a framework manually or import from an existing repository.</p>
 
+                <div className="filter-tabs" style={{ justifyContent: "center", marginBottom: "2rem" }}>
+                   <button 
+                    className={`filter-tab ${selectionMethod === 'browse' ? 'active' : ''}`}
+                    onClick={() => setSelectionMethod('browse')}
+                   >
+                     📂 Browse Templates
+                   </button>
+                   <button 
+                    className={`filter-tab ${selectionMethod === 'import' ? 'active' : ''}`}
+                    onClick={() => setSelectionMethod('import')}
+                   >
+                     🔗 Import from GitHub
+                   </button>
+                </div>
+
+                {selectionMethod === 'import' ? (
+                  <div className="glass-panel" style={{ maxWidth: '600px', margin: '0 auto', padding: '2.5rem' }}>
+                    <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+                      <span style={{ fontSize: '3rem', display: 'block', marginBottom: '1rem' }}>🐙</span>
+                      <h3>Connect Repository</h3>
+                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+                        Paste a GitHub URL to detect its framework and generate agent rules automatically.
+                      </p>
+                    </div>
+                    
+                    <div className="form-group">
+                      <input 
+                        type="text" 
+                        className="form-input" 
+                        placeholder="https://github.com/user/repo"
+                        value={importRepoUrl}
+                        onChange={(e) => setImportRepoUrl(e.target.value)}
+                        style={{ textAlign: 'center', fontSize: '1.1rem' }}
+                      />
+                    </div>
+
+                    <button 
+                      className="btn btn-primary" 
+                      style={{ width: '100%', padding: '1rem', marginTop: '1rem' }}
+                      onClick={handleRepoImport}
+                      disabled={isImporting || !importRepoUrl}
+                    >
+                      {isImporting ? "🔍 Analyzing..." : "Detect Stack & Generate →"}
+                    </button>
+                  </div>
+                ) : (
+                  <>
                 {/* Category filters */}
                 <div className="filter-tabs" style={{ justifyContent: "center", marginBottom: "1.5rem", flexWrap: "wrap" }}>
                   <button
@@ -565,7 +651,10 @@ export default function WizardPage() {
                   </div>
                 )}
               </>
-            ))}
+            )}
+          </>
+        )
+      )}
 
             {/* ── Step 2: Configure Stack ──────────────── */}
             {step === 2 && selectedTemplate && (
