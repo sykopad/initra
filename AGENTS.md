@@ -136,25 +136,25 @@ const supabase = createBrowserClient(url, key, {
 
 5. **Custom rules editor (Complete)** — Users can now edit generated Markdown and reorder sections via a drag-and-drop interface in Step 6. (Done 2026-04-20)
 
-6. **GitHub push integration** — Authorize GitHub and push generated files directly to a repo in one click.
+6. **GitHub push integration (Complete)** — Authorize GitHub and push generated files directly to a repo in one click. (Done 2026-04-20)
 
 7. **More templates (Complete)** — Expanded library to 9+ frameworks. Added Django 6, Nuxt 3, and Go (Gin) with full boilerplate support. (Done 2026-04-20)
 
-8. **Template versioning** — Next.js 15 vs 16 have different conventions. Templates should be version-aware.
+8. **Template versioning (Complete)** — Handled version-specific breaking changes (e.g. Next.js 16) via engine-level branching. (Done 2026-04-20)
 
-9. **AI Goal Assistant (Complete)** — Context-aware project mapping, tiered model selection, and PayPal donation integration. (Done 2026-04-20)
+9. **AI Goal Assistant (Complete)** — Context-aware project mapping, tiered model selection, and PayPal donation integration with webhook automation. (Done 2026-04-20)
 
-### 🟢 Polish — Makes it feel complete
+### 🟢 Phase 3: Ecosystem & Scale
 
-9. **Syntax-highlighted preview** — Replace raw text `<div>` with proper code viewer (e.g., `shiki` or `react-syntax-highlighter`).
+10. **Syntax-highlighted preview (Complete)** — Replaced raw text blocks with a high-performance Shiki-powered viewer for all generated files. (Done 2026-04-20)
 
-10. **Unit tests for the engine** — Add `vitest` with snapshot tests for each template × IDE combination.
+11. **Unit tests for the engine** — Add vitest with snapshot tests for each template × IDE combination.
 
-11. **"Import from repo" feature** — Scan a GitHub repo's `package.json` / `pyproject.toml` to auto-detect stack config and pre-fill the wizard.
+12. **"Import from repo" feature** — Scan a GitHub repo's package.json / pyproject.toml to auto-detect stack config.
 
-12. **Mobile responsiveness** — Responsive breakpoints for wizard and community pages.
+13. **Mobile responsiveness** — Complete responsive breakpoints for wizard and community pages.
 
-12. **SEO + Open Graph** — Dynamic OG images for shared configs, per-page meta tags, sitemap.
+14. **SEO + Open Graph** — Dynamic OG images for shared configs, per-page meta tags, sitemap.
 
 ## Conventions
 

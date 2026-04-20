@@ -4,10 +4,11 @@ import { PayPalButtons, PayPalScriptProvider } from "@paypal/react-paypal-js";
 import { useState } from "react";
 
 interface DonationButtonProps {
+  userId?: string;
   onSuccess?: (amount: string) => void;
 }
 
-export default function DonationButton({ onSuccess }: DonationButtonProps) {
+export default function DonationButton({ userId, onSuccess }: DonationButtonProps) {
   const [status, setStatus] = useState<'idle' | 'pending' | 'success' | 'error'>('idle');
 
   const clientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
@@ -37,6 +38,7 @@ export default function DonationButton({ onSuccess }: DonationButtonProps) {
               intent: "CAPTURE",
               purchase_units: [
                 {
+                  custom_id: userId,
                   amount: {
                     currency_code: "USD",
                     value: "5.00", // Default "coffee" amount

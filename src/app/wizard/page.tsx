@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
 import { generateAgentFiles } from "@/lib/engine";
 import { PROJECT_TEMPLATES, PROJECT_CATEGORIES } from "@/lib/engine/templates";
 import { IDE_TARGETS } from "@/lib/engine/ide-targets";
@@ -12,6 +13,7 @@ import { saveWizardSession, updateWizardFile } from "@/lib/actions/wizard";
 import Navbar from "@/components/Navbar";
 import AgentEditor from "@/components/AgentEditor";
 import DonationButton from "@/components/wizard/DonationButton";
+import CodeViewer from "@/components/wizard/CodeViewer";
 
 
 
@@ -54,6 +56,15 @@ export default function WizardPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [includeBoilerplate, setIncludeBoilerplate] = useState(true);
+  const [user, setUser] = useState<any>(null);
+  const [isPushing, setIsPushing] = useState(false);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data }) => {
+      setUser(data.user);
+    });
+  }, []);
 
   // Filter templates by category and search
   const filteredTemplates = useMemo(() => {
@@ -307,9 +318,56 @@ export default function WizardPage() {
     setTimeout(() => setToast(null), 2500);
   }, [generatedFiles, projectName]);
 
+  // Push to GitHub
+  const pushToGitHub = useCallback(async () => {
+    if (!projectName || generatedFiles.length === 0) return;
+    setIsPushing(true);
+    setToast("Creating GitHub repository...");
+
+    try {
+      const response = await fetch("/api/github/push", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          repoName: projectName.toLowerCase().replace(/\s+/g, '-'),
+          isPrivate: true,
+          files: generatedFiles
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Failed to push to GitHub");
+
+      setToast("🚀 Project pushed successfully!");
+      setTimeout(() => {
+        if (data.url) window.open(data.url, '_blank');
+      }, 1500);
+    } catch (err: any) {
+      console.error(err);
+      setToast(`❌ Error: ${err.message}`);
+    } finally {
+      setIsPushing(false);
+    }
+  }, [projectName, generatedFiles]);
+
   // Get core and advanced stack options
   const coreOptions = selectedTemplate?.stackOptions.filter((o) => o.section === "core") || [];
   const advancedOptions = selectedTemplate?.stackOptions.filter((o) => o.section === "advanced") || [];
+
+  // Helper to determine language for syntax highlighting
+  const getLanguage = (filename: string) => {
+    const ext = filename.split('.').pop()?.toLowerCase();
+    if (ext === 'md') return 'markdown';
+    if (ext === 'json') return 'json';
+    if (ext === 'ts' || ext === 'tsx') return 'typescript';
+    if (ext === 'js' || ext === 'jsx') return 'javascript';
+    if (ext === 'py') return 'python';
+    if (ext === 'go') return 'go';
+    if (ext === 'css') return 'css';
+    if (ext === 'html') return 'html';
+    if (filename.startsWith('.env')) return 'bash';
+    return 'markdown'; // Default
+  };
 
   return (
     <>
@@ -1025,8 +1083,12 @@ export default function WizardPage() {
                         </button>
                       ))}
                     </div>
-                    <div className="code-preview" style={{ whiteSpace: "pre-wrap", overflowX: "auto" }}>
-                      {generatedFiles[activeFileIndex]?.content}
+                    <div className="code-preview-wrapper" style={{ minHeight: '400px' }}>
+                      <CodeViewer 
+                        code={generatedFiles[activeFileIndex]?.content || ""} 
+                        language={getLanguage(generatedFiles[activeFileIndex]?.filename || "")} 
+                        filename={generatedFiles[activeFileIndex]?.filePath}
+                      />
                     </div>
                     <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.75rem" }}>
                       <button
@@ -1130,6 +1192,14 @@ export default function WizardPage() {
                     <h3>Copy All</h3>
                     <p>Copy all file contents to clipboard with file path headers.</p>
                   </div>
+                  <div
+                    className={`card download-option ${isPushing ? "loading" : ""}`}
+                    onClick={!isPushing ? pushToGitHub : undefined}
+                  >
+                    <span className="download-icon">🚀</span>
+                    <h3>Push to GitHub</h3>
+                    <p>{isPushing ? "Creating repo..." : "Create a new private repository and push all files instantly."}</p>
+                  </div>
                   <div className="card download-option" style={{ opacity: 0.5, cursor: "default" }}>
                     <span className="download-icon">🔗</span>
                     <h3>Share Link</h3>
@@ -1178,6 +1248,7 @@ export default function WizardPage() {
                 {/* Support Initra (Donation) */}
                 <div style={{ maxWidth: '600px', margin: '3rem auto 0' }}>
                   <DonationButton 
+                    userId={user?.id}
                     onSuccess={(amount) => {
                       setToast(`Support detected! $${amount} added to your contribution.`);
                     }} 

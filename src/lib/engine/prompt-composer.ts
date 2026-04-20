@@ -93,6 +93,23 @@ export function extractVariables(
     selectedServices,
   };
 
+  // 1. Version Intelligence Flags
+  // Next.js logic
+  if (templateSlug === 'nextjs') {
+    vars.isNext16 = templateVersion.startsWith('16');
+    vars.isNext15 = templateVersion.startsWith('15');
+    vars.isNext14 = templateVersion.startsWith('14');
+  }
+  // Django logic
+  if (templateSlug === 'django') {
+    vars.isDjango6 = templateVersion.startsWith('6');
+    vars.isDjango5 = templateVersion.startsWith('5');
+  }
+  // Nuxt logic
+  if (templateSlug === 'nuxt') {
+    vars.isNuxt3 = templateVersion.startsWith('3');
+  }
+
   // Copy all stack config values
   for (const [key, value] of Object.entries(stackConfig)) {
     if (!(key in vars)) {
