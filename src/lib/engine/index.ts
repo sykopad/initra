@@ -7,6 +7,7 @@ import { WizardConfig, GenerationResult, GeneratedFile, IDETarget } from './type
 import { extractVariables } from './prompt-composer';
 import { formatForIDE } from './ide-formatter';
 import { getTemplate } from './templates';
+import { getServiceDefinition } from './service-library';
 
 /**
  * Main engine function: generates agent configuration files
@@ -27,7 +28,8 @@ export function generateAgentFiles(config: WizardConfig): GenerationResult {
     config.templateSlug,
     config.projectName,
     config.stackConfig,
-    config.selectedPackages ?? []
+    config.selectedPackages ?? [],
+    config.selectedServices ?? []
   );
 
   // 3. Generate files for each selected IDE
@@ -37,7 +39,13 @@ export function generateAgentFiles(config: WizardConfig): GenerationResult {
     files.push(...ideFiles);
   }
 
-  // 4. Return the complete result
+  // 4. Generate .env.example file
+  const envFile = generateEnvExample(config.selectedServices ?? []);
+  if (envFile) {
+    files.push(envFile);
+  }
+
+  // 5. Return the complete result
   return {
     files,
     templateUsed: template.slug,
@@ -57,4 +65,38 @@ export function generateFileMap(config: WizardConfig): Record<string, string> {
     fileMap[file.filePath] = file.content;
   }
   return fileMap;
+}
+
+/**
+ * Generates a .env.example file content based on selected services
+ */
+function generateEnvExample(selectedServices: string[]): GeneratedFile | null {
+  if (!selectedServices.length) return null;
+
+  let content = '# =============================================\n';
+  content += '# Initra — Generated .env.example\n';
+  content += '# Copy this file to .env.local and fill in your keys\n';
+  content += '# =============================================\n\n';
+
+  for (const slug of selectedServices) {
+    const service = getServiceDefinition(slug);
+    if (!service) continue;
+
+    content += `# ── ${service.name} ─────────────────────────────\n`;
+    content += `# ${service.description}\n`;
+    content += `# Register at: ${service.registrationUrl}\n`;
+    
+    for (const env of service.envVars) {
+      if (env.description) content += `# ${env.description}\n`;
+      content += `${env.key}=${env.placeholder || ''}\n`;
+    }
+    content += '\n';
+  }
+
+  return {
+    ideTarget: 'universal',
+    filename: '.env.example',
+    filePath: '.env.example',
+    content,
+  };
 }

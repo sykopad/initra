@@ -72,7 +72,8 @@ export function extractVariables(
   templateSlug: string,
   projectName: string,
   stackConfig: Record<string, string | boolean>,
-  selectedPackages: string[] = []
+  selectedPackages: string[] = [],
+  selectedServices: string[] = []
 ): TemplateVariables {
   const vars: TemplateVariables = {
     projectName: projectName || 'My Project',
@@ -86,6 +87,7 @@ export function extractVariables(
     stateManagement: String(stackConfig.stateManagement || ''),
     packageManager: String(stackConfig.packageManager || 'npm'),
     selectedPackages,
+    selectedServices,
   };
 
   // Copy all stack config values

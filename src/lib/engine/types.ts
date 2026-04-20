@@ -65,6 +65,25 @@ export interface PackageDefinition {
   knowledge: PackageKnowledge;
 }
 
+/** Environment variable definition */
+export interface EnvVar {
+  key: string;
+  description: string;
+  required: boolean;
+  placeholder?: string;
+}
+
+/** An external API/Service definition */
+export interface ApiService {
+  slug: string;
+  name: string;
+  registrationUrl: string;
+  description: string;
+  envVars: EnvVar[];
+  category: 'llm' | 'auth' | 'database' | 'payments' | 'email' | 'monitoring' | 'analytics' | 'infrastructure' | 'other';
+  icon: string;
+}
+
 /** Package category metadata for UI display */
 export interface PackageCategoryMeta {
   slug: PackageCategory;
@@ -103,6 +122,8 @@ export interface WizardConfig {
   selectedIDEs: IDETarget[];
   /** Package slugs selected in Step 3 (defaults to []) */
   selectedPackages: string[];
+  /** Service slugs selected in Step 4 (defaults to []) */
+  selectedServices: string[];
 }
 
 /** Single generated file output */
@@ -134,6 +155,7 @@ export interface TemplateVariables {
   stateManagement: string;
   packageManager: string;
   selectedPackages: string[];
+  selectedServices: string[];
   [key: string]: string | boolean | string[] | undefined;
 }
 

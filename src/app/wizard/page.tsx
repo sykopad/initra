@@ -6,7 +6,8 @@ import { generateAgentFiles } from "@/lib/engine";
 import { PROJECT_TEMPLATES, PROJECT_CATEGORIES } from "@/lib/engine/templates";
 import { IDE_TARGETS } from "@/lib/engine/ide-targets";
 import { PACKAGE_LIBRARY, PACKAGE_CATEGORIES, getPackagesForTemplate } from "@/lib/engine/package-library";
-import type { WizardConfig, GeneratedFile, IDETarget, ProjectTemplate, StackOption } from "@/lib/engine/types";
+import { SERVICE_LIBRARY, SERVICE_CATEGORIES, getRecommendedServices } from "@/lib/engine/service-library";
+import type { WizardConfig, GeneratedFile, IDETarget, ProjectTemplate, StackOption, ApiService } from "@/lib/engine/types";
 
 
 
@@ -14,9 +15,10 @@ const STEPS = [
   { label: "Project",  number: 1 },
   { label: "Stack",    number: 2 },
   { label: "Packages", number: 3 },
-  { label: "IDE",      number: 4 },
-  { label: "Review",   number: 5 },
-  { label: "Export",   number: 6 },
+  { label: "Services", number: 4 },
+  { label: "IDE",      number: 5 },
+  { label: "Review",   number: 6 },
+  { label: "Export",   number: 7 },
 ];
 
 export default function WizardPage() {
@@ -27,8 +29,11 @@ export default function WizardPage() {
   const [stackConfig, setStackConfig] = useState<Record<string, string | boolean>>({});
   const [selectedIDEs, setSelectedIDEs] = useState<IDETarget[]>([]);
   const [selectedPackages, setSelectedPackages] = useState<string[]>([]);
+  const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [pkgSearch, setPkgSearch] = useState("");
   const [pkgCategory, setPkgCategory] = useState<string | null>(null);
+  const [svcSearch, setSvcSearch] = useState("");
+  const [svcCategory, setSvcCategory] = useState<string | null>(null);
   const [generatedFiles, setGeneratedFiles] = useState<GeneratedFile[]>([]);
   const [activeFileIndex, setActiveFileIndex] = useState(0);
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -73,6 +78,13 @@ export default function WizardPage() {
     );
   }, []);
 
+  // Toggle service selection
+  const toggleService = useCallback((slug: string) => {
+    setSelectedServices((prev) =>
+      prev.includes(slug) ? prev.filter((s) => s !== slug) : [...prev, slug]
+    );
+  }, []);
+
   // Packages filtered by template, category, and search
   const filteredPackages = useMemo(() => {
     if (!selectedTemplate) return [];
@@ -98,6 +110,32 @@ export default function WizardPage() {
     return PACKAGE_CATEGORIES.filter((c) => cats.has(c.slug));
   }, [selectedTemplate]);
 
+  // Services filtered by category and search
+  const filteredServices = useMemo(() => {
+    let svcs = SERVICE_LIBRARY;
+    if (svcCategory) svcs = svcs.filter((s) => s.category === svcCategory);
+    if (svcSearch) {
+      const q = svcSearch.toLowerCase();
+      svcs = svcs.filter(
+        (s) =>
+          s.name.toLowerCase().includes(q) ||
+          s.description.toLowerCase().includes(q) ||
+          s.envVars.some(e => e.key.toLowerCase().includes(q))
+      );
+    }
+    return svcs;
+  }, [svcCategory, svcSearch]);
+
+  // Transition from packages to services with auto-selection
+  const handOffToServices = useCallback(() => {
+    const recommended = getRecommendedServices(selectedPackages, stackConfig);
+    setSelectedServices((prev) => {
+      const next = new Set([...prev, ...recommended]);
+      return Array.from(next);
+    });
+    setStep(4);
+  }, [selectedPackages, stackConfig]);
+
   // Generate files
   const handleGenerate = useCallback(() => {
     if (!selectedTemplate || selectedIDEs.length === 0) return;
@@ -108,13 +146,14 @@ export default function WizardPage() {
       stackConfig,
       selectedIDEs,
       selectedPackages,
+      selectedServices,
     };
 
     const result = generateAgentFiles(config);
     setGeneratedFiles(result.files);
     setActiveFileIndex(0);
-    setStep(5);
-  }, [selectedTemplate, projectName, stackConfig, selectedIDEs, selectedPackages]);
+    setStep(6);
+  }, [selectedTemplate, projectName, stackConfig, selectedIDEs, selectedPackages, selectedServices]);
 
   // Copy file to clipboard
   const copyToClipboard = useCallback(async (content: string) => {
@@ -467,23 +506,144 @@ export default function WizardPage() {
                   <button className="btn btn-ghost" onClick={() => setStep(2)}>
                     ← Back
                   </button>
-                  <button className="btn btn-ghost" onClick={() => setStep(4)}>
+                  <button className="btn btn-ghost" onClick={handOffToServices}>
                     Skip →
                   </button>
                   <button
                     className="btn btn-primary"
-                    onClick={() => setStep(4)}
+                    onClick={handOffToServices}
                   >
                     {selectedPackages.length > 0
                       ? `Continue with ${selectedPackages.length} package${selectedPackages.length > 1 ? "s" : ""} →`
-                      : "Choose IDE →"}
+                      : "Choose Services →"}
                   </button>
                 </div>
               </>
             )}
 
-            {/* ── Step 4: Select IDE & Agent ───────────── */}
+            {/* ── Step 4: APIs & Services ────────────────── */}
             {step === 4 && (
+              <>
+                <h2 className="wizard-step-title">APIs &amp; External Services</h2>
+                <p className="wizard-step-subtitle">
+                  We&apos;ll prepare your <code>.env.example</code> with the right keys and registration links.
+                </p>
+
+                {/* Selected service tags */}
+                {selectedServices.length > 0 && (
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginBottom: "1.5rem", justifyContent: "center" }}>
+                    {selectedServices.map((slug) => {
+                      const svc = SERVICE_LIBRARY.find((s) => s.slug === slug);
+                      if (!svc) return null;
+                      return (
+                        <span
+                          key={slug}
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "0.35rem",
+                            background: "rgba(16,185,129,0.1)",
+                            border: "1px solid var(--success)",
+                            borderRadius: "999px",
+                            padding: "0.25rem 0.75rem",
+                            fontSize: "var(--text-sm)",
+                            color: "var(--success)",
+                          }}
+                        >
+                          {svc.icon} {svc.name}
+                          <button
+                            onClick={() => toggleService(slug)}
+                            style={{ background: "none", border: "none", cursor: "pointer", padding: 0, color: "inherit", lineHeight: 1, fontSize: "1rem" }}
+                          >
+                            ×
+                          </button>
+                        </span>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Category filter tabs */}
+                <div className="filter-tabs" style={{ justifyContent: "center", marginBottom: "1rem", flexWrap: "wrap" }}>
+                  <button
+                    className={`filter-tab ${!svcCategory ? "active" : ""}`}
+                    onClick={() => setSvcCategory(null)}
+                  >
+                    All
+                  </button>
+                  {SERVICE_CATEGORIES.map((cat) => (
+                    <button
+                      key={cat.slug}
+                      className={`filter-tab ${svcCategory === cat.slug ? "active" : ""}`}
+                      onClick={() => setSvcCategory(cat.slug)}
+                    >
+                      {cat.icon} {cat.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Search */}
+                <div className="search-input-wrapper" style={{ marginBottom: "1.5rem" }}>
+                  <span className="search-icon">🔍</span>
+                  <input
+                    type="text"
+                    className="search-input"
+                    placeholder="Search services or env vars (e.g. STRIPE_...)"
+                    value={svcSearch}
+                    onChange={(e) => setSvcSearch(e.target.value)}
+                  />
+                </div>
+
+                {/* Service grid */}
+                <div className="project-type-grid" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
+                  {filteredServices.map((svc) => {
+                    const isSelected = selectedServices.includes(svc.slug);
+                    const isRecommended = getRecommendedServices(selectedPackages, stackConfig).includes(svc.slug);
+                    
+                    return (
+                      <div
+                        key={svc.slug}
+                        className={`project-type-card ${isSelected ? "selected" : ""}`}
+                        onClick={() => toggleService(svc.slug)}
+                        style={{ textAlign: "left", gap: "0.5rem", position: "relative" }}
+                      >
+                        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.25rem" }}>
+                          <span style={{ fontSize: "1.5rem" }}>{svc.icon}</span>
+                          <span style={{ fontWeight: 700, fontSize: "var(--text-sm)" }}>{svc.name}</span>
+                          {isRecommended && (
+                            <span style={{ fontSize: "0.6rem", background: "var(--primary)", color: "white", padding: "1px 4px", borderRadius: "3px" }}>RECOMMENDED</span>
+                          )}
+                        </div>
+                        <p style={{ fontSize: "var(--text-xs)", color: "var(--text-secondary)", margin: 0, lineHeight: 1.4 }}>
+                          {svc.description}
+                        </p>
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: "3px", marginTop: "0.5rem" }}>
+                          {svc.envVars.slice(0, 2).map(e => (
+                             <code key={e.key} style={{ fontSize: "0.55rem", opacity: 0.7 }}>{e.key}</code>
+                          ))}
+                          {svc.envVars.length > 2 && <span style={{ fontSize: "0.55rem", opacity: 0.5 }}>+{svc.envVars.length - 2} more</span>}
+                        </div>
+                        {isSelected && (
+                          <div className="checkmark" style={{ background: "var(--success)" }}>✓</div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div className="wizard-nav">
+                  <button className="btn btn-ghost" onClick={() => setStep(3)}>
+                    ← Back
+                  </button>
+                  <button className="btn btn-primary" onClick={() => setStep(5)}>
+                    Continue to IDE Selection →
+                  </button>
+                </div>
+              </>
+            )}
+
+            {/* ── Step 5: Select IDE & Agent ───────────── */}
+            {step === 5 && (
               <>
                 <h2 className="wizard-step-title">Which IDE(s) do you use?</h2>
                 <p className="wizard-step-subtitle">
@@ -510,7 +670,7 @@ export default function WizardPage() {
                 </div>
 
                 <div className="wizard-nav">
-                  <button className="btn btn-ghost" onClick={() => setStep(3)}>
+                  <button className="btn btn-ghost" onClick={() => setStep(4)}>
                     ← Back
                   </button>
                   <button
@@ -525,8 +685,8 @@ export default function WizardPage() {
               </>
             )}
 
-            {/* ── Step 5: Review & Generate ─────────────── */}
-            {step === 5 && generatedFiles.length > 0 && (
+            {/* ── Step 6: Review & Generate ─────────────── */}
+            {step === 6 && generatedFiles.length > 0 && (
               <>
                 <h2 className="wizard-step-title">Your Agent Files</h2>
                 <p className="wizard-step-subtitle">
@@ -543,11 +703,11 @@ export default function WizardPage() {
                           className={`file-tab ${activeFileIndex === idx ? "active" : ""}`}
                           onClick={() => setActiveFileIndex(idx)}
                         >
-                          📄 {file.filename}
+                          {file.filename === '.env.example' ? '🔑' : '📄'} {file.filename}
                         </button>
                       ))}
                     </div>
-                    <div className="code-preview">
+                    <div className="code-preview" style={{ whiteSpace: "pre-wrap", overflowX: "auto" }}>
                       {generatedFiles[activeFileIndex]?.content}
                     </div>
                     <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.75rem" }}>
@@ -575,51 +735,63 @@ export default function WizardPage() {
                         <span className="label">Project</span>
                         <span className="value">{projectName || "My Project"}</span>
                       </div>
-                      {Object.entries(stackConfig)
-                        .filter(([, v]) => v && v !== "none")
-                        .slice(0, 6)
-                        .map(([key, value]) => (
-                          <div className="review-item" key={key}>
-                            <span className="label">{key}</span>
-                            <span className="value">{String(value)}</span>
-                          </div>
-                        ))}
                       <div className="review-item">
-                        <span className="label">IDEs</span>
-                        <span className="value">{selectedIDEs.length}</span>
+                        <span className="label">Stack</span>
+                        <span className="value">{Object.keys(stackConfig).length} choices</span>
+                      </div>
+                      <div className="review-item">
+                        <span className="label">Packages</span>
+                        <span className="value">{selectedPackages.length} selected</span>
+                      </div>
+                      <div className="review-item">
+                        <span className="label">Services</span>
+                        <span className="value" style={{ color: "var(--success)" }}>{selectedServices.length} selected</span>
                       </div>
                       <div className="review-item">
                         <span className="label">Files</span>
-                        <span className="value">{generatedFiles.length}</span>
+                        <span className="value">{generatedFiles.length} generated</span>
                       </div>
+
+                      {selectedServices.length > 0 && (
+                        <div style={{ marginTop: "1rem", paddingTop: "1rem", borderTop: "1px solid rgba(255,255,255,0.1)" }}>
+                           <h4 style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginBottom: "0.5rem", textTransform: "uppercase" }}>Env Vars Required</h4>
+                           <div style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
+                              {selectedServices.flatMap(s => 
+                                SERVICE_LIBRARY.find(sl => sl.slug === s)?.envVars.map(e => (
+                                   <code key={e.key} style={{ fontSize: "0.6rem", background: "rgba(255,255,255,0.05)", padding: "2px 4px", borderRadius: "3px" }}>{e.key}</code>
+                                )) || []
+                              )}
+                           </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
 
                 <div className="wizard-nav">
-                  <button className="btn btn-ghost" onClick={() => setStep(4)}>
+                  <button className="btn btn-ghost" onClick={() => setStep(5)}>
                     ← Back
                   </button>
-                  <button className="btn btn-primary" onClick={() => setStep(6)}>
+                  <button className="btn btn-primary" onClick={() => setStep(7)}>
                     📦 Export Files →
                   </button>
                 </div>
               </>
             )}
 
-            {/* ── Step 6: Download & Setup ─────────────── */}
-            {step === 6 && (
+            {/* ── Step 7: Export & Setup ─────────────── */}
+            {step === 7 && (
               <>
                 <h2 className="wizard-step-title">Export Your Files</h2>
                 <p className="wizard-step-subtitle">
-                  Download your agent configuration files and start building!
+                  Download your agent configuration and <code>.env.example</code> setup.
                 </p>
 
                 <div className="download-grid">
                   <div className="card download-option" onClick={downloadZip}>
                     <span className="download-icon">📁</span>
                     <h3>Download ZIP</h3>
-                    <p>All files in the correct directory structure, ready to extract into your project.</p>
+                    <p>All files in the correct directory structure, including <code>.env.example</code>.</p>
                   </div>
                   <div
                     className="card download-option"
@@ -680,7 +852,7 @@ export default function WizardPage() {
                 </div>
 
                 <div className="wizard-nav">
-                  <button className="btn btn-ghost" onClick={() => setStep(4)}>
+                  <button className="btn btn-ghost" onClick={() => setStep(6)}>
                     ← Back to Review
                   </button>
                   <Link href="/community" className="btn btn-primary">

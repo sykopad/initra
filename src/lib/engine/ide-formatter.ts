@@ -8,6 +8,7 @@ import { IDETarget, GeneratedFile, TemplateVariables } from './types';
 import { compose } from './prompt-composer';
 import { getFrameworkKnowledge } from './framework-knowledge';
 import { getPackageDefinition } from './package-library';
+import { getServiceDefinition } from './service-library';
 
 /**
  * Format the generated content for a specific IDE target.
@@ -100,6 +101,44 @@ function injectPackageKnowledge(content: string, vars: TemplateVariables): strin
   return content + `\n\n## Packages\n\n${sections.join('\n\n---\n\n')}`;
 }
 
+/**
+ * Injects information about required APIs and Services
+ */
+function injectServiceKnowledge(content: string, vars: TemplateVariables): string {
+  const selectedServices = vars.selectedServices as string[];
+  if (!selectedServices || selectedServices.length === 0) return content;
+
+  let serviceSections: string[] = [];
+
+  for (const slug of selectedServices) {
+    const service = getServiceDefinition(slug);
+    if (!service) continue;
+
+    let section = `### ${service.icon} ${service.name}`;
+    section += `\n- **Purpose**: ${service.description}`;
+    section += `\n- **Registration**: [${service.name} Console](${service.registrationUrl})`;
+    section += '\n- **Required Environment Variables**:';
+    
+    for (const env of service.envVars) {
+      section += `\n  - \`${env.key}\`: ${env.description}${env.required ? ' (Required)' : ' (Optional)'}`;
+    }
+    serviceSections.push(section);
+  }
+
+  if (!serviceSections.length) return content;
+
+  let serviceContent = '\n\n## APIs & Services\n\n';
+  serviceContent += 'This project requires the following external services and API keys:\n\n';
+  serviceContent += serviceSections.join('\n\n---\n\n');
+  serviceContent += '\n\n### Setup Instructions\n';
+  serviceContent += '1. Register for the services above and obtain your API keys.\n';
+  serviceContent += '2. Create a `.env.local` file in the root of your project if it doesn\'t exist.\n';
+  serviceContent += '3. Copy the keys from your `.env.example` file and populate them with your actual secrets.\n';
+  serviceContent += '4. **NEVER** commit `.env.local` or any file containing actual secrets to version control.\n';
+
+  return content + serviceContent;
+}
+
 // ── Claude Code ─────────────────────────────────
 
 function formatClaudeCode(vars: TemplateVariables, _base: string): GeneratedFile[] {
@@ -163,6 +202,7 @@ function formatClaudeCode(vars: TemplateVariables, _base: string): GeneratedFile
 
   // Inject selected package knowledge
   content = injectPackageKnowledge(content, vars);
+  content = injectServiceKnowledge(content, vars);
 
   // Always include guardrails
   content += `\n\n## Guardrails
@@ -240,6 +280,7 @@ alwaysApply: true
 
   // Inject selected package knowledge into the context file
   contextContent = injectPackageKnowledge(contextContent, vars);
+  contextContent = injectServiceKnowledge(contextContent, vars);
 
   contextContent += `\n\n## Boundaries
 - Never modify migration files without asking.
@@ -358,6 +399,7 @@ This is a {{framework}} project using {{languageLabel}}.
   }
 
   content = injectPackageKnowledge(content, vars);
+  content = injectServiceKnowledge(content, vars);
 
   content += `\n\n## Guardrails
 - Do not modify migration files without explicit confirmation
@@ -431,6 +473,7 @@ Write clean, production-ready code following established project patterns.
   }
 
   content = injectPackageKnowledge(content, vars);
+  content = injectServiceKnowledge(content, vars);
 
   content += `\n\n## Boundaries
 - Never modify migration files without asking
@@ -496,6 +539,7 @@ This is a {{framework}} application using {{languageLabel}}.
   }
 
   content = injectPackageKnowledge(content, vars);
+  content = injectServiceKnowledge(content, vars);
 
   content += `\n\n## Do Not
 - Modify migration files without confirmation
@@ -579,6 +623,7 @@ function formatUniversal(vars: TemplateVariables, _base: string): GeneratedFile[
   }
 
   content = injectPackageKnowledge(content, vars);
+  content = injectServiceKnowledge(content, vars);
 
   content += `\n\n## Guardrails
 - ❌ Never modify migration files without asking
