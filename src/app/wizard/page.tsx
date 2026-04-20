@@ -25,6 +25,7 @@ export default function WizardPage() {
   const [step, setStep] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedTemplate, setSelectedTemplate] = useState<ProjectTemplate | null>(null);
+  const [templateVersion, setTemplateVersion] = useState("");
   const [projectName, setProjectName] = useState("");
   const [stackConfig, setStackConfig] = useState<Record<string, string | boolean>>({});
   const [selectedIDEs, setSelectedIDEs] = useState<IDETarget[]>([]);
@@ -60,7 +61,12 @@ export default function WizardPage() {
   // Initialize stack config with defaults when template is selected
   const selectTemplate = useCallback((template: ProjectTemplate) => {
     setSelectedTemplate(template);
-    setStackConfig({ ...template.defaultStack });
+    const defaultVersion = template.availableVersions[0]?.id || "";
+    setTemplateVersion(defaultVersion);
+    setStackConfig({ 
+      ...template.defaultStack,
+      version: defaultVersion 
+    });
     setStep(2);
   }, []);
 
@@ -88,7 +94,18 @@ export default function WizardPage() {
   // Packages filtered by template, category, and search
   const filteredPackages = useMemo(() => {
     if (!selectedTemplate) return [];
-    let pkgs = getPackagesForTemplate(selectedTemplate.slug);
+    
+    let pkgs = PACKAGE_LIBRARY.filter(p => {
+      // 1. Language check
+      if (p.language !== selectedTemplate.language) return false;
+      
+      // 2. Explicit compatibility check
+      const isExplicitlyCompatible = p.compatibleTemplates.includes(selectedTemplate.slug);
+      const isExplicitlyExcluded = p.excludedTemplates?.includes(selectedTemplate.slug);
+      
+      return isExplicitlyCompatible && !isExplicitlyExcluded;
+    });
+
     if (pkgCategory) pkgs = pkgs.filter((p) => p.category === pkgCategory);
     if (pkgSearch) {
       const q = pkgSearch.toLowerCase();
@@ -105,14 +122,30 @@ export default function WizardPage() {
   // Categories that have packages for this template
   const availableCategories = useMemo(() => {
     if (!selectedTemplate) return [];
-    const pkgs = getPackagesForTemplate(selectedTemplate.slug);
+    const pkgs = PACKAGE_LIBRARY.filter(p => 
+      p.language === selectedTemplate.language && 
+      p.compatibleTemplates.includes(selectedTemplate.slug)
+    );
     const cats = new Set(pkgs.map((p) => p.category));
     return PACKAGE_CATEGORIES.filter((c) => cats.has(c.slug));
   }, [selectedTemplate]);
 
   // Services filtered by category and search
   const filteredServices = useMemo(() => {
-    let svcs = SERVICE_LIBRARY;
+    if (!selectedTemplate) return SERVICE_LIBRARY;
+
+    let svcs = SERVICE_LIBRARY.filter(s => {
+      if (!s.compatibility) return true;
+      
+      const { languages, frameworks, exclude } = s.compatibility;
+      
+      if (languages && !languages.includes(selectedTemplate.language)) return false;
+      if (frameworks && !frameworks.includes(selectedTemplate.slug)) return false;
+      if (exclude && exclude.includes(selectedTemplate.slug)) return false;
+      
+      return true;
+    });
+
     if (svcCategory) svcs = svcs.filter((s) => s.category === svcCategory);
     if (svcSearch) {
       const q = svcSearch.toLowerCase();
@@ -124,7 +157,7 @@ export default function WizardPage() {
       );
     }
     return svcs;
-  }, [svcCategory, svcSearch]);
+  }, [selectedTemplate, svcCategory, svcSearch]);
 
   // Transition from packages to services with auto-selection
   const handOffToServices = useCallback(() => {
@@ -142,6 +175,7 @@ export default function WizardPage() {
 
     const config: WizardConfig = {
       templateSlug: selectedTemplate.slug,
+      templateVersion: String(stackConfig.version || templateVersion),
       projectName: projectName || "My Project",
       stackConfig,
       selectedIDEs,

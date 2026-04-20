@@ -26,6 +26,7 @@ export function generateAgentFiles(config: WizardConfig): GenerationResult {
   // 2. Extract and map variables from wizard config
   const variables = extractVariables(
     config.templateSlug,
+    config.templateVersion,
     config.projectName,
     config.stackConfig,
     config.selectedPackages ?? [],

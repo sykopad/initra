@@ -13,8 +13,14 @@ export const PROJECT_TEMPLATES: ProjectTemplate[] = [
     category: 'web-app',
     icon: '▲',
     description: 'Full-stack React framework with SSR, API routes, and App Router',
+    language: 'typescript',
+    availableVersions: [
+      { id: '16.2.4', label: 'Next.js 16 (Latest)', status: 'stable', major: 16 },
+      { id: '15.0.0', label: 'Next.js 15', status: 'stable', major: 15 },
+      { id: '14.0.0', label: 'Next.js 14', status: 'legacy', major: 14 }
+    ],
     defaultStack: {
-      version: '15',
+      version: '16.2.4',
       language: 'typescript',
       styling: 'tailwind',
       database: 'supabase',
@@ -30,11 +36,11 @@ export const PROJECT_TEMPLATES: ProjectTemplate[] = [
         fieldLabel: 'Next.js Version',
         fieldType: 'select',
         options: [
-          { value: '15', label: 'Next.js 15 (Latest)' },
-          { value: '14', label: 'Next.js 14' },
-          { value: '13', label: 'Next.js 13' },
+          { value: '16.2.4', label: 'Next.js 16 (Latest)' },
+          { value: '15.0.0', label: 'Next.js 15' },
+          { value: '14.0.0', label: 'Next.js 14' },
         ],
-        defaultValue: '15',
+        defaultValue: '16.2.4',
         isRequired: true,
         section: 'core',
       },
@@ -163,6 +169,10 @@ export const PROJECT_TEMPLATES: ProjectTemplate[] = [
     category: 'mobile-app',
     icon: '📱',
     description: 'Cross-platform mobile apps with React Native and Expo',
+    language: 'typescript',
+    availableVersions: [
+      { id: '0.85.1', label: 'v0.85 (Stable)', status: 'stable', major: 0 }
+    ],
     defaultStack: {
       framework: 'expo',
       language: 'typescript',
@@ -273,6 +283,10 @@ export const PROJECT_TEMPLATES: ProjectTemplate[] = [
     category: 'api-backend',
     icon: '⚡',
     description: 'Modern Python API framework with automatic OpenAPI docs',
+    language: 'python',
+    availableVersions: [
+      { id: '0.136.0', label: 'v0.136 (Stable)', status: 'stable', major: 0 }
+    ],
     defaultStack: {
       language: 'python',
       database: 'postgresql',
@@ -362,6 +376,10 @@ export const PROJECT_TEMPLATES: ProjectTemplate[] = [
     category: 'mobile-app',
     icon: '🦋',
     description: 'Google\'s UI toolkit for cross-platform native apps',
+    language: 'dart',
+    availableVersions: [
+      { id: '3.41', label: 'v3.41 (Stable)', status: 'stable', major: 3 }
+    ],
     defaultStack: {
       language: 'dart',
       stateManagement: 'riverpod',
@@ -434,6 +452,11 @@ export const PROJECT_TEMPLATES: ProjectTemplate[] = [
     category: 'api-backend',
     icon: '🚀',
     description: 'Minimal Node.js web framework for APIs and web services',
+    language: 'typescript',
+    availableVersions: [
+      { id: '5.0.0', label: 'v5.0 (Alpha)', status: 'canary', major: 5 },
+      { id: '4.21.2', label: 'v4.21 (Stable)', status: 'stable', major: 4 }
+    ],
     defaultStack: {
       language: 'typescript',
       database: 'postgresql',
@@ -537,6 +560,10 @@ export const PROJECT_TEMPLATES: ProjectTemplate[] = [
     category: 'ai-ml',
     icon: '🧠',
     description: 'Machine learning project with Python, standard ML/DL frameworks',
+    language: 'python',
+    availableVersions: [
+      { id: '1.0.0', label: 'Custom', status: 'stable', major: 1 }
+    ],
     defaultStack: {
       framework: 'pytorch',
       environment: 'conda',
@@ -628,6 +655,88 @@ export const PROJECT_TEMPLATES: ProjectTemplate[] = [
         isRequired: false,
         section: 'advanced',
       },
+    ],
+  },
+
+  // ── Nuxt 4 ──────────────────────────────────
+  {
+    slug: 'nuxt',
+    name: 'Nuxt 4',
+    category: 'web-app',
+    icon: '💚',
+    description: 'The Intuitive Vue Framework for full-stack apps',
+    language: 'typescript',
+    availableVersions: [
+      { id: '4.4.2', label: 'Nuxt 4 (Latest)', status: 'stable', major: 4 },
+      { id: '3.15.0', label: 'Nuxt 3', status: 'stable', major: 3 }
+    ],
+    defaultStack: {
+      version: '4.4.2',
+      language: 'typescript',
+      styling: 'tailwind',
+      database: 'supabase',
+      packageManager: 'npm',
+    },
+    stackOptions: [
+      {
+        fieldName: 'version',
+        fieldLabel: 'Nuxt Version',
+        fieldType: 'select',
+        options: [
+          { value: '4.4.2', label: 'Nuxt 4 (Latest)' },
+          { value: '3.15.0', label: 'Nuxt 3' },
+        ],
+        defaultValue: '4.4.2',
+        isRequired: true,
+        section: 'core',
+      }
+    ],
+  },
+
+  // ── Django 6 ────────────────────────────────
+  {
+    slug: 'django',
+    name: 'Django 6',
+    category: 'api-backend',
+    icon: '🎸',
+    description: 'The high-level Python web framework',
+    language: 'python',
+    availableVersions: [
+      { id: '6.0.4', label: 'Django 6 (Latest)', status: 'stable', major: 6 },
+      { id: '5.1.0', label: 'Django 5.1', status: 'stable', major: 5 }
+    ],
+    defaultStack: {
+      version: '6.0.4',
+      database: 'postgresql',
+      auth: 'session',
+      testing: 'pytest',
+    },
+    stackOptions: [
+       {
+        fieldName: 'version',
+        fieldLabel: 'Django Version',
+        fieldType: 'select',
+        options: [
+          { value: '6.0.4', label: 'Django 6 (Latest)' },
+          { value: '5.1.0', label: 'Django 5.1' },
+        ],
+        defaultValue: '6.0.4',
+        isRequired: true,
+        section: 'core',
+      },
+      {
+        fieldName: 'database',
+        fieldLabel: 'Database',
+        fieldType: 'select',
+        options: [
+          { value: 'postgresql', label: 'PostgreSQL' },
+          { value: 'sqlite', label: 'SQLite' },
+          { value: 'none', label: 'None' },
+        ],
+        defaultValue: 'postgresql',
+        isRequired: false,
+        section: 'core',
+      }
     ],
   },
 ];

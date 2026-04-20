@@ -54,6 +54,8 @@ export interface PackageDefinition {
   category: PackageCategory;
   icon: string;
   description: string;
+  /** Language this package belongs to (e.g. 'typescript', 'python', 'go') */
+  language: string;
   /** npm package name for display badge */
   npmPackage?: string;
   /** PyPI package name for display badge */
@@ -62,7 +64,11 @@ export interface PackageDefinition {
   pubPackage?: string;
   /** Which template slugs this package is compatible with */
   compatibleTemplates: string[];
+  /** Optional: templates explicitly excluded */
+  excludedTemplates?: string[];
   knowledge: PackageKnowledge;
+  /** Official documentation or setup guides */
+  documentationUrls?: string[];
 }
 
 /** Environment variable definition */
@@ -82,6 +88,14 @@ export interface ApiService {
   envVars: EnvVar[];
   category: 'llm' | 'auth' | 'database' | 'payments' | 'email' | 'monitoring' | 'analytics' | 'infrastructure' | 'other';
   icon: string;
+  /** Official documentation for the API */
+  documentationUrl?: string;
+  /** Compatibility guards */
+  compatibility?: {
+    languages?: string[];
+    frameworks?: string[];
+    exclude?: string[];
+  };
 }
 
 /** Package category metadata for UI display */
@@ -91,6 +105,14 @@ export interface PackageCategoryMeta {
   icon: string;
 }
 
+/** Precise framework versioning */
+export interface FrameworkVersion {
+  id: string;
+  label: string;
+  status: 'stable' | 'legacy' | 'canary';
+  major: number;
+}
+
 /** Project template definition */
 export interface ProjectTemplate {
   slug: string;
@@ -98,6 +120,9 @@ export interface ProjectTemplate {
   category: ProjectCategory;
   icon: string;
   description: string;
+  /** Primary language: 'typescript', 'python', 'dart', 'go', 'rust', 'java' */
+  language: string;
+  availableVersions: FrameworkVersion[];
   defaultStack: Record<string, string>;
   stackOptions: StackOption[];
 }
@@ -117,12 +142,11 @@ export interface StackOption {
 /** User's selections from the wizard */
 export interface WizardConfig {
   templateSlug: string;
+  templateVersion: string;
   projectName: string;
   stackConfig: Record<string, string | boolean>;
   selectedIDEs: IDETarget[];
-  /** Package slugs selected in Step 3 (defaults to []) */
   selectedPackages: string[];
-  /** Service slugs selected in Step 4 (defaults to []) */
   selectedServices: string[];
 }
 

@@ -6,7 +6,7 @@
 
 import { IDETarget, GeneratedFile, TemplateVariables } from './types';
 import { compose } from './prompt-composer';
-import { getFrameworkKnowledge } from './framework-knowledge';
+import { getVersionKnowledge } from './framework-knowledge';
 import { getPackageDefinition } from './package-library';
 import { getServiceDefinition } from './service-library';
 
@@ -40,19 +40,63 @@ export function formatForIDE(
 // ── Knowledge Injection Helpers ─────────────────
 
 function getKnowledgeBlocks(vars: TemplateVariables) {
-  const slug = String(vars.framework || '');
-  const knowledge = getFrameworkKnowledge(slug);
+  const templateSlug = String(vars.templateSlug || '');
+  const versionId = String(vars.templateVersion || '');
+  
+  const knowledge = getVersionKnowledge(templateSlug, versionId);
   if (!knowledge) return null;
 
-  const stackRules = knowledge.getStackSpecificRules?.(vars) || '';
-
   return {
-    fileStructure: knowledge.fileStructure,
     antiPatterns: knowledge.antiPatterns,
-    codePatterns: knowledge.codePatterns,
     conventions: knowledge.conventions,
-    stackRules,
+    documentationUrls: knowledge.documentationUrls,
+    recommendedPatterns: knowledge.recommendedPatterns,
   };
+}
+
+/**
+ * Injects a list of documentation links for frameworks, packages, and services.
+ */
+function injectDocs(content: string, vars: TemplateVariables): string {
+  const links: { name: string; url: string }[] = [];
+  
+  // Framework Docs
+  const fwKnowledge = getVersionKnowledge(String(vars.templateSlug), String(vars.templateVersion));
+  if (fwKnowledge) {
+    fwKnowledge.documentationUrls.forEach(url => {
+      links.push({ name: `${vars.framework} ${vars.templateVersion} Docs`, url });
+    });
+  }
+
+  // Package Docs
+  const pkgSlugs = vars.selectedPackages as string[] ?? [];
+  pkgSlugs.forEach(slug => {
+    const pkg = getPackageDefinition(slug);
+    if (pkg?.documentationUrls) {
+      pkg.documentationUrls.forEach(url => {
+        links.push({ name: `${pkg.name} Docs`, url });
+      });
+    }
+  });
+
+  // Service Docs
+  const svcSlugs = vars.selectedServices as string[] ?? [];
+  svcSlugs.forEach(slug => {
+    const svc = getServiceDefinition(slug);
+    if (svc?.documentationUrl) {
+      links.push({ name: `${svc.name} API Reference`, url: svc.documentationUrl });
+    }
+  });
+
+  if (links.length === 0) return content;
+
+  let docsSection = `\n\n## Reference Documentation\n\n`;
+  docsSection += `Always refer to these links for the most current information and best practices:\n\n`;
+  links.forEach(link => {
+    docsSection += `- [${link.name}](${link.url})\n`;
+  });
+
+  return content + docsSection;
 }
 
 /**
@@ -185,24 +229,22 @@ function formatClaudeCode(vars: TemplateVariables, _base: string): GeneratedFile
 
   // Inject framework-specific knowledge
   if (kb) {
-    content += `\n\n## Project Structure\n\n${kb.fileStructure}`;
-
     content += `\n\n## Anti-Patterns — DO NOT\n\n`;
     content += kb.antiPatterns.map(ap => `- ${ap}`).join('\n');
 
     content += `\n\n## Conventions\n\n`;
     content += kb.conventions.map((c, i) => `${i + 1}. ${c}`).join('\n');
 
-    content += `\n\n## Code Patterns\n\n${kb.codePatterns}`;
-
-    if (kb.stackRules) {
-      content += `\n\n## Stack-Specific Rules\n\n${kb.stackRules}`;
+    if (kb.recommendedPatterns.length > 0) {
+      content += `\n\n## Recommended Patterns\n\n`;
+      content += kb.recommendedPatterns.map(p => `### ${p.title}\n${p.description}${p.code ? `\n\`\`\`${vars.language}\n${p.code}\n\`\`\`` : ''}`).join('\n\n');
     }
   }
 
   // Inject selected package knowledge
   content = injectPackageKnowledge(content, vars);
   content = injectServiceKnowledge(content, vars);
+  content = injectDocs(content, vars);
 
   // Always include guardrails
   content += `\n\n## Guardrails
@@ -271,10 +313,15 @@ alwaysApply: true
   let contextContent = compose(contextTemplate, vars);
 
   if (kb) {
-    contextContent += `\n\n## Project Structure\n\n${kb.fileStructure}`;
+    contextContent += `\n\n## Anti-Patterns — NEVER Do This\n\n`;
+    contextContent += kb.antiPatterns.map(ap => `- ${ap}`).join('\n');
 
-    if (kb.stackRules) {
-      contextContent += `\n\n${kb.stackRules}`;
+    contextContent += `\n\n## Conventions\n\n`;
+    contextContent += kb.conventions.map((c, i) => `${i + 1}. ${c}`).join('\n');
+
+    if (kb.recommendedPatterns.length > 0) {
+      contextContent += `\n\n## Preferred Patterns\n\n`;
+      contextContent += kb.recommendedPatterns.map(p => `### ${p.title}\n${p.description}${p.code ? `\n\`\`\`${vars.language}\n${p.code}\n\`\`\`` : ''}`).join('\n\n');
     }
   }
 
@@ -301,8 +348,6 @@ alwaysApply: true
 
     codingContent += `\n\n## Conventions\n\n`;
     codingContent += kb.conventions.map((c, i) => `${i + 1}. ${c}`).join('\n');
-
-    codingContent += `\n\n## Preferred Patterns\n\n${kb.codePatterns}`;
   } else {
     codingContent += `\n\n## Style Rules
 {{#if language}}
@@ -383,18 +428,15 @@ This is a {{framework}} project using {{languageLabel}}.
   let content = compose(template, vars);
 
   if (kb) {
-    content += `\n\n## Project Structure\n\n${kb.fileStructure}`;
-
-    content += `\n\n## Do NOT — Anti-Patterns\n\n`;
+    content += `\n\n## Anti-Patterns — DO NOT\n\n`;
     content += kb.antiPatterns.map(ap => `- ${ap}`).join('\n');
 
     content += `\n\n## Conventions\n\n`;
     content += kb.conventions.map((c, i) => `${i + 1}. ${c}`).join('\n');
 
-    content += `\n\n## Code Patterns\n\n${kb.codePatterns}`;
-
-    if (kb.stackRules) {
-      content += `\n\n${kb.stackRules}`;
+    if (kb.recommendedPatterns.length > 0) {
+      content += `\n\n## Recommended Patterns\n\n`;
+      content += kb.recommendedPatterns.map(p => `### ${p.title}\n${p.description}${p.code ? `\n\`\`\`${vars.language}\n${p.code}\n\`\`\`` : ''}`).join('\n\n');
     }
   }
 
@@ -457,18 +499,15 @@ Write clean, production-ready code following established project patterns.
   let content = compose(template, vars);
 
   if (kb) {
-    content += `\n\n## Project Structure\n\n${kb.fileStructure}`;
-
     content += `\n\n## Anti-Patterns — AVOID\n\n`;
     content += kb.antiPatterns.map(ap => `- ${ap}`).join('\n');
 
     content += `\n\n## Conventions\n\n`;
     content += kb.conventions.map((c, i) => `${i + 1}. ${c}`).join('\n');
 
-    content += `\n\n## Code Patterns\n\n${kb.codePatterns}`;
-
-    if (kb.stackRules) {
-      content += `\n\n${kb.stackRules}`;
+    if (kb.recommendedPatterns.length > 0) {
+      content += `\n\n## Recommended Patterns\n\n`;
+      content += kb.recommendedPatterns.map(p => `### ${p.title}\n${p.description}${p.code ? `\n\`\`\`${vars.language}\n${p.code}\n\`\`\`` : ''}`).join('\n\n');
     }
   }
 
@@ -523,18 +562,15 @@ This is a {{framework}} application using {{languageLabel}}.
   let content = compose(template, vars);
 
   if (kb) {
-    content += `\n\n## Project Structure\n\n${kb.fileStructure}`;
-
     content += `\n\n## Anti-Patterns\n\n`;
     content += kb.antiPatterns.map(ap => `- ${ap}`).join('\n');
 
     content += `\n\n## Conventions\n\n`;
     content += kb.conventions.map((c, i) => `${i + 1}. ${c}`).join('\n');
 
-    content += `\n\n## Code Patterns\n\n${kb.codePatterns}`;
-
-    if (kb.stackRules) {
-      content += `\n\n${kb.stackRules}`;
+    if (kb.recommendedPatterns.length > 0) {
+      content += `\n\n## Recommended Patterns\n\n`;
+      content += kb.recommendedPatterns.map(p => `### ${p.title}\n${p.description}${p.code ? `\n\`\`\`${vars.language}\n${p.code}\n\`\`\`` : ''}`).join('\n\n');
     }
   }
 
@@ -607,18 +643,15 @@ function formatUniversal(vars: TemplateVariables, _base: string): GeneratedFile[
   let content = compose(template, vars);
 
   if (kb) {
-    content += `\n\n## Project Structure\n\n${kb.fileStructure}`;
-
     content += `\n\n## Anti-Patterns — DO NOT\n\n`;
     content += kb.antiPatterns.map(ap => `- ${ap}`).join('\n');
 
     content += `\n\n## Conventions\n\n`;
     content += kb.conventions.map((c, i) => `${i + 1}. ${c}`).join('\n');
 
-    content += `\n\n## Code Patterns\n\n${kb.codePatterns}`;
-
-    if (kb.stackRules) {
-      content += `\n\n${kb.stackRules}`;
+    if (kb.recommendedPatterns.length > 0) {
+      content += `\n\n## Recommended Patterns\n\n`;
+      content += kb.recommendedPatterns.map(p => `### ${p.title}\n${p.description}${p.code ? `\n\`\`\`${vars.language}\n${p.code}\n\`\`\`` : ''}`).join('\n\n');
     }
   }
 

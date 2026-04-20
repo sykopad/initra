@@ -15,8 +15,10 @@ export const PACKAGE_LIBRARY: PackageDefinition[] = [
     category: 'data-fetching',
     icon: '🔄',
     description: 'Powerful async state management and data fetching for React',
+    language: 'typescript',
     npmPackage: '@tanstack/react-query',
-    compatibleTemplates: ['nextjs', 'react-native'],
+    compatibleTemplates: ['nextjs', 'react-native', 'nuxt'],
+    documentationUrls: ['https://tanstack.com/query/latest/docs/framework/react/overview'],
     knowledge: {
       installCommand: 'npm install @tanstack/react-query @tanstack/react-query-devtools',
       setupSnippet: `// app/providers.tsx
@@ -66,8 +68,10 @@ const { mutate } = useMutation({
     category: 'data-fetching',
     icon: '🔁',
     description: 'React hooks for remote data fetching with stale-while-revalidate strategy',
+    language: 'typescript',
     npmPackage: 'swr',
     compatibleTemplates: ['nextjs'],
+    documentationUrls: ['https://swr.vercel.app/docs/getting-started'],
     knowledge: {
       installCommand: 'npm install swr',
       usageSnippet: `import useSWR from 'swr';
@@ -93,8 +97,10 @@ export function Profile() {
     category: 'data-fetching',
     icon: '📡',
     description: 'Promise-based HTTP client with interceptors and automatic JSON parsing',
+    language: 'typescript',
     npmPackage: 'axios',
-    compatibleTemplates: ['nextjs', 'react-native', 'express'],
+    compatibleTemplates: ['nextjs', 'react-native', 'express', 'nuxt'],
+    documentationUrls: ['https://axios-http.com/docs/intro'],
     knowledge: {
       installCommand: 'npm install axios',
       setupSnippet: `// lib/api.ts
@@ -135,8 +141,10 @@ api.interceptors.response.use(
     category: 'data-fetching',
     icon: '🔗',
     description: 'End-to-end type-safe APIs without code generation or schemas',
+    language: 'typescript',
     npmPackage: '@trpc/server @trpc/client @trpc/next',
     compatibleTemplates: ['nextjs'],
+    documentationUrls: ['https://trpc.io/docs/getting-started'],
     knowledge: {
       installCommand: 'npm install @trpc/server @trpc/client @trpc/next @tanstack/react-query',
       setupSnippet: `// server/api/trpc.ts
@@ -176,8 +184,10 @@ export const projectRouter = router({
     category: 'forms-validation',
     icon: '📝',
     description: 'Performant, flexible forms with easy validation',
+    language: 'typescript',
     npmPackage: 'react-hook-form',
     compatibleTemplates: ['nextjs', 'react-native'],
+    documentationUrls: ['https://react-hook-form.com/get-started'],
     knowledge: {
       installCommand: 'npm install react-hook-form @hookform/resolvers',
       usageSnippet: `"use client";
@@ -227,8 +237,10 @@ export function LoginForm() {
     category: 'forms-validation',
     icon: '🛡️',
     description: 'TypeScript-first schema validation with static type inference',
+    language: 'typescript',
     npmPackage: 'zod',
     compatibleTemplates: ['nextjs', 'react-native', 'express'],
+    documentationUrls: ['https://zod.dev/'],
     knowledge: {
       installCommand: 'npm install zod',
       usageSnippet: `import { z } from 'zod';
@@ -270,8 +282,10 @@ if (!result.success) {
     category: 'ui-components',
     icon: '🎨',
     description: 'Beautifully designed, accessible, copy-paste component library built on Radix UI',
+    language: 'typescript',
     npmPackage: 'shadcn/ui (CLI)',
     compatibleTemplates: ['nextjs'],
+    documentationUrls: ['https://ui.shadcn.com/docs'],
     knowledge: {
       installCommand: 'npx shadcn@latest init',
       setupSnippet: `# Initialize (run once):
@@ -316,8 +330,10 @@ export function MyDialog() {
     category: 'ui-components',
     icon: '⭕',
     description: 'Unstyled, accessible UI primitives for building design systems',
+    language: 'typescript',
     npmPackage: '@radix-ui/react-*',
     compatibleTemplates: ['nextjs'],
+    documentationUrls: ['https://www.radix-ui.com/primitives/docs/overview/introduction'],
     knowledge: {
       installCommand: 'npm install @radix-ui/react-dialog @radix-ui/react-dropdown-menu',
       conventions: [
@@ -334,8 +350,10 @@ export function MyDialog() {
     category: 'ui-components',
     icon: '💎',
     description: 'Full-featured React component library with 100+ components',
+    language: 'typescript',
     npmPackage: '@mantine/core @mantine/hooks',
     compatibleTemplates: ['nextjs'],
+    documentationUrls: ['https://mantine.dev/getting-started/'],
     knowledge: {
       installCommand: 'npm install @mantine/core @mantine/hooks @mantine/form',
       setupSnippet: `// app/layout.tsx
@@ -367,8 +385,10 @@ export default function RootLayout({ children }) {
     category: 'animation',
     icon: '✨',
     description: 'Production-ready animation library for React',
+    language: 'typescript',
     npmPackage: 'framer-motion',
     compatibleTemplates: ['nextjs'],
+    documentationUrls: ['https://www.framer.com/motion/introduction/'],
     knowledge: {
       installCommand: 'npm install framer-motion',
       usageSnippet: `import { motion, AnimatePresence } from 'framer-motion';
@@ -408,8 +428,10 @@ export default function RootLayout({ children }) {
     category: 'animation',
     icon: '⚡',
     description: 'Smooth 60fps animations running on the native thread',
+    language: 'typescript',
     npmPackage: 'react-native-reanimated',
     compatibleTemplates: ['react-native'],
+    documentationUrls: ['https://docs.swmansion.com/react-native-reanimated/docs/fundamentals/getting-started/'],
     knowledge: {
       installCommand: 'npx expo install react-native-reanimated',
       conventions: [
@@ -429,8 +451,10 @@ export default function RootLayout({ children }) {
     category: 'auth',
     icon: '🔐',
     description: 'Authentication for Next.js with support for 50+ providers',
+    language: 'typescript',
     npmPackage: 'next-auth',
     compatibleTemplates: ['nextjs'],
+    documentationUrls: ['https://next-auth.js.org/getting-started/introduction'],
     knowledge: {
       installCommand: 'npm install next-auth',
       setupSnippet: `// auth.ts (project root)
@@ -469,8 +493,10 @@ export { GET, POST } from "@/auth";`,
     category: 'auth',
     icon: '👤',
     description: 'Complete user management and authentication platform',
+    language: 'typescript',
     npmPackage: '@clerk/nextjs',
     compatibleTemplates: ['nextjs'],
+    documentationUrls: ['https://clerk.com/docs/quickstarts/nextjs'],
     knowledge: {
       installCommand: 'npm install @clerk/nextjs',
       setupSnippet: `// middleware.ts
@@ -500,8 +526,10 @@ export const config = { matcher: ['/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?
     category: 'payments',
     icon: '💳',
     description: 'Complete payment infrastructure for the internet',
+    language: 'typescript',
     npmPackage: 'stripe @stripe/stripe-js',
-    compatibleTemplates: ['nextjs', 'express'],
+    compatibleTemplates: ['nextjs', 'express', 'nuxt'],
+    documentationUrls: ['https://docs.stripe.com/development'],
     knowledge: {
       installCommand: 'npm install stripe @stripe/stripe-js',
       setupSnippet: `// lib/stripe.ts — server-side singleton
@@ -544,8 +572,10 @@ export async function POST(req: Request) {
     category: 'payments',
     icon: '💰',
     description: 'Modern payment processing for Africa',
+    language: 'typescript',
     npmPackage: 'paystack',
     compatibleTemplates: ['nextjs', 'express'],
+    documentationUrls: ['https://paystack.com/docs/api/'],
     knowledge: {
       installCommand: 'npm install paystack',
       setupSnippet: `// lib/paystack.ts
@@ -586,8 +616,10 @@ export async function verifyPayment(reference: string) {
     category: 'email',
     icon: '📧',
     description: 'Email API built for developers with React Email support',
+    language: 'typescript',
     npmPackage: 'resend react-email @react-email/components',
-    compatibleTemplates: ['nextjs', 'express'],
+    compatibleTemplates: ['nextjs', 'express', 'nuxt'],
+    documentationUrls: ['https://resend.com/docs/introduction'],
     knowledge: {
       installCommand: 'npm install resend react-email @react-email/components',
       setupSnippet: `// lib/email.ts
@@ -627,8 +659,10 @@ export async function POST(req: Request) {
     category: 'file-upload',
     icon: '📁',
     description: 'Simple, type-safe file uploads for Next.js',
+    language: 'typescript',
     npmPackage: 'uploadthing @uploadthing/react',
     compatibleTemplates: ['nextjs'],
+    documentationUrls: ['https://docs.uploadthing.com/getting-started/appdir'],
     knowledge: {
       installCommand: 'npm install uploadthing @uploadthing/react',
       setupSnippet: `// app/api/uploadthing/core.ts
@@ -665,8 +699,10 @@ export type OurFileRouter = typeof ourFileRouter;`,
     category: 'monitoring',
     icon: '🔍',
     description: 'Application monitoring, error tracking, and performance monitoring',
+    language: 'typescript',
     npmPackage: '@sentry/nextjs',
-    compatibleTemplates: ['nextjs', 'express', 'react-native'],
+    compatibleTemplates: ['nextjs', 'express', 'react-native', 'nuxt'],
+    documentationUrls: ['https://docs.sentry.io/'],
     knowledge: {
       installCommand: 'npx @sentry/wizard@latest -i nextjs',
       setupSnippet: `// sentry.client.config.ts
@@ -693,8 +729,10 @@ Sentry.init({
     category: 'monitoring',
     icon: '🦔',
     description: 'Open-source product analytics with feature flags and session recording',
+    language: 'typescript',
     npmPackage: 'posthog-js posthog-node',
     compatibleTemplates: ['nextjs'],
+    documentationUrls: ['https://posthog.com/docs/quickstart/nextjs'],
     knowledge: {
       installCommand: 'npm install posthog-js posthog-node',
       setupSnippet: `// app/providers.tsx
@@ -728,8 +766,10 @@ export function PHProvider({ children }: { children: React.ReactNode }) {
     category: 'charts',
     icon: '📊',
     description: 'Composable charting library built on React and D3',
+    language: 'typescript',
     npmPackage: 'recharts',
     compatibleTemplates: ['nextjs'],
+    documentationUrls: ['https://recharts.org/en-US/guide/getting-started'],
     knowledge: {
       installCommand: 'npm install recharts',
       usageSnippet: `"use client";
@@ -764,8 +804,10 @@ export function RevenueChart({ data }: { data: { date: string; revenue: number }
     category: 'realtime',
     icon: '⚡',
     description: 'Hosted WebSocket service for real-time features',
+    language: 'typescript',
     npmPackage: 'pusher pusher-js',
     compatibleTemplates: ['nextjs', 'express'],
+    documentationUrls: ['https://pusher.com/docs/channels/getting_started/javascript/'],
     knowledge: {
       installCommand: 'npm install pusher pusher-js',
       setupSnippet: `// lib/pusher.ts (server)
@@ -799,8 +841,10 @@ export const pusherClient = new PusherJS(process.env.NEXT_PUBLIC_PUSHER_KEY!, {
     category: 'background-jobs',
     icon: '⚙️',
     description: 'Serverless background jobs, workflows, and scheduled functions',
+    language: 'typescript',
     npmPackage: 'inngest',
     compatibleTemplates: ['nextjs'],
+    documentationUrls: ['https://www.inngest.com/docs'],
     knowledge: {
       installCommand: 'npm install inngest',
       setupSnippet: `// inngest/client.ts
@@ -837,8 +881,10 @@ export const { GET, POST, PUT } = serve({ client: inngest, functions: [sendWelco
     category: 'background-jobs',
     icon: '🐂',
     description: 'Premium Queue and Jobs package for Node.js backed by Redis',
+    language: 'typescript',
     npmPackage: 'bullmq',
     compatibleTemplates: ['express'],
+    documentationUrls: ['https://docs.bullmq.io/'],
     knowledge: {
       installCommand: 'npm install bullmq ioredis',
       setupSnippet: `import { Queue, Worker } from 'bullmq';
@@ -872,8 +918,10 @@ const worker = new Worker('email', async (job) => {
     category: 'other',
     icon: '🔴',
     description: 'Serverless Redis — perfect for Edge and Serverless functions',
+    language: 'typescript',
     npmPackage: '@upstash/redis',
     compatibleTemplates: ['nextjs'],
+    documentationUrls: ['https://upstash.com/docs/redis/overall/getstarted'],
     knowledge: {
       installCommand: 'npm install @upstash/redis',
       setupSnippet: `// lib/redis.ts
@@ -904,8 +952,10 @@ await redis.del('key');`,
     category: 'ui-components',
     icon: '📄',
     description: 'Headless, framework-agnostic rich text editor',
+    language: 'typescript',
     npmPackage: '@tiptap/react @tiptap/pm @tiptap/starter-kit',
     compatibleTemplates: ['nextjs'],
+    documentationUrls: ['https://tiptap.dev/introduction'],
     knowledge: {
       installCommand: 'npm install @tiptap/react @tiptap/pm @tiptap/starter-kit',
       usageSnippet: `"use client";
@@ -937,8 +987,10 @@ export function RichTextEditor({ content, onChange }: { content: string; onChang
     category: 'ui-components',
     icon: '✦',
     description: 'Beautifully consistent, open-source icon library',
+    language: 'typescript',
     npmPackage: 'lucide-react',
     compatibleTemplates: ['nextjs'],
+    documentationUrls: ['https://lucide.dev/guide/packages/lucide-react'],
     knowledge: {
       installCommand: 'npm install lucide-react',
       usageSnippet: `import { Search, ChevronRight, AlertCircle, Loader2 } from 'lucide-react';
@@ -962,8 +1014,10 @@ export function RichTextEditor({ content, onChange }: { content: string; onChang
     category: 'other',
     icon: '⚙️',
     description: 'Type-safe settings management for Python apps via environment variables',
+    language: 'python',
     pyPackage: 'pydantic-settings',
-    compatibleTemplates: ['fastapi'],
+    compatibleTemplates: ['fastapi', 'django'],
+    documentationUrls: ['https://docs.pydantic.dev/latest/concepts/pydantic_settings/'],
     knowledge: {
       installCommand: 'pip install pydantic-settings',
       setupSnippet: `# config.py
@@ -992,8 +1046,10 @@ settings = Settings()  # reads from .env automatically`,
     category: 'background-jobs',
     icon: '🥬',
     description: 'Distributed task queue for Python — async background job processing',
+    language: 'python',
     pyPackage: 'celery redis',
-    compatibleTemplates: ['fastapi'],
+    compatibleTemplates: ['fastapi', 'django'],
+    documentationUrls: ['https://docs.celeryq.dev/en/stable/getting-started/introduction.html'],
     knowledge: {
       installCommand: 'pip install celery redis',
       setupSnippet: `# celery_app.py
@@ -1031,8 +1087,10 @@ def send_welcome_email(self, user_id: int):
     category: 'other',
     icon: '🧪',
     description: 'Database migrations for SQLAlchemy',
+    language: 'python',
     pyPackage: 'alembic',
     compatibleTemplates: ['fastapi'],
+    documentationUrls: ['https://alembic.sqlalchemy.org/en/latest/'],
     knowledge: {
       installCommand: 'pip install alembic',
       setupSnippet: `# Initialize:
@@ -1063,8 +1121,10 @@ alembic downgrade -1`,
     category: 'data-fetching',
     icon: '🌐',
     description: 'Fully async-compatible HTTP client for Python',
+    language: 'python',
     pyPackage: 'httpx',
-    compatibleTemplates: ['fastapi'],
+    compatibleTemplates: ['fastapi', 'django', 'python-ml'],
+    documentationUrls: ['https://www.python-httpx.org/'],
     knowledge: {
       installCommand: 'pip install httpx',
       usageSnippet: `import httpx
@@ -1089,8 +1149,10 @@ async def fetch_user(user_id: int):
     category: 'monitoring',
     icon: '📋',
     description: 'Structured, composable logging for Python',
+    language: 'python',
     pyPackage: 'structlog',
-    compatibleTemplates: ['fastapi'],
+    compatibleTemplates: ['fastapi', 'django', 'python-ml'],
+    documentationUrls: ['https://www.structlog.org/en/stable/'],
     knowledge: {
       installCommand: 'pip install structlog',
       setupSnippet: `# logging_config.py
@@ -1125,8 +1187,10 @@ log.error("payment.failed", error=str(e), amount=amount)`,
     category: 'data-fetching',
     icon: '🌐',
     description: 'Powerful HTTP client for Dart/Flutter with interceptors',
+    language: 'dart',
     pubPackage: 'dio',
     compatibleTemplates: ['flutter'],
+    documentationUrls: ['https://pub.dev/packages/dio'],
     knowledge: {
       installCommand: 'flutter pub add dio',
       setupSnippet: `// lib/shared/services/api_client.dart
@@ -1174,8 +1238,10 @@ class ApiClient {
     category: 'other',
     icon: '🗄️',
     description: 'Fast, lightweight key-value database for Flutter',
+    language: 'dart',
     pubPackage: 'hive_flutter hive',
     compatibleTemplates: ['flutter'],
+    documentationUrls: ['https://docs.hivedb.dev/'],
     knowledge: {
       installCommand: 'flutter pub add hive hive_flutter',
       setupSnippet: `// main.dart
@@ -1201,8 +1267,10 @@ final theme = settingsBox.get('theme', defaultValue: 'light');`,
     category: 'charts',
     icon: '📊',
     description: 'Powerful chart library for Flutter',
+    language: 'dart',
     pubPackage: 'fl_chart',
     compatibleTemplates: ['flutter'],
+    documentationUrls: ['https://pub.dev/packages/fl_chart'],
     knowledge: {
       installCommand: 'flutter pub add fl_chart',
       conventions: [
@@ -1221,8 +1289,10 @@ final theme = settingsBox.get('theme', defaultValue: 'light');`,
     category: 'other',
     icon: '⚡',
     description: 'High-level PyTorch wrapper for professional AI research',
+    language: 'python',
     pyPackage: 'lightning',
     compatibleTemplates: ['python-ml'],
+    documentationUrls: ['https://lightning.ai/docs/pytorch/latest/'],
     knowledge: {
       installCommand: 'pip install lightning',
       setupSnippet: `import lightning as L
@@ -1261,8 +1331,10 @@ trainer.fit(model, datamodule=dm)`,
     category: 'other',
     icon: '🔬',
     description: 'Automatic hyperparameter optimization framework',
+    language: 'python',
     pyPackage: 'optuna',
     compatibleTemplates: ['python-ml'],
+    documentationUrls: ['https://optuna.org/#documentation'],
     knowledge: {
       installCommand: 'pip install optuna',
       usageSnippet: `import optuna
@@ -1294,8 +1366,10 @@ print("Best params:", study.best_params)`,
     category: 'other',
     icon: '🤗',
     description: 'State-of-the-art NLP models and pipelines',
+    language: 'python',
     pyPackage: 'transformers datasets',
     compatibleTemplates: ['python-ml'],
+    documentationUrls: ['https://huggingface.co/docs/transformers/index'],
     knowledge: {
       installCommand: 'pip install transformers datasets accelerate',
       usageSnippet: `from transformers import AutoTokenizer, AutoModelForSequenceClassification
@@ -1328,8 +1402,10 @@ predicted_class = logits.argmax(-1).item()`,
     category: 'monitoring',
     icon: '📋',
     description: 'Versatile logging library for Node.js',
+    language: 'typescript',
     npmPackage: 'winston',
     compatibleTemplates: ['express'],
+    documentationUrls: ['https://github.com/winstonjs/winston'],
     knowledge: {
       installCommand: 'npm install winston',
       setupSnippet: `// lib/logger.ts
@@ -1359,8 +1435,10 @@ export const logger = winston.createLogger({
     category: 'other',
     icon: '⛑️',
     description: 'Security headers middleware for Express',
+    language: 'typescript',
     npmPackage: 'helmet',
     compatibleTemplates: ['express'],
+    documentationUrls: ['https://helmetjs.github.io/'],
     knowledge: {
       installCommand: 'npm install helmet',
       setupSnippet: `import helmet from 'helmet';

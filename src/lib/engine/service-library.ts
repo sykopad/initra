@@ -11,6 +11,7 @@ export const SERVICE_LIBRARY: ApiService[] = [
     slug: 'openai',
     name: 'OpenAI',
     registrationUrl: 'https://platform.openai.com/api-keys',
+    documentationUrl: 'https://platform.openai.com/docs/introduction',
     description: 'GPT-4o, GPT-4o-mini, DALL-E, and Whisper APIs',
     icon: '🤖',
     category: 'llm',
@@ -57,6 +58,7 @@ export const SERVICE_LIBRARY: ApiService[] = [
     slug: 'clerk',
     name: 'Clerk',
     registrationUrl: 'https://dashboard.clerk.com/',
+    documentationUrl: 'https://clerk.com/docs',
     description: 'Modern user management and authentication',
     icon: '👤',
     category: 'auth',
@@ -64,6 +66,9 @@ export const SERVICE_LIBRARY: ApiService[] = [
       { key: 'NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY', description: 'Clerk publishable key (client)', required: true, placeholder: 'pk_test_...' },
       { key: 'CLERK_SECRET_KEY', description: 'Clerk secret key (server)', required: true, placeholder: 'sk_test_...' },
     ],
+    compatibility: {
+      frameworks: ['nextjs', 'nuxt'],
+    }
   },
 
   // ── Payments ──────────────────────────────────
@@ -71,6 +76,7 @@ export const SERVICE_LIBRARY: ApiService[] = [
     slug: 'stripe',
     name: 'Stripe',
     registrationUrl: 'https://dashboard.stripe.com/apikeys',
+    documentationUrl: 'https://docs.stripe.com/',
     description: 'Global payment infrastructure',
     icon: '💳',
     category: 'payments',
@@ -98,6 +104,7 @@ export const SERVICE_LIBRARY: ApiService[] = [
     slug: 'supabase',
     name: 'Supabase',
     registrationUrl: 'https://supabase.com/dashboard/project/_/settings/api',
+    documentationUrl: 'https://supabase.com/docs',
     description: 'Open source Firebase alternative (Postgres, Auth, Storage)',
     icon: '⚡',
     category: 'database',
@@ -125,6 +132,7 @@ export const SERVICE_LIBRARY: ApiService[] = [
     slug: 'resend',
     name: 'Resend',
     registrationUrl: 'https://resend.com/api-keys',
+    documentationUrl: 'https://resend.com/docs',
     description: 'Email API for developers',
     icon: '📧',
     category: 'email',
@@ -151,6 +159,7 @@ export const SERVICE_LIBRARY: ApiService[] = [
     slug: 'sentry',
     name: 'Sentry',
     registrationUrl: 'https://sentry.io/settings/projects/',
+    documentationUrl: 'https://docs.sentry.io/',
     description: 'Error tracking and performance monitoring',
     icon: '🔍',
     category: 'monitoring',

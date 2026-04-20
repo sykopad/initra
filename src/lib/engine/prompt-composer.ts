@@ -70,6 +70,7 @@ function interpolateVars(text: string, variables: import('./types').TemplateVari
  */
 export function extractVariables(
   templateSlug: string,
+  templateVersion: string,
   projectName: string,
   stackConfig: Record<string, string | boolean>,
   selectedPackages: string[] = [],
@@ -77,6 +78,8 @@ export function extractVariables(
 ): TemplateVariables {
   const vars: TemplateVariables = {
     projectName: projectName || 'My Project',
+    templateSlug,
+    templateVersion,
     framework: templateSlug,
     language: String(stackConfig.language || 'typescript'),
     styling: String(stackConfig.styling || ''),
@@ -103,7 +106,13 @@ export function extractVariables(
   vars.testCommand = deriveTestCommand(vars.testing as string, vars.packageManager as string);
   vars.installCommand = deriveInstallCommand(vars.packageManager as string);
   vars.dbPushCommand = deriveDbPushCommand(vars.database as string);
-  vars.languageLabel = vars.language === 'typescript' ? 'TypeScript' : vars.language === 'python' ? 'Python' : vars.language === 'dart' ? 'Dart' : vars.language as string;
+  vars.languageLabel = 
+    vars.language === 'typescript' ? 'TypeScript' : 
+    vars.language === 'python' ? 'Python' : 
+    vars.language === 'dart' ? 'Dart' : 
+    vars.language === 'go' ? 'Go' :
+    vars.language === 'rust' ? 'Rust' :
+    vars.language as string;
 
   return vars;
 }
@@ -112,6 +121,8 @@ function deriveDevCommand(template: string, pm: string): string {
   const run = pm === 'npm' ? 'npm run' : pm;
   switch (template) {
     case 'nextjs': return `${run} dev`;
+    case 'nuxt': return `${run} dev`;
+    case 'django': return 'python manage.py runserver';
     case 'react-native': return 'npx expo start';
     case 'fastapi': return 'uvicorn main:app --reload';
     case 'flutter': return 'flutter run';
@@ -125,6 +136,8 @@ function deriveBuildCommand(template: string, pm: string): string {
   const run = pm === 'npm' ? 'npm run' : pm;
   switch (template) {
     case 'nextjs': return `${run} build`;
+    case 'nuxt': return `${run} build`;
+    case 'django': return 'python manage.py collectstatic --noinput';
     case 'flutter': return 'flutter build apk';
     case 'fastapi': return 'docker build -t app .';
     case 'express': return `${run} build`;

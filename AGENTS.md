@@ -11,10 +11,11 @@ This is NOT the Next.js you know. This version has breaking changes — APIs, co
 ## Project Overview
 
 **Initra** (Initiate Infrastructure) helps developers bootstrap projects by:
-1. Walking through a multi-step wizard to configure their project stack
-2. Generating perfectly tailored agent configuration files for 6+ IDEs
-3. Downloading as ZIP or copying to clipboard
-4. Suggesting open-source community projects and voting on ideas
+1. Walking through a 7-step wizard to configure project, stack, packages, and services.
+2. Automatically generating tailored agent configuration files for 6+ IDEs.
+3. Generating a smart `.env.example` file with registration links for all selected APIs.
+4. Injecting framework-specific knowledge, anti-patterns, and code snippets into agent files.
+5. Suggesting open-source community projects and voting on ideas.
 
 ## Tech Stack
 
@@ -32,17 +33,19 @@ This is NOT the Next.js you know. This version has breaking changes — APIs, co
 A **pure, deterministic TypeScript pipeline** — no LLM calls:
 
 ```
-WizardConfig → Template Resolver → Variable Extractor → Prompt Composer → IDE Formatter → GeneratedFile[]
+WizardConfig → Template Resolver → Package Mapper → Service Selector → Variable Extractor → Prompt Composer → IDE Formatter → GeneratedFile[] (.md + .env.example)
 ```
 
 | File | Purpose |
 |------|---------|
 | `types.ts` | All TypeScript interfaces and type definitions |
 | `templates.ts` | 6 project templates (Next.js, React Native, FastAPI, Flutter, Express, Python ML) |
+| `package-library.ts` | Registry of 50+ common packages with setup/usage knowledge |
+| `service-library.ts` | Hub for 15+ external APIs (Stripe, OpenAI, Clerk, etc.) with registration URLs |
 | `ide-targets.ts` | 6 IDE target configurations |
 | `prompt-composer.ts` | Custom template engine with `{{variable}}`, `{{#if}}`, `{{#unless}}` |
 | `ide-formatter.ts` | Transforms composed content into IDE-specific file formats |
-| `index.ts` | Main entry: `generateAgentFiles()` and `generateFileMap()` |
+| `index.ts` | Main entry: `generateAgentFiles()` and `.env.example` synthesis |
 
 ### Supported IDEs
 
@@ -88,19 +91,20 @@ const supabase = createBrowserClient(url, key, {
 ### File Structure
 
 ```
-src/
 ├── app/
 │   ├── layout.tsx              # Root layout with SEO metadata
 │   ├── page.tsx                # Landing page (hero, features, IDE grid)
 │   ├── globals.css             # Complete design system (dark theme, glassmorphism)
-│   ├── wizard/page.tsx         # 5-step wizard (project → stack → IDE → review → export)
+│   ├── wizard/page.tsx         # 7-step wizard (Project → Stack → Packages → Services → IDE → Review → Export)
 │   ├── community/page.tsx      # Community hub (voting, filtering, suggest modal)
 │   ├── shared/[slug]/page.tsx  # Shared config permalink viewer
 │   └── api/
 │       ├── generate/route.ts   # POST — prompt generation endpoint
 │       └── community/route.ts  # GET/POST — community CRUD
 └── lib/
-    ├── engine/                 # Prompt generation engine (6 files)
+    ├── engine/                 # Prompt generation engine (8 files)
+    │   ├── package-library.ts  # Knowledge registry for packages
+    │   └── service-library.ts  # Registry for external APIs & Env vars
     └── supabase/
         ├── client.ts           # Browser client
         └── server.ts           # Server client (with cookies)
@@ -116,11 +120,11 @@ src/
 
 ### 🔴 Critical — Makes or breaks the product
 
-1. **Richer generated output** — The engine produces decent skeletons but needs:
-   - Real file structure trees per template (not just "follow framework conventions")
-   - Specific anti-patterns to avoid per framework (e.g., "Never use `getServerSideProps` in App Router")
-   - Actual code snippets showing preferred patterns (imports, error handling, component structure)
-   - Database-specific conventions (e.g., Supabase RLS patterns, Prisma schema conventions)
+1. **Richer generated output (Phase 1 Complete)** — We now inject:
+   - Deep package-specific knowledge for 50+ libraries.
+   - Comprehensive API/Service integration guides with registration links.
+   - Anti-patterns and best practices for common stack components.
+   - *Next Step*: Add real boilerplate file trees for specific combinations.
 
 2. **Apply migration & wire up persistence** — Community hub and share links are in-memory demo data. Connect Supabase `initra` schema for real persistence.
 
