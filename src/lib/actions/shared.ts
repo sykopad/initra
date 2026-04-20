@@ -45,7 +45,7 @@ export async function getSharedConfig(slug: string) {
 
   const { data, error } = await supabase
     .from("shared_configs")
-    .select("*, profiles(username, avatar_url)")
+    .select("*, profiles(display_name, avatar_url)")
     .eq("slug", slug)
     .single();
 
@@ -62,7 +62,7 @@ export async function getCommunityProjects() {
 
   const { data, error } = await supabase
     .from("shared_configs")
-    .select("*, profiles(username, avatar_url)")
+    .select("*, profiles(display_name, avatar_url)")
     .order("created_at", { ascending: false })
     .limit(20);
 

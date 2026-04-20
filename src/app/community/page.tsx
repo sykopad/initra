@@ -18,7 +18,7 @@ interface SharedProject {
   created_at: string;
   config: any;
   profiles: {
-    username: string;
+    display_name: string;
     avatar_url: string;
   };
 }
@@ -178,7 +178,7 @@ export default function CommunityPage() {
                        <h3 style={{ fontSize: '1.1rem' }}>{config.projectName}</h3>
                     </div>
                     <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                      Built by <span style={{ color: 'var(--accent-cyan-light)' }}>{config.profiles?.username || 'Anon'}</span>
+                      Built by <span style={{ color: 'var(--accent-cyan-light)' }}>{config.profiles?.display_name || 'Anon'}</span>
                     </p>
                     <div style={{ display: 'flex', gap: '8px', marginTop: '1rem' }}>
                        <span style={{ fontSize: '0.7rem', padding: '2px 8px', background: 'rgba(255,255,255,0.05)', borderRadius: '4px' }}>

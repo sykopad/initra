@@ -65,7 +65,7 @@ export default async function Image({ params }: { params: { slug: string } }) {
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
              <span style={{ fontSize: "32px", color: "#00ffff" }}>{shared.templateSlug}</span>
              <span style={{ fontSize: "24px", color: "rgba(255, 255, 255, 0.5)" }}>•</span>
-             <span style={{ fontSize: "24px", color: "#fff" }}>By {shared.profiles?.username || "Initra User"}</span>
+             <span style={{ fontSize: "24px", color: "#fff" }}>By {shared.profiles?.display_name || "Initra User"}</span>
           </div>
 
           <div style={{ display: "flex", gap: "20px", marginTop: "40px" }}>
