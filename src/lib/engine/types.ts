@@ -20,6 +20,10 @@ export type IDETarget =
   | 'windsurf'
   | 'gemini'
   | 'copilot'
+  | 'trae'
+  | 'aider'
+  | 'devin'
+  | 'replit'
   | 'universal';
 
 /** Package/library categories */
@@ -130,6 +134,8 @@ export interface ProjectTemplate {
   defaultStack: Record<string, string>;
   stackOptions: StackOption[];
   boilerplateFiles?: BoilerplateFile[];
+  /** Optional: specialized instructions for the IDE agent for this template */
+  agentInstructions?: string;
 }
 
 /** Dynamic form field for stack configuration */
@@ -155,6 +161,10 @@ export interface WizardConfig {
   selectedServices: string[];
   includeBoilerplate?: boolean;
   experienceLevel?: 'beginner' | 'experienced';
+  orchestrationMode?: 'single-agent' | 'multi-agent';
+  selectedOverlays?: string[];
+  ventureType?: 'ai-generated' | 'user-suggested';
+  agentInstructions?: string;
 }
 
 /** Boilerplate file definition */
@@ -229,4 +239,15 @@ export interface TemplateSection {
   name: string;
   condition?: string;
   content: string;
+}
+
+/** Specialized workflow logic blocks */
+export interface WorkflowOverlay {
+  slug: string;
+  name: string;
+  description: string;
+  icon: string;
+  content: string;
+  /** Optional: only allow for these templates */
+  compatibleTemplates?: string[];
 }

@@ -9,11 +9,11 @@ import { compose } from './prompt-composer';
 import { getVersionKnowledge } from './framework-knowledge';
 import { getPackageDefinition } from './package-library';
 import { getServiceDefinition } from './service-library';
+import { getOverlay } from './templates';
 
 /**
  * Format the generated content for a specific IDE target.
  * Each IDE has its own file format, path, and structure requirements.
- */
 export function formatForIDE(
   ideTarget: IDETarget,
   variables: TemplateVariables,
@@ -30,6 +30,14 @@ export function formatForIDE(
       return formatGemini(variables, baseContent);
     case 'copilot':
       return formatCopilot(variables, baseContent);
+    case 'trae':
+      return formatTrae(variables, baseContent);
+    case 'aider':
+      return formatAider(variables, baseContent);
+    case 'devin':
+      return formatDevin(variables, baseContent);
+    case 'replit':
+      return formatReplit(variables, baseContent);
     case 'universal':
       return formatUniversal(variables, baseContent);
     default:
@@ -187,30 +195,51 @@ function injectServiceKnowledge(content: string, vars: TemplateVariables): strin
  * Injects beginner-friendly setup guides if the user is a beginner
  */
 function injectExperienceKnowledge(content: string, vars: TemplateVariables): string {
-  if (vars.experienceLevel !== 'beginner') return content;
+  if (!vars.isBeginner) return content;
 
-  let beginnerContent = '\n\n## 🚀 Getting Started (Beginner Friendly)\n\n';
-  beginnerContent += 'Welcome! Since you mentioned you are just getting started, here are the easiest ways to get your project live for free:\n\n';
+  let beginnerContent = '\n\n## 🚀 Project Compass (Beginner Guide)\n\n';
+  beginnerContent += 'Since you are starting out, here is your path to going live:\n\n';
   
   const slug = vars.templateSlug as string;
   if (slug?.includes('next') || slug?.includes('nuxt')) {
-    beginnerContent += '### 1. Deployment (Vercel)\n';
-    beginnerContent += '- **Link**: [Vercel Dashboard](https://vercel.com/new)\n';
-    beginnerContent += '- **Instructions**: Connect your GitHub repo. Vercel will automatically detect your framework and deploy it.\n\n';
+    beginnerContent += '### 1. Deploy Live\n';
+    beginnerContent += 'Use [Vercel](https://vercel.com/new). Connect your repo and it will auto-deploy. No complex server setup needed.\n\n';
   }
 
-  const stackConfig = vars.stackConfig as any;
-  if (stackConfig?.database === 'supabase' || (vars.selectedServices as string[])?.includes('supabase')) {
-    beginnerContent += '### 2. Database (Supabase)\n';
-    beginnerContent += '- **Link**: [Supabase Dashboard](https://supabase.com/dashboard)\n';
-    beginnerContent += '- **Instructions**: Create a new project. Copy the "Project URL" and "Anon Key" into your Vercel Environment Variables.\n\n';
+  if (vars.database === 'supabase' || vars.selectedServices?.includes('supabase')) {
+    beginnerContent += '### 2. Database Setup\n';
+    beginnerContent += 'Log into [Supabase](https://supabase.com). Create a project, and copy the "Anon Key" and "URL" into your `.env.local` file.\n\n';
   }
 
-  beginnerContent += '### 3. Domains & Socials\n';
-  beginnerContent += '- **Domains**: We recommend [Namecheap](https://www.namecheap.com/) or [Google Domains](https://domains.google/).\n';
-  beginnerContent += '- **Logo**: Use ChatGPT or Canva to create a quick starting logo.\n\n';
+  beginnerContent += '### 💡 Pro Tip\n';
+  beginnerContent += 'Ask your IDE agent "How do I add a new page?" or "Explain the folder structure" to learn as you build.\n\n';
 
   return content + beginnerContent;
+}
+
+function injectTemplateInstructions(content: string, vars: TemplateVariables): string {
+  if (vars.agentInstructions) {
+    return content + `\n\n${vars.agentInstructions}`;
+  }
+  return content;
+}
+
+/**
+ * Injects selected workflow overlays
+ */
+function injectOverlays(content: string, vars: TemplateVariables): string {
+  const overlaySlugs = vars.selectedOverlays as string[] ?? [];
+  if (!overlaySlugs.length) return content;
+
+  let overlayContent = '';
+  for (const slug of overlaySlugs) {
+    const overlay = getOverlay(slug);
+    if (overlay) {
+      overlayContent += `\n\n${overlay.content}`;
+    }
+  }
+
+  return content + overlayContent;
 }
 
 // ── Claude Code ─────────────────────────────────
@@ -275,7 +304,9 @@ function formatClaudeCode(vars: TemplateVariables, _base: string): GeneratedFile
   content = injectPackageKnowledge(content, vars);
   content = injectServiceKnowledge(content, vars);
   content = injectDocs(content, vars);
-  content = injectExperienceKnowledge(content, vars,);
+  content = injectExperienceKnowledge(content, vars);
+  content = injectTemplateInstructions(content, vars);
+  content = injectOverlays(content, vars);
 
   // Always include guardrails
   content += `\n\n## Guardrails
@@ -297,7 +328,92 @@ function formatClaudeCode(vars: TemplateVariables, _base: string): GeneratedFile
 
 function formatCursor(vars: TemplateVariables, _base: string): GeneratedFile[] {
   const kb = getKnowledgeBlocks(vars);
+  const isMultiAgent = vars.orchestrationMode === 'multi-agent';
 
+  if (isMultiAgent) {
+    let architectContent = compose(`---
+description: High-level architectural decisions and system design for {{projectName}}
+alwaysApply: true
+---
+# 🏗️ Architect Agent
+
+You are the Lead Architect for {{projectName}}.
+Your goal is to ensure system integrity, maintainable patterns, and clear boundaries between components.
+
+## High-Level Tech Stack
+- Framework: {{framework}} ({{templateVersion}})
+- Language: {{languageLabel}}
+- Database: {{database}}
+- Auth: {{auth}}
+
+## Core Responsibilities
+1. **Design Integrity**: Enforce the use of {{framework}}'s best practices.
+2. **Data Modeling**: Oversee schema changes in {{database}}.
+3. **Review**: Ensure frontend and backend agents follow established patterns.
+
+## Guardrails
+- Never commit secrets.
+- Never modify migrations without confirmation.`, vars);
+
+    architectContent = injectOverlays(architectContent, vars);
+
+    return [
+      {
+        ideTarget: 'cursor',
+        filename: 'architect.mdc',
+        filePath: '.cursor/rules/architect.mdc',
+        content: architectContent,
+      },
+      {
+        ideTarget: 'cursor',
+        filename: 'frontend.mdc',
+        filePath: '.cursor/rules/frontend.mdc',
+        content: compose(`---
+description: Frontend specialized rules (UI, Styling, State)
+alwaysApply: true
+---
+# 🎨 Frontend Agent
+
+You are the Senior Frontend Developer for {{projectName}}.
+Your goal is to build a high-performance, accessible, and beautiful UI.
+
+## Technical Scope
+- Styling: {{styling}}
+- State Management: {{stateManagement}}
+- Components: Pre-existing Design System in globals.css
+
+## Guidelines
+1. **Component Composition**: Use functional components and hooks.
+2. **Styling**: Favor the project's CSS design system.
+3. **Accessibility**: Ensure WCAG compliance.`, vars),
+      },
+      {
+        ideTarget: 'cursor',
+        filename: 'backend.mdc',
+        filePath: '.cursor/rules/backend.mdc',
+        content: compose(`---
+description: Backend specialized rules (API, DB, Auth)
+alwaysApply: true
+---
+# ⚙️ Backend Agent
+
+You are the Senior Backend Developer for {{projectName}}.
+Your goal is to build secure, scalable, and efficient APIs and data layers.
+
+## Technical Scope
+- Runtime: {{languageLabel}}
+- Database: {{database}}
+- Auth: {{auth}}
+
+## Guidelines
+1. **Security**: Implement robust validation and RBAC.
+2. **Performance**: Optimize queries for {{database}}.
+3. **API Design**: Follow REST/GraphQL standards as selected.`, vars),
+      },
+    ];
+  }
+
+  // Legacy/Single-Agent Mode
   // File 1: Project Context
   const contextTemplate = `---
 description: Project architecture and conventions for {{projectName}}
@@ -359,6 +475,9 @@ alwaysApply: true
   // Inject selected package knowledge into the context file
   contextContent = injectPackageKnowledge(contextContent, vars);
   contextContent = injectServiceKnowledge(contextContent, vars);
+  contextContent = injectExperienceKnowledge(contextContent, vars);
+  contextContent = injectTemplateInstructions(contextContent, vars);
+  contextContent = injectOverlays(contextContent, vars);
 
   contextContent += `\n\n## Boundaries
 - Never modify migration files without asking.
@@ -420,6 +539,67 @@ alwaysApply: true
 // ── Windsurf ────────────────────────────────────
 
 function formatWindsurf(vars: TemplateVariables, _base: string): GeneratedFile[] {
+  const isMultiAgent = vars.orchestrationMode === 'multi-agent';
+
+  if (isMultiAgent) {
+    return [
+      {
+        ideTarget: 'windsurf',
+        filename: 'architect.md',
+        filePath: '.windsurf/rules/architect.md',
+        content: injectOverlays(
+          injectTemplateInstructions(
+            injectExperienceKnowledge(
+              compose(`# 🏗️ Architect Agent — {{projectName}}
+
+System integrity and architectural standards for {{framework}}.
+
+## Tech Stack
+- Framework: {{framework}}
+- Language: {{languageLabel}}
+- Database: {{database}}
+
+## Rules
+1. Enforce strict type safety.
+2. Maintain clean separation between business logic and UI.`, vars),
+              vars
+            ),
+            vars
+          ),
+          vars
+        ),
+      },
+      {
+        ideTarget: 'windsurf',
+        filename: 'frontend.md',
+        filePath: '.windsurf/rules/frontend.md',
+        content: compose(`# 🎨 Frontend Agent — {{projectName}}
+
+UI, UX, and State management rules.
+
+## Technical Scope
+- Styling: {{styling}}
+- State: {{stateManagement}}
+
+## Rules
+1. Use semantic HTML and responsive design.
+2. Follow the project's CSS design system.`, vars),
+      },
+      {
+        ideTarget: 'windsurf',
+        filename: 'backend.md',
+        filePath: '.windsurf/rules/backend.md',
+        content: compose(`# ⚙️ Backend Agent — {{projectName}}
+
+API, DB, and Security rules.
+
+## Rules
+1. Implement error handling for all external calls.
+2. Optimize {{database}} queries.`, vars),
+      },
+    ];
+  }
+
   const kb = getKnowledgeBlocks(vars);
 
   const template = `# {{projectName}} — Project Rules
@@ -473,6 +653,7 @@ This is a {{framework}} project using {{languageLabel}}.
 
   content = injectPackageKnowledge(content, vars);
   content = injectServiceKnowledge(content, vars);
+  content = injectOverlays(content, vars);
 
   content += `\n\n## Guardrails
 - Do not modify migration files without explicit confirmation
@@ -544,6 +725,7 @@ Write clean, production-ready code following established project patterns.
 
   content = injectPackageKnowledge(content, vars);
   content = injectServiceKnowledge(content, vars);
+  content = injectOverlays(content, vars);
 
   content += `\n\n## Boundaries
 - Never modify migration files without asking
@@ -607,6 +789,7 @@ This is a {{framework}} application using {{languageLabel}}.
 
   content = injectPackageKnowledge(content, vars);
   content = injectServiceKnowledge(content, vars);
+  content = injectOverlays(content, vars);
 
   content += `\n\n## Do Not
 - Modify migration files without confirmation
@@ -688,6 +871,7 @@ function formatUniversal(vars: TemplateVariables, _base: string): GeneratedFile[
 
   content = injectPackageKnowledge(content, vars);
   content = injectServiceKnowledge(content, vars);
+  content = injectOverlays(content, vars);
 
   content += `\n\n## Guardrails
 - ❌ Never modify migration files without asking

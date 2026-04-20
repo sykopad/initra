@@ -31,7 +31,10 @@ export function generateAgentFiles(config: WizardConfig): GenerationResult {
     config.projectName,
     config.stackConfig,
     config.selectedPackages ?? [],
-    config.selectedServices ?? []
+    config.selectedServices ?? [],
+    config.experienceLevel ?? 'experienced',
+    config.orchestrationMode ?? 'single-agent',
+    config.selectedOverlays ?? []
   );
 
   // 3. Generate files for each selected IDE
@@ -51,12 +54,60 @@ export function generateAgentFiles(config: WizardConfig): GenerationResult {
   const boilerplateFiles = generateProjectBoilerplate(config);
   files.push(...boilerplateFiles);
 
-  // 6. Return the complete result
+  // 6. Inject Autonomous Agent Workflow (if it's an AI-generated venture)
+  if (config.ventureType === 'ai-generated') {
+    const agentWorkflow = generateAutonomousWorkflow(config);
+    if (agentWorkflow) files.push(agentWorkflow);
+  }
+
+  // 7. Return the complete result
   return {
     files,
     templateUsed: template.slug,
     generatedAt: new Date().toISOString(),
     config,
+  };
+}
+
+/**
+ * Generates a GitHub Action workflow for autonomous agent builds
+ */
+function generateAutonomousWorkflow(config: WizardConfig): GeneratedFile | null {
+  const content = `name: 🤖 Autonomous Agent Build
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  agent-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Aider
+        run: |
+          python -m pip install aider-chat
+          
+      - name: Run Agent Work Order
+        env:
+          OPENROUTER_API_KEY: \${{ secrets.OPENROUTER_API_KEY }}
+          ANTHROPIC_API_KEY: \${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          echo "Processing work order..."
+          # In a real scenario, we would parse the Work Order from the commit message or an AGENTS.md supplement
+          # For now, we apply the high-level instructions
+          aider --message "Initialize the core features as defined in AGENTS.md" --auto-test --yes
+`;
+
+  return {
+    ideTarget: 'universal',
+    filename: 'initra-agent.yml',
+    filePath: '.github/workflows/initra-agent.yml',
+    content,
   };
 }
 

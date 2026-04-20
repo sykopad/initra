@@ -156,6 +156,27 @@ const supabase = createBrowserClient(url, key, {
 
 14. **SEO + Open Graph (Complete)** — Dynamic 1200x630 OG images and per-page metadata implemented for shared configurations via Edge runtime. (Done 2026-04-20)
 
+### 🔵 Phase 5: Advanced Agentic Features (Complete)
+
+15. **Multi-Agent Orchestration (Complete)** — Transition from single-file rules to directory-based agent hierarchies (`.cursor/rules/*.mdc`).
+16. **Workflow Tailoring (Complete)** — Dynamic rule branching for "Beginner" (Educational/Safe) vs "Expert" (Architectural/Concise) levels.
+17. **Workflow Overlays (Complete)** — Selectable logic blocks for complex tasks like "Security Audit" or "Performance Optimization".
+18. **MCP Server Integration (Complete)** — Boilerplate and instructions for building MCP servers to extend IDE agent capabilities.
+
+### 🟣 Phase 6: Deployment & Intelligence Expansion (Complete)
+
+19. **Deployment Orchestration (Complete)** — Integrated GitHub push, Vercel hooks, and Supabase database branching.
+20. **IDE Library Expansion (Complete)** — Added native support for Trae AI, Aider, Devin, and Replit Agent.
+21. **Expert Brain Overlays (Complete)** — Implemented specialized behavioral modules (V0 Designer, Deep Reasoning, Security Sentinel) derived from top-tier system prompts.
+
+### 🌐 Phase 7: The Autonomous Venture Studio (Complete)
+
+22. **AI Idea Fabric (Complete)** — High-fidelity autonomous brainstorming driven by **Claude Opus 4.6** (via OpenRouter). Generates one innovative venture blueprint every 24 hours.
+23. **The "Hatch" Engine (Complete)** — End-to-end orchestration of GitHub Repo creation, Vercel project provisioning, and custom domain assignment. Support for `VERCEL_TEAM_ID` and `GITHUB_TOKEN` integrated.
+24. **Venture Marketplace (Complete)** — UI upgraded to support autonomous project discovery, community voting, and real-time hatching status.
+25. **Donation Integration (Complete)** — Homepage updated with a support rationale for scaling the Venture Studio infrastructure beyond Vercel Hobby limits.
+26. **Autonomous Worker Injection (Complete)** — Automated delivery of GitHub Action workflows that spin up coding agents (Aider) upon project birth.
+
 ## Conventions
 
 - Use TypeScript strict mode. Avoid `any`.

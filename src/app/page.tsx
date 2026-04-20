@@ -125,6 +125,52 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Venture Studio Section */}
+      <section className="features-section" style={{ background: 'rgba(124,58,237,0.02)', padding: '6rem 0' }}>
+        <div className="container">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4rem', alignItems: 'center' }}>
+            <div>
+              <div className="hero-badge" style={{ marginBottom: '1.5rem' }}>
+                <span className="badge-dot" style={{ background: 'var(--success)' }}></span>
+                New: Autonomous Hatching
+              </div>
+              <h2 style={{ fontSize: '2.5rem', marginBottom: '1.5rem', textAlign: 'left' }}>
+                The World's First <span className="gradient-text" style={{ 
+                  background: 'linear-gradient(135deg, #fff 0%, #7c3aed 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                }}>Autonomous</span> Venture Studio.
+              </h2>
+              <p style={{ fontSize: '1.1rem', color: 'var(--text-secondary)', marginBottom: '2rem', lineHeight: '1.6' }}>
+                Initra doesn't just generate rules anymore. Our <strong>Hatch Engine</strong> creates repositories, provisions hosting, 
+                and assigns AI agents to start building your projects autonomously. From idea to live site in 120 seconds.
+              </p>
+              <div style={{ display: 'flex', gap: '1rem' }}>
+                <Link href="/community" className="btn btn-primary">Visit the Studio →</Link>
+              </div>
+            </div>
+            <div className="card" style={{ padding: '2rem', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(124,58,237,0.2)' }}>
+               <h3 style={{ marginBottom: '1rem', color: 'var(--primary-light)' }}>Why We Need Your Support</h3>
+               <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
+                 Initra runs on a Vercel Hobby account. Each autonomous venture "hatched" by the community requires its own 
+                 isolated repository and hosting environment. To keep the Venture Studio free and truly autonomous at scale, 
+                 we rely on community donations.
+               </p>
+               <div className="donation-card" style={{ padding: '1rem', background: 'rgba(0,0,0,0.2)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                    <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Next Reward: Dedicated Pro Cluster</span>
+                    <span style={{ fontSize: '0.8rem', color: 'var(--primary-light)' }}>64% funded</span>
+                  </div>
+                  <div style={{ width: '100%', height: '8px', background: 'rgba(255,255,255,0.05)', borderRadius: '4px', overflow: 'hidden' }}>
+                    <div style={{ width: '64%', height: '100%', background: 'var(--primary)' }}></div>
+                  </div>
+               </div>
+               <button className="btn btn-secondary btn-sm" style={{ width: '100%', marginTop: '1.5rem' }}>❤️ Support the Studio</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* IDE Support Section */}
       <section className="features-section" style={{ paddingBottom: '6rem' }}>
         <div className="container">

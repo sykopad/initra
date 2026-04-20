@@ -145,7 +145,7 @@ function mergePackageJsons(fragments: BoilerplateFile[], config: WizardConfig): 
 /**
  * Simple string interpolation for boilerplate
  */
-function interpolate(content: string, variables: Record<string, string>): string {
+export function interpolate(content: string, variables: Record<string, string>): string {
   let result = content;
   for (const [key, value] of Object.entries(variables)) {
     const regex = new RegExp(`{{${key}}}`, 'g');

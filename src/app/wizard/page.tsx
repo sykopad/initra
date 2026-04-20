@@ -4,7 +4,7 @@ import { useState, useCallback, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { generateAgentFiles } from "@/lib/engine";
-import { PROJECT_TEMPLATES, PROJECT_CATEGORIES } from "@/lib/engine/templates";
+import { PROJECT_TEMPLATES, PROJECT_CATEGORIES, WORKFLOW_OVERLAYS } from "@/lib/engine/templates";
 import { IDE_TARGETS } from "@/lib/engine/ide-targets";
 import { PACKAGE_LIBRARY, PACKAGE_CATEGORIES, getPackagesForTemplate } from "@/lib/engine/package-library";
 import { SERVICE_LIBRARY, SERVICE_CATEGORIES, getRecommendedServices } from "@/lib/engine/service-library";
@@ -15,6 +15,8 @@ import AgentEditor from "@/components/AgentEditor";
 import DonationButton from "@/components/wizard/DonationButton";
 import CodeViewer from "@/components/wizard/CodeViewer";
 import { saveSharedConfig } from "@/lib/actions/shared";
+import RepoSyncModal, { RepoSettings } from "@/components/wizard/RepoSyncModal";
+import DeploymentCenter from "@/components/wizard/DeploymentCenter";
 
 
 
@@ -62,7 +64,11 @@ export default function WizardPage() {
   const [importRepoUrl, setImportRepoUrl] = useState("");
   const [isImporting, setIsImporting] = useState(false);
   const [selectionMethod, setSelectionMethod] = useState<'browse' | 'import'>('browse');
+  const [orchestrationMode, setOrchestrationMode] = useState<'single-agent' | 'multi-agent'>('single-agent');
+  const [selectedOverlays, setSelectedOverlays] = useState<string[]>([]);
   const [isSharing, setIsSharing] = useState(false);
+  const [showRepoModal, setShowRepoModal] = useState(false);
+  const [syncResult, setSyncResult] = useState<{ url: string; repoFullName: string } | null>(null);
   const [shareUrl, setShareUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -256,6 +262,8 @@ export default function WizardPage() {
       selectedServices,
       includeBoilerplate,
       experienceLevel,
+      orchestrationMode,
+      selectedOverlays,
     };
 
     const result = generateAgentFiles(config);
@@ -325,7 +333,7 @@ export default function WizardPage() {
   }, [generatedFiles, projectName]);
 
   // Push to GitHub
-  const pushToGitHub = useCallback(async () => {
+  const handlePushToGitHub = useCallback(async (settings: RepoSettings) => {
     if (!projectName || generatedFiles.length === 0) return;
     setIsPushing(true);
     setToast("Creating GitHub repository...");
@@ -335,8 +343,9 @@ export default function WizardPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          repoName: projectName.toLowerCase().replace(/\s+/g, '-'),
-          isPrivate: true,
+          repoName: settings.name,
+          isPrivate: settings.isPrivate,
+          description: settings.description,
           files: generatedFiles
         }),
       });
@@ -344,10 +353,11 @@ export default function WizardPage() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Failed to push to GitHub");
 
+      setSyncResult({ url: data.url, repoFullName: data.repoFullName });
+      setShowRepoModal(false);
       setToast("🚀 Project pushed successfully!");
-      setTimeout(() => {
-        if (data.url) window.open(data.url, '_blank');
-      }, 1500);
+      
+      // Auto-save the session state if needed
     } catch (err: any) {
       console.error(err);
       setToast(`❌ Error: ${err.message}`);
@@ -431,8 +441,8 @@ export default function WizardPage() {
   }, [user, projectName, selectedTemplate, stackConfig, selectedPackages, selectedServices]);
 
   // Get core and advanced stack options
-  const coreOptions = selectedTemplate?.stackOptions.filter((o) => o.section === "core") || [];
-  const advancedOptions = selectedTemplate?.stackOptions.filter((o) => o.section === "advanced") || [];
+  const coreOptions = selectedTemplate?.stackOptions?.filter((o) => o.section === "core") || [];
+  const advancedOptions = selectedTemplate?.stackOptions?.filter((o) => o.section === "advanced") || [];
 
   // Helper to determine language for syntax highlighting
   const getLanguage = (filename: string) => {
@@ -1108,6 +1118,68 @@ export default function WizardPage() {
                   </div>
                 </div>
 
+                {/* Advanced Agentic Features */}
+                <div style={{ marginTop: "2rem" }}>
+                  <h3 style={{ fontSize: "1.1rem", marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                    🧠 Advanced Agentic Features
+                  </h3>
+                  
+                  <div className="glass-panel" style={{ padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+                    {/* Orchestration Mode */}
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1.5rem" }}>
+                      <div style={{ flex: 1 }}>
+                        <h4 style={{ fontSize: "0.95rem", marginBottom: "0.25rem" }}>Orchestration Mode</h4>
+                        <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", margin: 0 }}>
+                          {orchestrationMode === 'multi-agent' 
+                            ? "Hierarchical rules (Architect, Frontend, Backend) for better focus." 
+                            : "Single monolithic rule file for simpler projects."}
+                        </p>
+                      </div>
+                      <div style={{ display: "flex", background: "rgba(255,255,255,0.05)", borderRadius: "8px", padding: "4px" }}>
+                        <button 
+                          className={`btn btn-sm ${orchestrationMode === 'single-agent' ? 'btn-primary' : 'btn-ghost'}`}
+                          onClick={() => setOrchestrationMode('single-agent')}
+                        >
+                          Single
+                        </button>
+                        <button 
+                          className={`btn btn-sm ${orchestrationMode === 'multi-agent' ? 'btn-primary' : 'btn-ghost'}`}
+                          onClick={() => setOrchestrationMode('multi-agent')}
+                        >
+                          Multi
+                        </button>
+                      </div>
+                    </div>
+
+                    <div style={{ height: "1px", background: "rgba(255,255,255,0.1)" }} />
+
+                    {/* Workflow Overlays */}
+                    <div>
+                      <h4 style={{ fontSize: "0.95rem", marginBottom: "0.75rem" }}>Applied Workflows</h4>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+                        {WORKFLOW_OVERLAYS.map(overlay => {
+                          const isSelected = selectedOverlays.includes(overlay.slug);
+                          return (
+                            <div 
+                              key={overlay.slug}
+                              className={`project-type-card ${isSelected ? "selected" : ""}`}
+                              onClick={() => setSelectedOverlays(prev => 
+                                isSelected ? prev.filter(s => s !== overlay.slug) : [...prev, overlay.slug]
+                              )}
+                              style={{ padding: "1rem", textAlign: "left", cursor: "pointer" }}
+                            >
+                              <div style={{ fontSize: "1.2rem", marginBottom: "0.5rem" }}>{overlay.icon}</div>
+                              <h5 style={{ fontSize: "0.85rem", margin: "0 0 0.25rem" }}>{overlay.name}</h5>
+                              <p style={{ fontSize: "0.7rem", color: "var(--text-secondary)", margin: 0 }}>{overlay.description}</p>
+                              {isSelected && <div className="checkmark" style={{ background: "var(--primary)", bottom: "10px", right: "10px" }}>✓</div>}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 <div className="wizard-nav">
                   <button className="btn btn-ghost" onClick={() => setStep(4)}>
                     ← Back
@@ -1171,11 +1243,22 @@ export default function WizardPage() {
                       {selectedPackages.length === 0 && <span className="text-muted">None</span>}
                     </div>
                     <p style={{ fontWeight: 600, fontSize: "0.9rem", marginBottom: "0.5rem" }}>Services:</p>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem" }}>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem", marginBottom: "1rem" }}>
                       {selectedServices.map(s => (
                         <span key={s} className="badge-outline">{s}</span>
                       ))}
                       {selectedServices.length === 0 && <span className="text-muted">None</span>}
+                    </div>
+                    <p style={{ fontWeight: 600, fontSize: "0.9rem", marginBottom: "0.5rem" }}>Architect Mode:</p>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem" }}>
+                      <span className="badge-outline" style={{ borderColor: 'var(--primary)' }}>
+                        {orchestrationMode === 'multi-agent' ? '🚀 Hierarchical Multi-Agent' : '📄 Single Agent'}
+                      </span>
+                      {selectedOverlays.map(slug => (
+                        <span key={slug} className="badge-outline" style={{ borderColor: 'var(--success)' }}>
+                          {WORKFLOW_OVERLAYS.find(o => o.slug === slug)?.name}
+                        </span>
+                      ))}
                     </div>
                   </div>
                 </div>
@@ -1281,6 +1364,10 @@ export default function WizardPage() {
                         </div>
                       )}
                     </div>
+
+                    <div style={{ marginTop: "1rem" }}>
+                      <DonationButton />
+                    </div>
                   </div>
                 </div>
 
@@ -1303,7 +1390,17 @@ export default function WizardPage() {
                   Download your agent configuration and <code>.env.example</code> setup.
                 </p>
 
-                <div className="download-grid">
+                <div style={{ marginTop: "2rem" }}>
+                  <DeploymentCenter 
+                    projectName={projectName}
+                    generatedFiles={generatedFiles}
+                    onOpenGitHubSync={() => setShowRepoModal(true)}
+                    syncResult={syncResult}
+                    isPushing={isPushing}
+                  />
+                </div>
+
+                <div className="download-grid" style={{ marginTop: "2rem" }}>
                   <div className="card download-option" onClick={downloadZip}>
                     <span className="download-icon">📁</span>
                     <h3>Download ZIP</h3>
@@ -1323,14 +1420,6 @@ export default function WizardPage() {
                     <p>Copy all file contents to clipboard with file path headers.</p>
                   </div>
                   <div
-                    className={`card download-option ${isPushing ? "loading" : ""}`}
-                    onClick={!isPushing ? pushToGitHub : undefined}
-                  >
-                    <span className="download-icon">🚀</span>
-                    <h3>Push to GitHub</h3>
-                    <p>{isPushing ? "Creating repo..." : "Create a new private repository and push all files instantly."}</p>
-                  </div>
-                  <div
                     className={`card download-option ${isSharing ? "loading" : ""}`}
                     onClick={!isSharing ? handleShareConfig : undefined}
                     style={shareUrl ? { borderColor: 'var(--accent-purple)', background: 'rgba(255,100,255,0.05)' } : {}}
@@ -1342,6 +1431,14 @@ export default function WizardPage() {
                     </p>
                   </div>
                 </div>
+
+                <RepoSyncModal 
+                  isOpen={showRepoModal}
+                  onClose={() => setShowRepoModal(false)}
+                  onConfirm={handlePushToGitHub}
+                  initialName={projectName}
+                  isPushing={isPushing}
+                />
 
                 {/* Setup Instructions */}
                 <div className="setup-instructions">

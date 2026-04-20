@@ -4,7 +4,7 @@ import { Octokit } from "octokit";
 
 export async function POST(req: Request) {
   try {
-    const { repoName, isPrivate, files } = await req.json();
+    const { repoName, isPrivate, files, description } = await req.json();
 
     if (!repoName || !files || !Array.isArray(files)) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -18,12 +18,11 @@ export async function POST(req: Request) {
     }
 
     // Retrieve the provider token (GitHub Access Token)
-    // Note: This requires the 'repo' scope to have been requested during login
     const providerToken = session.provider_token;
 
     if (!providerToken) {
       return NextResponse.json({ 
-        error: "GitHub token not found. Please log out and log back in to grant repository access." 
+        error: "GitHub token not found. Please log out and sign back in to grant repository access." 
       }, { status: 401 });
     }
 
@@ -32,9 +31,9 @@ export async function POST(req: Request) {
     // 1. Create the repository
     const { data: repo } = await octokit.rest.repos.createForAuthenticatedUser({
       name: repoName,
-      private: isPrivate,
-      auto_init: true, // Start with a README so we have a main branch
-      description: "Project bootstrapped with Initra AI",
+      private: isPrivate === undefined ? true : isPrivate,
+      auto_init: true, 
+      description: description || "Project bootstrapped with Initra AI (https://initra.app)",
     });
 
     const owner = repo.owner.login;

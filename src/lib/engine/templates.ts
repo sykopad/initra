@@ -1103,86 +1103,216 @@ func Setup(r *gin.Engine) {
     ],
   },
 
-  // ── Nuxt 4 ──────────────────────────────────
+
+  // ── MCP Server ──────────────────────────────
   {
-    slug: 'nuxt',
-    name: 'Nuxt 4',
-    category: 'web-app',
-    icon: '💚',
-    description: 'The Intuitive Vue Framework for full-stack apps',
+    slug: 'mcp-server',
+    name: 'MCP Server Starter',
+    category: 'extension-plugin',
+    icon: '🔌',
+    description: 'Model Context Protocol (MCP) server to extend AI agent capabilities with custom tools',
     language: 'typescript',
     availableVersions: [
-      { id: '4.4.2', label: 'Nuxt 4 (Latest)', status: 'stable', major: 4 },
-      { id: '3.15.0', label: 'Nuxt 3', status: 'stable', major: 3 }
+      { id: '1.0.0', label: 'MCP SDK (TypeScript)', status: 'stable', major: 1 }
     ],
     defaultStack: {
-      version: '4.4.2',
-      language: 'typescript',
-      styling: 'tailwind',
-      database: 'supabase',
       packageManager: 'npm',
     },
-    stackOptions: [
+    stackOptions: [],
+    boilerplateFiles: [
       {
-        fieldName: 'version',
-        fieldLabel: 'Nuxt Version',
-        fieldType: 'select',
-        options: [
-          { value: '4.4.2', label: 'Nuxt 4 (Latest)' },
-          { value: '3.15.0', label: 'Nuxt 3' },
-        ],
-        defaultValue: '4.4.2',
-        isRequired: true,
-        section: 'core',
-      }
-    ],
-  },
-
-  // ── Django 6 ────────────────────────────────
-  {
-    slug: 'django',
-    name: 'Django 6',
-    category: 'api-backend',
-    icon: '🎸',
-    description: 'The high-level Python web framework',
-    language: 'python',
-    availableVersions: [
-      { id: '6.0.4', label: 'Django 6 (Latest)', status: 'stable', major: 6 },
-      { id: '5.1.0', label: 'Django 5.1', status: 'stable', major: 5 }
-    ],
-    defaultStack: {
-      version: '6.0.4',
-      database: 'postgresql',
-      auth: 'session',
-      testing: 'pytest',
-    },
-    stackOptions: [
-       {
-        fieldName: 'version',
-        fieldLabel: 'Django Version',
-        fieldType: 'select',
-        options: [
-          { value: '6.0.4', label: 'Django 6 (Latest)' },
-          { value: '5.1.0', label: 'Django 5.1' },
-        ],
-        defaultValue: '6.0.4',
-        isRequired: true,
-        section: 'core',
+        path: 'package.json',
+        content: JSON.stringify({
+          name: "{{projectSlug}}",
+          version: "0.1.0",
+          description: "MCP Server for custom tools",
+          type: "module",
+          bin: {
+            "mcp-server": "./build/index.js"
+          },
+          scripts: {
+            "build": "tsc",
+            "start": "node build/index.js",
+            "dev": "tsc --watch"
+          },
+          dependencies: {
+            "@modelcontextprotocol/sdk": "^1.0.3"
+          },
+          devDependencies: {
+            "@types/node": "^20.11.0",
+            "typescript": "^5.3.3"
+          }
+        }, null, 2),
+        mergeType: 'package-json'
       },
       {
-        fieldName: 'database',
-        fieldLabel: 'Database',
-        fieldType: 'select',
-        options: [
-          { value: 'postgresql', label: 'PostgreSQL' },
-          { value: 'sqlite', label: 'SQLite' },
-          { value: 'none', label: 'None' },
-        ],
-        defaultValue: 'postgresql',
-        isRequired: false,
-        section: 'core',
+        path: 'tsconfig.json',
+        content: JSON.stringify({
+          compilerOptions: {
+            target: "ES2022",
+            module: "NodeNext",
+            moduleResolution: "NodeNext",
+            outDir: "./build",
+            rootDir: "./src",
+            strict: true,
+            esModuleInterop: true,
+            skipLibCheck: true,
+            forceConsistentCasingInFileNames: true
+          },
+          include: ["src/**/*"]
+        }, null, 2)
+      },
+      {
+        path: 'src/index.ts',
+        content: `#!/usr/bin/env node
+import { Server } from "@modelcontextprotocol/sdk/server/index.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import {
+  CallToolRequestSchema,
+  ListToolsRequestSchema,
+} from "@modelcontextprotocol/sdk/types.js";
+import { promises as fs } from "fs";
+import path from "path";
+
+/**
+ * INITRA — Generated MCP Server
+ * Use this to extend your AI agent (Cursor, Claude, etc.) with custom tools.
+ */
+
+const server = new Server(
+  {
+    name: "{{projectName}}",
+    version: "0.1.0",
+  },
+  {
+    capabilities: {
+      tools: {},
+    },
+  }
+);
+
+/**
+ * 🛠️ Define Tools
+ * Agents will see these tools in their interface.
+ */
+server.setRequestHandler(ListToolsRequestSchema, async () => {
+  return {
+    tools: [
+      {
+        name: "search_files",
+        description: "Search for files in a directory matching a pattern",
+        inputSchema: {
+          type: "object",
+          properties: {
+            directory: { type: "string" },
+            pattern: { type: "string" },
+          },
+          required: ["directory", "pattern"],
+        },
+      },
+    ],
+  };
+});
+
+/**
+ * ⚙️ Tool Handlers
+ * Logic for when an agent calls a tool.
+ */
+server.setRequestHandler(CallToolRequestSchema, async (request) => {
+  const { name, arguments: args } = request.params;
+
+  if (name === "search_files") {
+    const { directory, pattern } = args as { directory: string; pattern: string };
+    try {
+      const files = await fs.readdir(path.resolve(directory));
+      const filtered = files.filter(f => f.includes(pattern));
+      return {
+        content: [{ type: "text", text: JSON.stringify(filtered, null, 2) }],
+      };
+    } catch (error: any) {
+      return {
+        content: [{ type: "text", text: \`Error: \${error.message}\` }],
+        isError: true,
+      };
+    }
+  }
+
+  throw new Error("Tool not found");
+});
+
+/**
+ * 🚀 Start Server
+ */
+async function main() {
+  const transport = new StdioServerTransport();
+  await server.connect(transport);
+  console.error("{{projectName}} MCP server running on stdio");
+}
+
+main().catch((error) => {
+  console.error("Fatal error in main():", error);
+  process.exit(1);
+});
+`
+      },
+      {
+        path: 'README.md',
+        content: `# 🔌 {{projectName}} — MCP Server
+
+Generated by **Initra**. This is a Model Context Protocol (MCP) server that provides custom tools to your AI agent.
+
+## 🚀 Getting Started
+
+1. **Install Dependencies**:
+   \`\`\`bash
+   {{packageManager}} install
+   \`\`\`
+
+2. **Build the Server**:
+   \`\`\`bash
+   {{packageManager}} run build
+   \`\`\`
+
+3. **Run Locally**:
+   \`\`\`bash
+   {{packageManager}} start
+   \`\`\`
+
+## 🔗 IDE Integration
+
+### Cursor
+1. Open Cursor Settings -> Features -> MCP.
+2. Click "+ Add New MCP Server".
+3. Name: \`{{projectName}}\`
+4. Type: \`command\`
+5. Command: \`node \${path_to_project}/build/index.js\`
+
+### Claude Desktop
+Add to your \`claude_desktop_config.json\`:
+\`\`\`json
+{
+  "mcpServers": {
+    "{{projectSlug}}": {
+      "command": "node",
+      "args": ["\${path_to_project}/build/index.js"]
+    }
+  }
+}
+\`\`\`
+
+## 🛠️ Adding Tools
+Open \`src/index.ts\` and add new entries to \`ListToolsRequestSchema\` and \`CallToolRequestSchema\`.
+`
       }
     ],
+    agentInstructions: `## 🏗️ MCP Server Development Rules
+You are building an MCP server for {{projectName}}.
+
+1. **Protocol Compliance**: Always follow the Model Context Protocol spec.
+2. **Tool Schemas**: Be precise with JSON Schema in ListTools.
+3. **Error Handling**: Always wrap handlers in try/catch and return 'isError: true' for protocol errors.
+4. **Logging**: Use console.error for logs (stdout is reserved for protocol messages).
+5. **Security**: Validate all paths and inputs to prevent directory traversal.`,
   },
 ];
 
@@ -1214,3 +1344,55 @@ export const PROJECT_CATEGORIES = [
   { slug: 'infrastructure', name: 'Infrastructure', icon: '🏗️', description: 'IaC, CI/CD, containers, and cloud setups' },
   { slug: 'extension-plugin', name: 'Extension / Plugin', icon: '🧩', description: 'Browser, IDE, and platform extensions' },
 ];
+
+export const WORKFLOW_OVERLAYS: import('./types').WorkflowOverlay[] = [
+  {
+    slug: 'security-hardening',
+    name: 'Security Sentinel',
+    description: 'Advanced protocols for secret prevention, input sanitization, and dependency auditing.',
+    icon: '🛡️',
+    content: `## 🛡️ Security Sentinel Protocols
+1. **Secret Prevention**: NEVER hardcode API keys or secrets. Check for .env usage in every tool call.
+2. **Input Sanitization**: Assume all user inputs are hostile. Use Zod/equivalents for all entry points.
+3. **Database Guard**: Use parameterized queries exclusively. Avoid string concatenation in SQL/NoSQL.
+4. **Least Privilege**: Always choose the most restrictive permission set for session roles.`,
+  },
+  {
+    slug: 'v0-designer',
+    name: 'V0 UI/UX Specialist',
+    icon: '🎨',
+    description: 'Rules for high-fidelity Tailwind components, ARIA accessibility, and modern motion patterns.',
+    content: `## 🎨 UI/UX Excellence (v0-spec)
+1. **Tailwind Mastery**: Use semantic utility classes. Favor "modern, clean, and spacious" layouts.
+2. **Accessibility**: Every interactive element MUST have proper ARIA attributes and focus states.
+3. **Motion**: Use Framer Motion for meaningful transitions. Avoid excessive or distracting animations.
+4. **Aesthetics**: Use curated color palettes (HWB/HSL) and glass-morphism where appropriate.`,
+  },
+  {
+    slug: 'deep-reasoning',
+    name: 'Deep Logic Architect',
+    icon: '🧠',
+    description: 'Focuses on architectural planning, tool-minimization, and strict chain-of-thought.',
+    content: `## 🧠 Deep Reasoning Framework
+1. **Planning Mode**: Before any edit, perform a thorough search and indexing of the codebase.
+2. **Minimalism**: Achieve tasks with the fewest possible steps and code changes.
+3. **Correctness**: Prioritize type safety and edge-case handling over speed.
+4. **Self-Correction**: Review generated code for logic errors or anti-patterns BEFORE presenting to the user.`,
+  },
+  {
+    slug: 'performance-opt',
+    name: 'Performance Optimization',
+    description: 'Enforces strict bundling, caching, and runtime efficiency rules',
+    icon: '⚡',
+    content: `## ⚡ Performance Standards
+1. **Dynamic Imports**: Use lazy loading for all heavy components.
+2. **Memoization**: Favor React.memo and useMemo for complex derived state.
+3. **Optimistic Updates**: Implement immediate UI feedback for all network-bound actions.
+4. **Bundle Size**: Monitor and report any dependencies larger than 50kb.`,
+  }
+];
+
+/** Get an overlay by slug */
+export function getOverlay(slug: string) {
+  return WORKFLOW_OVERLAYS.find(o => o.slug === slug);
+}

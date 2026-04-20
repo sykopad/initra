@@ -4,6 +4,8 @@
 // =============================================
 
 import { TemplateVariables } from './types';
+import { getTemplate } from './templates';
+import { interpolate } from './boilerplate-engine';
 
 /** Check if a template variable is considered "empty" / falsy */
 function isEmpty(value: string | boolean | string[] | undefined): boolean {
@@ -74,10 +76,19 @@ export function extractVariables(
   projectName: string,
   stackConfig: Record<string, string | boolean>,
   selectedPackages: string[] = [],
-  selectedServices: string[] = []
+  selectedServices: string[] = [],
+  experienceLevel: 'beginner' | 'experienced' = 'experienced',
+  orchestrationMode: 'single-agent' | 'multi-agent' = 'single-agent',
+  selectedOverlays: string[] = []
 ): TemplateVariables {
   const vars: TemplateVariables = {
     projectName: projectName || 'My Project',
+    experienceLevel,
+    orchestrationMode,
+    isBeginner: experienceLevel === 'beginner',
+    isExpert: experienceLevel === 'experienced',
+    isMultiAgent: orchestrationMode === 'multi-agent',
+    selectedOverlays,
     templateSlug,
     templateVersion,
     framework: templateSlug,
@@ -130,6 +141,12 @@ export function extractVariables(
     vars.language === 'go' ? 'Go' :
     vars.language === 'rust' ? 'Rust' :
     vars.language as string;
+
+  // 2. Add Template-level Agent Instructions
+  const template = getTemplate(templateSlug);
+  if (template?.agentInstructions) {
+    vars.agentInstructions = interpolate(template.agentInstructions, vars);
+  }
 
   return vars;
 }

@@ -9,6 +9,7 @@ export async function getCommunityProjects(filter: string = "All") {
   let query = supabase
     .from("community_projects")
     .select("*")
+    .order("venture_type", { ascending: false }) // AI-generated first
     .order("vote_score", { ascending: false });
 
   if (filter !== "All") {
@@ -29,6 +30,17 @@ export async function getCommunityProjects(filter: string = "All") {
   }
   
   return data;
+}
+
+export async function hatchVentureAction(projectId: string) {
+  const { hatchVenture } = await import("@/lib/actions/hatch");
+  try {
+    const result = await hatchVenture(projectId);
+    revalidatePath("/community");
+    return result;
+  } catch (err: any) {
+    throw new Error(err.message || "Failed to hatch venture");
+  }
 }
 
 export async function voteProject(projectId: string, value: number) {

@@ -16,26 +16,37 @@ export type UserTier = 'community' | 'pro' | 'elite';
 export function getModelForTier(tier: UserTier = 'community'): string {
   switch (tier) {
     case 'elite':
-      return 'anthropic/claude-3-opus';
+      return 'anthropic/claude-3-opus'; // Standard Elite
     case 'pro':
-      return 'openai/gpt-3.5-turbo-instruct'; // Fallback for codex if not on OR
+      return 'anthropic/claude-3.5-sonnet'; // Reliable Sonnet
     case 'community':
     default:
       return 'openai/gpt-4o-mini';
   }
 }
 
+/**
+ * Premium Model for Daily Idea Generation
+ */
+export const DAILY_IDEA_MODEL = 'anthropic/claude-opus-4.6';
+
 interface ChatMessage {
   role: 'user' | 'assistant' | 'system';
   content: string;
 }
 
-export async function callOpenRouter(messages: ChatMessage[], tier: UserTier = 'community') {
+export async function callOpenRouter(
+  messages: ChatMessage[], 
+  tierOrModel: UserTier | string = 'community'
+) {
   if (!OPENROUTER_API_KEY) {
     throw new Error('OPENROUTER_API_KEY is not configured');
   }
 
-  const model = getModelForTier(tier);
+  // If the input is a known tier, resolve it; otherwise, treat it as a direct model slug
+  const model = ['community', 'pro', 'elite'].includes(tierOrModel)
+    ? getModelForTier(tierOrModel as UserTier)
+    : tierOrModel;
 
   const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
