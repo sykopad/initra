@@ -14,6 +14,7 @@ import Navbar from "@/components/Navbar";
 import AgentEditor from "@/components/AgentEditor";
 import DonationButton from "@/components/wizard/DonationButton";
 import CodeViewer from "@/components/wizard/CodeViewer";
+import { saveSharedConfig } from "@/lib/actions/shared";
 
 
 
@@ -61,6 +62,8 @@ export default function WizardPage() {
   const [importRepoUrl, setImportRepoUrl] = useState("");
   const [isImporting, setIsImporting] = useState(false);
   const [selectionMethod, setSelectionMethod] = useState<'browse' | 'import'>('browse');
+  const [isSharing, setIsSharing] = useState(false);
+  const [shareUrl, setShareUrl] = useState<string | null>(null);
 
   useEffect(() => {
     const supabase = createClient();
@@ -388,6 +391,44 @@ export default function WizardPage() {
       setIsImporting(false);
     }
   }, [importRepoUrl]);
+
+  // Handle Share Config
+  const handleShareConfig = useCallback(async () => {
+    if (!user) {
+      setToast("🔒 Please login to share configurations");
+      return;
+    }
+    
+    setIsSharing(true);
+    setToast("🔗 Generating share link...");
+
+    try {
+      const configToShare = {
+        templateSlug: selectedTemplate?.slug,
+        templateVersion: selectedTemplate?.availableVersions[0]?.id,
+        stackConfig,
+        selectedPackages,
+        selectedServices,
+      };
+
+      const result = await saveSharedConfig(
+        projectName || "My Project",
+        selectedTemplate?.slug || "unknown",
+        configToShare,
+        user.id
+      );
+
+      const url = `${window.location.origin}/shared/${result.slug}`;
+      setShareUrl(url);
+      copyToClipboard(url);
+      setToast("✅ Link copied to clipboard!");
+    } catch (err: any) {
+      console.error(err);
+      setToast(`❌ Error: ${err.message}`);
+    } finally {
+      setIsSharing(false);
+    }
+  }, [user, projectName, selectedTemplate, stackConfig, selectedPackages, selectedServices]);
 
   // Get core and advanced stack options
   const coreOptions = selectedTemplate?.stackOptions.filter((o) => o.section === "core") || [];
@@ -1289,10 +1330,16 @@ export default function WizardPage() {
                     <h3>Push to GitHub</h3>
                     <p>{isPushing ? "Creating repo..." : "Create a new private repository and push all files instantly."}</p>
                   </div>
-                  <div className="card download-option" style={{ opacity: 0.5, cursor: "default" }}>
+                  <div
+                    className={`card download-option ${isSharing ? "loading" : ""}`}
+                    onClick={!isSharing ? handleShareConfig : undefined}
+                    style={shareUrl ? { borderColor: 'var(--accent-purple)', background: 'rgba(255,100,255,0.05)' } : {}}
+                  >
                     <span className="download-icon">🔗</span>
-                    <h3>Share Link</h3>
-                    <p>Generate a permalink to share your configuration. Coming soon!</p>
+                    <h3>{shareUrl ? "✅ Link Copied" : "Share Config"}</h3>
+                    <p>
+                      {isSharing ? "Generating..." : shareUrl ? `Shared at ${shareUrl}` : "Generate a permalink to share your configuration with the community."}
+                    </p>
                   </div>
                 </div>
 

@@ -3,11 +3,25 @@
 import { useState, useCallback, useEffect, useTransition } from "react";
 import Navbar from "@/components/Navbar";
 import { 
-  getCommunityProjects, 
   voteProject, 
   suggestProject, 
   getUserVotes 
 } from "@/lib/actions/community";
+import { getCommunityProjects } from "@/lib/actions/shared";
+import Link from "next/link";
+
+interface SharedProject {
+  id: string;
+  slug: string;
+  projectName: string;
+  templateSlug: string;
+  created_at: string;
+  config: any;
+  profiles: {
+    username: string;
+    avatar_url: string;
+  };
+}
 
 interface CommunityProject {
   id: string;
@@ -34,6 +48,7 @@ const FILTER_OPTIONS = ["All", "Proposed", "In Progress", "Needs Agents", "Compl
 
 export default function CommunityPage() {
   const [projects, setProjects] = useState<CommunityProject[]>([]);
+  const [sharedConfigs, setSharedConfigs] = useState<SharedProject[]>([]);
   const [activeFilter, setActiveFilter] = useState("All");
   const [showSuggestModal, setShowSuggestModal] = useState(false);
   const [userVotes, setUserVotes] = useState<Record<string, number>>({});
@@ -50,18 +65,19 @@ export default function CommunityPage() {
 
   const loadData = useCallback(async () => {
     try {
-      const [fetchedProjects, fetchedVotes] = await Promise.all([
-        getCommunityProjects(activeFilter),
+      const [fetchedShared, fetchedVotes] = await Promise.all([
+        getCommunityProjects(),
         getUserVotes()
       ]);
-      setProjects(fetchedProjects as any);
+      setSharedConfigs(fetchedShared as any);
       setUserVotes(fetchedVotes);
+      setLoading(false);
     } catch (err) {
       console.error("Failed to load community data:", err);
     } finally {
       setLoading(false);
     }
-  }, [activeFilter]);
+  }, []);
 
   useEffect(() => {
     loadData();
@@ -138,87 +154,65 @@ export default function CommunityPage() {
           {/* Header */}
           <div className="community-header">
             <h1>🌍 Community Hub</h1>
-            <p>
-              Suggest open-source projects that benefit humanity. Vote, contribute
-              agent configs, and build together.
-            </p>
+          </div>
+          <div className="section-title" style={{ marginBottom: '2rem' }}>
+            <h2 style={{ fontSize: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              🎯 Recent Stacks
+            </h2>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Configurations built and shared by the community.</p>
           </div>
 
-          {/* Actions Bar */}
-          <div className="community-actions">
-            <div className="filter-tabs">
-              {FILTER_OPTIONS.map((filter) => (
-                <button
-                  key={filter}
-                  className={`filter-tab ${activeFilter === filter ? "active" : ""}`}
-                  onClick={() => {
-                    setActiveFilter(filter);
-                    setLoading(true);
-                  }}
-                >
-                  {filter}
-                </button>
-              ))}
-            </div>
-            <button className="btn btn-primary" onClick={() => setShowSuggestModal(true)}>
-              💡 Suggest a Project
-            </button>
-          </div>
-
-          {/* Project Grid */}
           {loading ? (
             <div className="community-grid">
-              {[1, 2, 3, 4].map(i => (
-                <div key={i} className="card community-card skeleton-card">
-                  <div className="skeleton title"></div>
-                  <div className="skeleton text"></div>
-                  <div className="skeleton text-short"></div>
-                  <div className="skeleton footer"></div>
-                </div>
-              ))}
+               {[1, 2, 3].map(i => <div key={i} className="card skeleton-card" style={{ height: '200px' }}></div>)}
             </div>
           ) : (
-            <div className="community-grid">
-              {projects.map((project) => (
-                <div key={project.id} className="card community-card">
-                  <div className="community-card-header">
-                    <h3>{project.title}</h3>
-                    <span className={`status-badge ${project.status.replace('_', '-')}`}>
-                      {STATUS_LABELS[project.status]}
-                    </span>
-                  </div>
-                  <p>{project.description}</p>
-                  <div className="community-tags">
-                    {project.tags.map((tag) => (
-                      <span key={tag} className="community-tag">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="community-card-footer">
-                    <div className="vote-controls">
-                      <button
-                        className={`vote-btn ${userVotes[project.id] === 1 ? "active-up" : ""}`}
-                        onClick={() => handleVoteAction(project.id, 1)}
-                      >
-                        ▲
-                      </button>
-                      <span className="vote-count">{project.vote_score}</span>
-                      <button
-                        className={`vote-btn ${userVotes[project.id] === -1 ? "active-down" : ""}`}
-                        onClick={() => handleVoteAction(project.id, -1)}
-                      >
-                        ▼
-                      </button>
+            <div className="community-grid" style={{ marginBottom: '4rem' }}>
+              {sharedConfigs.map((config) => (
+                <Link href={`/shared/${config.slug}`} key={config.id} style={{ textDecoration: 'none' }}>
+                  <div className="card community-card hover-lift">
+                    <div className="community-card-header">
+                       <span style={{ fontSize: '1.5rem' }}>
+                         {config.templateSlug === 'nextjs' ? '⚛️' : config.templateSlug === 'django' ? '🐍' : '🚀'}
+                       </span>
+                       <h3 style={{ fontSize: '1.1rem' }}>{config.projectName}</h3>
                     </div>
-                    <div className="agent-count">
-                      🤖 {project.agent_count} agent{project.agent_count !== 1 ? "s" : ""}
+                    <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                      Built by <span style={{ color: 'var(--accent-cyan-light)' }}>{config.profiles?.username || 'Anon'}</span>
+                    </p>
+                    <div style={{ display: 'flex', gap: '8px', marginTop: '1rem' }}>
+                       <span style={{ fontSize: '0.7rem', padding: '2px 8px', background: 'rgba(255,255,255,0.05)', borderRadius: '4px' }}>
+                         {config.config.selectedPackages.length} pkgs
+                       </span>
+                       <span style={{ fontSize: '0.7rem', padding: '2px 8px', background: 'rgba(255,255,255,0.05)', borderRadius: '4px' }}>
+                         {config.config.stackConfig.language}
+                       </span>
                     </div>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           )}
+
+          {sharedConfigs.length === 0 && !loading && (
+             <div style={{ textAlign: "center", padding: "2rem", marginBottom: '4rem', background: 'rgba(255,255,255,0.02)', borderRadius: '12px' }}>
+               <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>No shared stacks yet. Be the first to build and share!</p>
+             </div>
+          )}
+
+          <div className="section-title" style={{ marginBottom: '2rem' }}>
+            <h2 style={{ fontSize: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              💡 Project Ideas
+            </h2>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Vote on what should be built next with Initra.</p>
+          </div>
+
+          <div className="community-grid">
+            <div className="card community-card" style={{ opacity: 0.7, borderStyle: 'dashed' }}>
+               <h3>Coming Soon</h3>
+               <p>The brainstorming hub is being updated. Stay tuned!</p>
+            </div>
+          </div>
 
           {!loading && projects.length === 0 && (
             <div style={{ textAlign: "center", padding: "4rem", color: "var(--text-muted)" }}>

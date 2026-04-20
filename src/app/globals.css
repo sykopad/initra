@@ -1533,55 +1533,111 @@ body {
 }
 
 /* === Responsive === */
+/* === Global Responsive Refinements === */
+@media (max-width: 1024px) {
+  :root {
+    --space-4xl: 4rem;
+    --space-3xl: 3rem;
+  }
+}
+
 @media (max-width: 768px) {
-  .hero h1 {
-    font-size: var(--text-3xl);
+  :root {
+    --text-6xl: 2.5rem;
+    --text-5xl: 2rem;
+    --text-4xl: 1.75rem;
+    --space-xl: 1rem;
+    --space-lg: 0.75rem;
   }
 
-  .hero-stats {
-    flex-direction: column;
-    gap: var(--space-xl);
+  .container {
+    padding: 0 var(--space-md);
   }
 
-  .features-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .review-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .review-sidebar {
-    position: static;
-  }
-
-  .community-grid {
-    grid-template-columns: 1fr;
+  .navbar-inner {
+    flex-direction: row;
+    justify-content: space-between;
   }
 
   .navbar-links {
     display: none;
   }
 
+  .hero {
+    padding: 7rem 0 4rem;
+  }
+
+  .hero-actions {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 0 1rem;
+  }
+
+  .hero-stats {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: var(--space-xl);
+    justify-content: center;
+  }
+
+  /* Wizard Mobile Enhancements */
   .wizard-progress {
     overflow-x: auto;
     justify-content: flex-start;
+    padding: var(--space-md) var(--space-sm);
+    scrollbar-width: none; /* Firefox */
+  }
+  .wizard-progress::-webkit-scrollbar { display: none; }
+
+  .progress-line { width: 30px; }
+  .progress-label { display: none; }
+
+  .project-type-grid, 
+  .stack-config-form, 
+  .ide-grid, 
+  .download-grid,
+  .community-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+  }
+
+  .review-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .review-sidebar {
+    width: 100%;
+    position: relative;
+    top: 0;
+  }
+
+  .wizard-nav {
+    position: sticky;
+    bottom: 0;
+    z-index: 50;
+    background: rgba(10, 10, 26, 0.95);
+    backdrop-filter: blur(20px);
+    width: 100%;
+    margin-top: 2rem;
     padding: var(--space-md);
+    border-top: 1px solid var(--border-medium);
+    display: flex;
+    justify-content: space-between;
   }
 
-  .progress-label {
-    display: none;
+  .code-preview {
+    font-size: 0.75rem;
   }
+}
 
-  .stack-config-form {
-    grid-template-columns: 1fr;
+@media (max-width: 480px) {
+  .hero-badge {
+    font-size: 0.65rem;
   }
-
-  .ide-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .download-grid {
-    grid-template-columns: 1fr;
+  .btn {
+    width: 100%;
+    padding: 0.8rem;
   }
 }

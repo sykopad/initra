@@ -148,13 +148,13 @@ const supabase = createBrowserClient(url, key, {
 
 10. **Syntax-highlighted preview (Complete)** — Replaced raw text blocks with a high-performance Shiki-powered viewer for all generated files. (Done 2026-04-20)
 
-11. **Unit tests for the engine** — Add vitest with snapshot tests for each template × IDE combination.
+11. **Unit tests for the engine (Complete)** — Integrated Vitest with coverage for prompt interpolation, version logic, and whitespace cleanup. (Done 2026-04-20)
 
-12. **"Import from repo" feature** — Scan a GitHub repo's package.json / pyproject.toml to auto-detect stack config.
+12. **"Import from repo" feature (Complete)** — Implemented server-side heuristic scanner to auto-detect framework and dependencies from GitHub URLs. (Done 2026-04-20)
 
-13. **Mobile responsiveness** — Complete responsive breakpoints for wizard and community pages.
+13. **Mobile responsiveness (Complete)** — Added sticky navigation, responsive grids, and fluid typography across the wizard and community pages. (Done 2026-04-20)
 
-14. **SEO + Open Graph** — Dynamic OG images for shared configs, per-page meta tags, sitemap.
+14. **SEO + Open Graph (Complete)** — Dynamic 1200x630 OG images and per-page metadata implemented for shared configurations via Edge runtime. (Done 2026-04-20)
 
 ## Conventions
 
