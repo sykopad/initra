@@ -69,6 +69,7 @@ export interface PackageDefinition {
   knowledge: PackageKnowledge;
   /** Official documentation or setup guides */
   documentationUrls?: string[];
+  boilerplateFiles?: BoilerplateFile[];
 }
 
 /** Environment variable definition */
@@ -96,6 +97,7 @@ export interface ApiService {
     frameworks?: string[];
     exclude?: string[];
   };
+  boilerplateFiles?: BoilerplateFile[];
 }
 
 /** Package category metadata for UI display */
@@ -125,6 +127,7 @@ export interface ProjectTemplate {
   availableVersions: FrameworkVersion[];
   defaultStack: Record<string, string>;
   stackOptions: StackOption[];
+  boilerplateFiles?: BoilerplateFile[];
 }
 
 /** Dynamic form field for stack configuration */
@@ -148,6 +151,22 @@ export interface WizardConfig {
   selectedIDEs: IDETarget[];
   selectedPackages: string[];
   selectedServices: string[];
+  includeBoilerplate?: boolean;
+}
+
+/** Boilerplate file definition */
+export interface BoilerplateFile {
+  path: string;
+  content: string;
+  /** Optional: only include if this condition matches stack config value */
+  condition?: {
+    field: string;
+    value: string | boolean;
+  };
+  /** Optional: if true, this file will be merged into an existing one instead of overwriting */
+  mergeType?: 'package-json' | 'append' | 'prepend' | 'inject';
+  /** For 'inject', where to put the content (regex or marker string) */
+  injectMarker?: string;
 }
 
 /** Single generated file output */

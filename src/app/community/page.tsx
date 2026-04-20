@@ -1,7 +1,13 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import Link from "next/link";
+import { useState, useCallback, useEffect, useTransition } from "react";
+import Navbar from "@/components/Navbar";
+import { 
+  getCommunityProjects, 
+  voteProject, 
+  suggestProject, 
+  getUserVotes 
+} from "@/lib/actions/community";
 
 interface CommunityProject {
   id: string;
@@ -9,116 +15,30 @@ interface CommunityProject {
   description: string;
   category: string;
   tags: string[];
-  impactStatement: string;
-  status: "proposed" | "in-progress" | "needs-agents" | "completed";
-  voteScore: number;
-  agentCount: number;
-  suggestedBy: string;
-  createdAt: string;
+  impact_statement: string;
+  status: "proposed" | "in_progress" | "needs_agents" | "completed";
+  vote_score: number;
+  agent_count: number;
+  suggested_by: string | null;
+  created_at: string;
 }
-
-// Demo data — will be replaced with Supabase queries
-const DEMO_PROJECTS: CommunityProject[] = [
-  {
-    id: "1",
-    title: "Open Source Disaster Relief Coordination",
-    description:
-      "A real-time platform for coordinating disaster relief efforts. Features live mapping, volunteer dispatching, and inventory tracking for aid organizations.",
-    category: "web-app",
-    tags: ["humanitarian", "real-time", "mapping"],
-    impactStatement: "Helps save lives by improving disaster response coordination",
-    status: "proposed",
-    voteScore: 142,
-    agentCount: 0,
-    suggestedBy: "Sarah_K",
-    createdAt: "2026-04-15",
-  },
-  {
-    id: "2",
-    title: "Accessible Education Platform for Developing Nations",
-    description:
-      "Offline-first mobile learning platform with AI-powered tutoring. Supports low-bandwidth environments and local language translations.",
-    category: "mobile-app",
-    tags: ["education", "accessibility", "offline-first"],
-    impactStatement: "Brings quality education to underserved communities worldwide",
-    status: "in-progress",
-    voteScore: 98,
-    agentCount: 3,
-    suggestedBy: "DevForGood",
-    createdAt: "2026-04-10",
-  },
-  {
-    id: "3",
-    title: "Community Health Monitoring API",
-    description:
-      "Open API for aggregating anonymized community health data. Helps public health officials identify disease outbreaks and allocate resources.",
-    category: "api-backend",
-    tags: ["health", "open-data", "api"],
-    impactStatement: "Early detection of health crises through data-driven monitoring",
-    status: "needs-agents",
-    voteScore: 76,
-    agentCount: 1,
-    suggestedBy: "HealthTech_Co",
-    createdAt: "2026-04-08",
-  },
-  {
-    id: "4",
-    title: "Carbon Footprint Tracker",
-    description:
-      "ML-powered personal carbon footprint calculator and reduction advisor. Integrates with smart home devices and transportation APIs.",
-    category: "ai-ml",
-    tags: ["climate", "sustainability", "ml"],
-    impactStatement: "Empowers individuals to reduce their environmental impact",
-    status: "proposed",
-    voteScore: 64,
-    agentCount: 0,
-    suggestedBy: "EcoBuilder",
-    createdAt: "2026-04-12",
-  },
-  {
-    id: "5",
-    title: "Sign Language Learning App",
-    description:
-      "Flutter app using computer vision to teach sign language interactively. Real-time hand tracking with instant feedback on gesture accuracy.",
-    category: "mobile-app",
-    tags: ["accessibility", "education", "computer-vision"],
-    impactStatement: "Makes sign language learning accessible and engaging for everyone",
-    status: "in-progress",
-    voteScore: 89,
-    agentCount: 2,
-    suggestedBy: "AccessibleTech",
-    createdAt: "2026-04-09",
-  },
-  {
-    id: "6",
-    title: "Open Source Food Bank Network",
-    description:
-      "Platform connecting food banks, donors, and volunteers. Smart logistics for minimizing food waste and maximizing distribution efficiency.",
-    category: "web-app",
-    tags: ["humanitarian", "logistics", "food-waste"],
-    impactStatement: "Reducing food waste while fighting hunger in communities",
-    status: "completed",
-    voteScore: 201,
-    agentCount: 5,
-    suggestedBy: "FeedForward",
-    createdAt: "2026-03-20",
-  },
-];
 
 const STATUS_LABELS: Record<string, string> = {
   proposed: "Proposed",
-  "in-progress": "In Progress",
-  "needs-agents": "Needs Agents",
+  in_progress: "In Progress",
+  needs_agents: "Needs Agents",
   completed: "Completed",
 };
 
 const FILTER_OPTIONS = ["All", "Proposed", "In Progress", "Needs Agents", "Completed"];
 
 export default function CommunityPage() {
-  const [projects, setProjects] = useState<CommunityProject[]>(DEMO_PROJECTS);
+  const [projects, setProjects] = useState<CommunityProject[]>([]);
   const [activeFilter, setActiveFilter] = useState("All");
   const [showSuggestModal, setShowSuggestModal] = useState(false);
   const [userVotes, setUserVotes] = useState<Record<string, number>>({});
+  const [loading, setLoading] = useState(true);
+  const [isPending, startTransition] = useTransition();
 
   // New project form state
   const [newTitle, setNewTitle] = useState("");
@@ -128,40 +48,48 @@ export default function CommunityPage() {
   const [newTags, setNewTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
 
-  // Filter projects
-  const filteredProjects = projects.filter((p) => {
-    if (activeFilter === "All") return true;
-    const statusMap: Record<string, string> = {
-      Proposed: "proposed",
-      "In Progress": "in-progress",
-      "Needs Agents": "needs-agents",
-      Completed: "completed",
-    };
-    return p.status === statusMap[activeFilter];
-  });
+  const loadData = useCallback(async () => {
+    try {
+      const [fetchedProjects, fetchedVotes] = await Promise.all([
+        getCommunityProjects(activeFilter),
+        getUserVotes()
+      ]);
+      setProjects(fetchedProjects as any);
+      setUserVotes(fetchedVotes);
+    } catch (err) {
+      console.error("Failed to load community data:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, [activeFilter]);
 
-  // Sort by vote score
-  const sortedProjects = [...filteredProjects].sort((a, b) => b.voteScore - a.voteScore);
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   // Vote handler
-  const handleVote = useCallback((projectId: string, direction: 1 | -1) => {
+  const handleVoteAction = async (projectId: string, direction: 1 | -1) => {
     const currentVote = userVotes[projectId] || 0;
+    const newValue = currentVote === direction ? 0 : direction;
+    
+    // Optimistic UI update
+    setUserVotes(prev => ({ ...prev, [projectId]: newValue }));
+    setProjects(prev => prev.map(p => {
+      if (p.id === projectId) {
+        const delta = newValue - currentVote;
+        return { ...p, vote_score: p.vote_score + delta };
+      }
+      return p;
+    }));
 
-    if (currentVote === direction) {
-      // Remove vote
-      setUserVotes((prev) => ({ ...prev, [projectId]: 0 }));
-      setProjects((prev) =>
-        prev.map((p) => (p.id === projectId ? { ...p, voteScore: p.voteScore - direction } : p))
-      );
-    } else {
-      // Add/change vote
-      const delta = direction - currentVote;
-      setUserVotes((prev) => ({ ...prev, [projectId]: direction }));
-      setProjects((prev) =>
-        prev.map((p) => (p.id === projectId ? { ...p, voteScore: p.voteScore + delta } : p))
-      );
+    try {
+      await voteProject(projectId, newValue);
+    } catch (err: any) {
+      alert(err.message || "Failed to cast vote. Are you signed in?");
+      // Rollback on error
+      loadData();
     }
-  }, [userVotes]);
+  };
 
   // Add tag
   const handleAddTag = useCallback((e: React.KeyboardEvent) => {
@@ -175,52 +103,35 @@ export default function CommunityPage() {
   }, [tagInput, newTags]);
 
   // Submit new project
-  const handleSubmitProject = useCallback(() => {
+  const handleSubmitProject = async () => {
     if (!newTitle.trim() || !newDescription.trim()) return;
 
-    const project: CommunityProject = {
-      id: String(Date.now()),
-      title: newTitle,
-      description: newDescription,
-      category: newCategory,
-      tags: newTags,
-      impactStatement: newImpact,
-      status: "proposed",
-      voteScore: 1,
-      agentCount: 0,
-      suggestedBy: "You",
-      createdAt: new Date().toISOString().split("T")[0],
-    };
-
-    setProjects((prev) => [project, ...prev]);
-    setShowSuggestModal(false);
-    setNewTitle("");
-    setNewDescription("");
-    setNewImpact("");
-    setNewTags([]);
-    setTagInput("");
-  }, [newTitle, newDescription, newCategory, newImpact, newTags]);
+    startTransition(async () => {
+      try {
+        await suggestProject({
+          title: newTitle,
+          description: newDescription,
+          category: newCategory,
+          impactStatement: newImpact,
+          tags: newTags,
+        });
+        
+        setShowSuggestModal(false);
+        setNewTitle("");
+        setNewDescription("");
+        setNewImpact("");
+        setNewTags([]);
+        setTagInput("");
+        loadData();
+      } catch (err: any) {
+        alert(err.message || "Failed to suggest project. Are you signed in?");
+      }
+    });
+  };
 
   return (
     <>
-      {/* Navbar */}
-      <nav className="navbar">
-        <div className="navbar-inner">
-          <Link href="/" className="navbar-brand">
-            <span className="logo-icon">⚡</span>
-            <span className="brand-text">Initra</span>
-          </Link>
-          <ul className="navbar-links">
-            <li><Link href="/">Home</Link></li>
-            <li><Link href="/wizard">Wizard</Link></li>
-            <li>
-              <Link href="/wizard" className="btn btn-primary btn-sm">
-                Start Building →
-              </Link>
-            </li>
-          </ul>
-        </div>
-      </nav>
+      <Navbar />
 
       <div className="community-container">
         <div className="container">
@@ -240,7 +151,10 @@ export default function CommunityPage() {
                 <button
                   key={filter}
                   className={`filter-tab ${activeFilter === filter ? "active" : ""}`}
-                  onClick={() => setActiveFilter(filter)}
+                  onClick={() => {
+                    setActiveFilter(filter);
+                    setLoading(true);
+                  }}
                 >
                   {filter}
                 </button>
@@ -252,48 +166,61 @@ export default function CommunityPage() {
           </div>
 
           {/* Project Grid */}
-          <div className="community-grid">
-            {sortedProjects.map((project) => (
-              <div key={project.id} className="card community-card">
-                <div className="community-card-header">
-                  <h3>{project.title}</h3>
-                  <span className={`status-badge ${project.status}`}>
-                    {STATUS_LABELS[project.status]}
-                  </span>
+          {loading ? (
+            <div className="community-grid">
+              {[1, 2, 3, 4].map(i => (
+                <div key={i} className="card community-card skeleton-card">
+                  <div className="skeleton title"></div>
+                  <div className="skeleton text"></div>
+                  <div className="skeleton text-short"></div>
+                  <div className="skeleton footer"></div>
                 </div>
-                <p>{project.description}</p>
-                <div className="community-tags">
-                  {project.tags.map((tag) => (
-                    <span key={tag} className="community-tag">
-                      {tag}
+              ))}
+            </div>
+          ) : (
+            <div className="community-grid">
+              {projects.map((project) => (
+                <div key={project.id} className="card community-card">
+                  <div className="community-card-header">
+                    <h3>{project.title}</h3>
+                    <span className={`status-badge ${project.status.replace('_', '-')}`}>
+                      {STATUS_LABELS[project.status]}
                     </span>
-                  ))}
-                </div>
-                <div className="community-card-footer">
-                  <div className="vote-controls">
-                    <button
-                      className={`vote-btn ${userVotes[project.id] === 1 ? "active-up" : ""}`}
-                      onClick={() => handleVote(project.id, 1)}
-                    >
-                      ▲
-                    </button>
-                    <span className="vote-count">{project.voteScore}</span>
-                    <button
-                      className={`vote-btn ${userVotes[project.id] === -1 ? "active-down" : ""}`}
-                      onClick={() => handleVote(project.id, -1)}
-                    >
-                      ▼
-                    </button>
                   </div>
-                  <div className="agent-count">
-                    🤖 {project.agentCount} agent{project.agentCount !== 1 ? "s" : ""}
+                  <p>{project.description}</p>
+                  <div className="community-tags">
+                    {project.tags.map((tag) => (
+                      <span key={tag} className="community-tag">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="community-card-footer">
+                    <div className="vote-controls">
+                      <button
+                        className={`vote-btn ${userVotes[project.id] === 1 ? "active-up" : ""}`}
+                        onClick={() => handleVoteAction(project.id, 1)}
+                      >
+                        ▲
+                      </button>
+                      <span className="vote-count">{project.vote_score}</span>
+                      <button
+                        className={`vote-btn ${userVotes[project.id] === -1 ? "active-down" : ""}`}
+                        onClick={() => handleVoteAction(project.id, -1)}
+                      >
+                        ▼
+                      </button>
+                    </div>
+                    <div className="agent-count">
+                      🤖 {project.agent_count} agent{project.agent_count !== 1 ? "s" : ""}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
 
-          {sortedProjects.length === 0 && (
+          {!loading && projects.length === 0 && (
             <div style={{ textAlign: "center", padding: "4rem", color: "var(--text-muted)" }}>
               <p style={{ fontSize: "3rem", marginBottom: "1rem" }}>🔍</p>
               <p>No projects match this filter. Try another or suggest a new project!</p>
@@ -386,21 +313,48 @@ export default function CommunityPage() {
             </div>
 
             <div className="modal-actions">
-              <button className="btn btn-ghost" onClick={() => setShowSuggestModal(false)}>
+              <button className="btn btn-ghost" onClick={() => setShowSuggestModal(false)} disabled={isPending}>
                 Cancel
               </button>
               <button
                 className="btn btn-primary"
                 onClick={handleSubmitProject}
-                disabled={!newTitle.trim() || !newDescription.trim()}
-                style={{ opacity: !newTitle.trim() || !newDescription.trim() ? 0.5 : 1 }}
+                disabled={!newTitle.trim() || !newDescription.trim() || isPending}
+                style={{ opacity: !newTitle.trim() || !newDescription.trim() || isPending ? 0.5 : 1 }}
               >
-                🚀 Submit Project
+                {isPending ? "Submitting..." : "🚀 Submit Project"}
               </button>
             </div>
           </div>
         </div>
       )}
+
+      <style jsx>{`
+        .skeleton-card {
+           pointer-events: none;
+           opacity: 0.6;
+        }
+        .skeleton {
+          background: rgba(255,255,255,0.05);
+          border-radius: 4px;
+          margin-bottom: 1rem;
+          animation: pulse 1.5s infinite;
+        }
+        .skeleton.title { height: 24px; width: 60%; }
+        .skeleton.text { height: 40px; }
+        .skeleton.text-short { height: 20px; width: 40%; }
+        .skeleton.footer { height: 32px; margin-top: 1rem; }
+
+        @keyframes pulse {
+          0% { opacity: 0.3; }
+          50% { opacity: 0.6; }
+          100% { opacity: 0.3; }
+        }
+
+        .status-badge.in-progress { background: rgba(59, 130, 246, 0.1); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.2); }
+        .status-badge.needs-agents { background: rgba(245, 158, 11, 0.1); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.2); }
+        .status-badge.completed { background: rgba(16, 185, 129, 0.1); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.2); }
+      `}</style>
     </>
   );
 }

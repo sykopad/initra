@@ -60,6 +60,48 @@ const { mutate } = useMutation({
         'NEVER share a single QueryClient across requests in SSR — create one per request',
       ],
     },
+    boilerplateFiles: [
+      {
+        path: 'src/components/providers.tsx',
+        mergeType: 'inject',
+        injectMarker: '{/* PROVIDER_SLOT */}',
+        content: `        <QueryClientProvider client={queryClient}>
+          {children}
+          <ReactQueryDevtools initialIsOpen={false} />
+        </QueryClientProvider>`
+      },
+      {
+        path: 'src/components/providers.tsx',
+        mergeType: 'prepend',
+        content: `"use client";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { useState } from 'react';`
+      },
+      {
+        path: 'src/components/providers.tsx',
+        content: `"use client";
+
+export function Providers({ children }: { children: React.ReactNode }) { 
+  return (
+    <>
+      {/* PROVIDER_SLOT */}
+      {children}
+    </>
+  );
+}`
+      },
+      {
+        path: 'package.json',
+        mergeType: 'package-json',
+        content: JSON.stringify({
+          dependencies: {
+            "@tanstack/react-query": "^5.62.7",
+            "@tanstack/react-query-devtools": "^5.62.7"
+          }
+        })
+      }
+    ]
   },
 
   {

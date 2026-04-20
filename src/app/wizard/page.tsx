@@ -7,7 +7,10 @@ import { PROJECT_TEMPLATES, PROJECT_CATEGORIES } from "@/lib/engine/templates";
 import { IDE_TARGETS } from "@/lib/engine/ide-targets";
 import { PACKAGE_LIBRARY, PACKAGE_CATEGORIES, getPackagesForTemplate } from "@/lib/engine/package-library";
 import { SERVICE_LIBRARY, SERVICE_CATEGORIES, getRecommendedServices } from "@/lib/engine/service-library";
-import type { WizardConfig, GeneratedFile, IDETarget, ProjectTemplate, StackOption, ApiService } from "@/lib/engine/types";
+import { WizardConfig, GeneratedFile, IDETarget, ProjectTemplate, StackOption, ApiService } from "@/lib/engine/types";
+import { saveWizardSession, updateWizardFile } from "@/lib/actions/wizard";
+import Navbar from "@/components/Navbar";
+import AgentEditor from "@/components/AgentEditor";
 
 
 
@@ -40,6 +43,9 @@ export default function WizardPage() {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [includeBoilerplate, setIncludeBoilerplate] = useState(true);
 
   // Filter templates by category and search
   const filteredTemplates = useMemo(() => {
@@ -181,13 +187,47 @@ export default function WizardPage() {
       selectedIDEs,
       selectedPackages,
       selectedServices,
+      includeBoilerplate,
     };
 
     const result = generateAgentFiles(config);
     setGeneratedFiles(result.files);
     setActiveFileIndex(0);
     setStep(6);
-  }, [selectedTemplate, projectName, stackConfig, selectedIDEs, selectedPackages, selectedServices]);
+
+    // Persist session in background and store ID for potential edits
+    saveWizardSession(config, result.files).then(session => {
+      setSessionId(session.id);
+    }).catch(err => {
+      console.warn("Failed to persist wizard session:", err);
+    });
+  }, [selectedTemplate, projectName, stackConfig, selectedIDEs, selectedPackages, selectedServices, templateVersion]);
+
+  // Handle saving from the editor
+  const handleEditorSave = useCallback(async (newContent: string) => {
+    const file = generatedFiles[activeFileIndex];
+    if (!file) return;
+
+    // Update local state
+    const newFiles = [...generatedFiles];
+    newFiles[activeFileIndex] = { ...file, content: newContent };
+    setGeneratedFiles(newFiles);
+
+    // Persist to DB if we have a session
+    if (sessionId) {
+      try {
+        await updateWizardFile(sessionId, file.filename, newContent);
+        setToast("Changes saved!");
+        setTimeout(() => setToast(null), 2500);
+      } catch (err) {
+        console.error("Failed to update file in DB:", err);
+        setToast("Failed to save changes to cloud.");
+        setTimeout(() => setToast(null), 2500);
+      }
+    }
+
+    setIsEditing(false);
+  }, [generatedFiles, activeFileIndex, sessionId]);
 
   // Copy file to clipboard
   const copyToClipboard = useCallback(async (content: string) => {
@@ -222,19 +262,7 @@ export default function WizardPage() {
 
   return (
     <>
-      {/* Navbar */}
-      <nav className="navbar">
-        <div className="navbar-inner">
-          <Link href="/" className="navbar-brand">
-            <span className="logo-icon">⚡</span>
-            <span className="brand-text">Initra</span>
-          </Link>
-          <ul className="navbar-links">
-            <li><Link href="/">Home</Link></li>
-            <li><Link href="/community">Community</Link></li>
-          </ul>
-        </div>
-      </nav>
+      <Navbar />
 
       <div className="wizard-container">
         <div className="container">
@@ -703,6 +731,46 @@ export default function WizardPage() {
                   ))}
                 </div>
 
+                {/* Project Boilerplate Toggle */}
+                <div style={{ marginTop: "2rem", padding: "1.5rem", borderRadius: "12px", border: "1px solid var(--border-color)", background: "rgba(255,255,255,0.03)" }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem" }}>
+                    <div>
+                      <h3 style={{ fontSize: "var(--text-lg)", marginBottom: "0.25rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                        📦 Project Boilerplate
+                      </h3>
+                      <p style={{ fontSize: "var(--text-sm)", color: "var(--text-muted)", margin: 0 }}>
+                        Include core project files (package.json, src/, etc.) alongside agent rules.
+                      </p>
+                    </div>
+                    <label style={{ position: "relative", display: "inline-block", width: "50px", height: "26px", cursor: "pointer" }}>
+                      <input 
+                        type="checkbox" 
+                        checked={includeBoilerplate} 
+                        onChange={(e) => setIncludeBoilerplate(e.target.checked)}
+                        style={{ opacity: 0, width: 0, height: 0 }}
+                      />
+                      <span style={{
+                        position: "absolute",
+                        top: 0, left: 0, right: 0, bottom: 0,
+                        backgroundColor: includeBoilerplate ? "var(--primary)" : "#ccc",
+                        transition: ".4s",
+                        borderRadius: "34px"
+                      }}>
+                        <span style={{
+                          position: "absolute",
+                          content: '""',
+                          height: "18px", width: "18px",
+                          left: includeBoilerplate ? "28px" : "4px",
+                          bottom: "4px",
+                          backgroundColor: "white",
+                          transition: ".4s",
+                          borderRadius: "50%"
+                        }}></span>
+                      </span>
+                    </label>
+                  </div>
+                </div>
+
                 <div className="wizard-nav">
                   <button className="btn btn-ghost" onClick={() => setStep(4)}>
                     ← Back
@@ -750,6 +818,12 @@ export default function WizardPage() {
                         onClick={() => copyToClipboard(generatedFiles[activeFileIndex]?.content || "")}
                       >
                         📋 Copy
+                      </button>
+                      <button
+                        className="btn btn-secondary btn-sm"
+                        onClick={() => setIsEditing(true)}
+                      >
+                        ✍️ Edit Rules
                       </button>
                       <span style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)", display: "flex", alignItems: "center" }}>
                         {generatedFiles[activeFileIndex]?.filePath}
@@ -898,6 +972,14 @@ export default function WizardPage() {
           </div>
         </div>
       </div>
+
+      {isEditing && generatedFiles[activeFileIndex] && (
+        <AgentEditor
+          initialContent={generatedFiles[activeFileIndex].content}
+          onSave={handleEditorSave}
+          onClose={() => setIsEditing(false)}
+        />
+      )}
 
       {/* Toast */}
       {toast && (

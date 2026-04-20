@@ -8,6 +8,7 @@ import { extractVariables } from './prompt-composer';
 import { formatForIDE } from './ide-formatter';
 import { getTemplate } from './templates';
 import { getServiceDefinition } from './service-library';
+import { generateProjectBoilerplate } from './boilerplate-engine';
 
 /**
  * Main engine function: generates agent configuration files
@@ -46,7 +47,11 @@ export function generateAgentFiles(config: WizardConfig): GenerationResult {
     files.push(envFile);
   }
 
-  // 5. Return the complete result
+  // 5. Generate Project Boilerplate (if enabled)
+  const boilerplateFiles = generateProjectBoilerplate(config);
+  files.push(...boilerplateFiles);
+
+  // 6. Return the complete result
   return {
     files,
     templateUsed: template.slug,

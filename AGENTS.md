@@ -124,19 +124,20 @@ const supabase = createBrowserClient(url, key, {
    - Deep package-specific knowledge for 50+ libraries.
    - Comprehensive API/Service integration guides with registration links.
    - Anti-patterns and best practices for common stack components.
-   - *Next Step*: Add real boilerplate file trees for specific combinations.
 
-2. **Apply migration & wire up persistence** — Community hub and share links are in-memory demo data. Connect Supabase `initra` schema for real persistence.
+2. **Apply migration & wire up persistence (Complete)** — Community hub and wizard sessions are now connected to the Supabase `initra` schema. (Done 2026-04-20)
 
-3. **Auth flow** — GitHub OAuth via Supabase Auth. Required for: "my sessions", persistent voting, agent contributions.
+3. **Auth flow (Complete)** — GitHub OAuth via Supabase Auth implemented. Enables profile creation, session history, and persistent activity. (Done 2026-04-20)
+
+4. **Boilerplate Logic Engine (Complete)** — Full project structure generation, file merging, variable interpolation. Transitioned from prompt generator to bootstrapper. (Done 2026-04-20)
 
 ### 🟡 High Impact — Differentiation
 
-4. **Custom rules editor** — After generation, let users add/edit/reorder rules before exporting. Markdown editor with drag-and-drop sections.
+5. **Custom rules editor (Complete)** — Users can now edit generated Markdown and reorder sections via a drag-and-drop interface in Step 6. (Done 2026-04-20)
 
-5. **GitHub push integration** — Authorize GitHub and push generated files directly to a repo in one click.
+6. **GitHub push integration** — Authorize GitHub and push generated files directly to a repo in one click.
 
-6. **More templates** — Currently 6. High-demand additions:
+7. **More templates** — Currently 6. High-demand additions:
    - Django / Flask
    - SvelteKit / Vue (Nuxt)
    - Spring Boot / Go
@@ -144,17 +145,17 @@ const supabase = createBrowserClient(url, key, {
    - Tauri (desktop)
    - Chrome Extension
 
-7. **Template versioning** — Next.js 15 vs 16 have different conventions. Templates should be version-aware.
+8. **Template versioning** — Next.js 15 vs 16 have different conventions. Templates should be version-aware.
 
 ### 🟢 Polish — Makes it feel complete
 
-8. **Syntax-highlighted preview** — Replace raw text `<div>` with proper code viewer (e.g., `shiki` or `react-syntax-highlighter`).
+9. **Syntax-highlighted preview** — Replace raw text `<div>` with proper code viewer (e.g., `shiki` or `react-syntax-highlighter`).
 
-9. **Unit tests for the engine** — Add `vitest` with snapshot tests for each template × IDE combination.
+10. **Unit tests for the engine** — Add `vitest` with snapshot tests for each template × IDE combination.
 
-10. **"Import from repo" feature** — Scan a GitHub repo's `package.json` / `pyproject.toml` to auto-detect stack config and pre-fill the wizard.
+11. **"Import from repo" feature** — Scan a GitHub repo's `package.json` / `pyproject.toml` to auto-detect stack config and pre-fill the wizard.
 
-11. **Mobile responsiveness** — Responsive breakpoints for wizard and community pages.
+12. **Mobile responsiveness** — Responsive breakpoints for wizard and community pages.
 
 12. **SEO + Open Graph** — Dynamic OG images for shared configs, per-page meta tags, sitemap.
 
@@ -176,4 +177,4 @@ const supabase = createBrowserClient(url, key, {
 - Never commit `.env.local` or `.env` files.
 - Ask before installing new dependencies.
 - Check existing patterns before creating new abstractions.
-- All community data will be stored in Supabase once connected — currently uses in-memory demo data.
+- All community data and wizard sessions are stored in Supabase via the `initra` schema.

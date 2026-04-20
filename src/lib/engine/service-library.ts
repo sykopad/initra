@@ -85,6 +85,26 @@ export const SERVICE_LIBRARY: ApiService[] = [
       { key: 'STRIPE_WEBHOOK_SECRET', description: 'Stripe webhook signing secret', required: false, placeholder: 'whsec_...' },
       { key: 'NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY', description: 'Stripe publishable key (client)', required: true, placeholder: 'pk_test_...' },
     ],
+    boilerplateFiles: [
+      {
+        path: 'src/lib/stripe.ts',
+        content: `import Stripe from 'stripe';\n\nexport const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {\n  apiVersion: '2024-11-20.acacia',\n  typescript: true,\n});`
+      },
+      {
+        path: 'src/app/api/webhooks/stripe/route.ts',
+        content: `import { headers } from 'next/headers';\nimport { NextResponse } from 'next/server';\nimport { stripe } from '@/lib/stripe';\n\nexport async function POST(req: Request) {\n  const body = await req.text();\n  const signature = (await headers()).get('stripe-signature') as string;\n\n  let event;\n\n  try {\n    event = stripe.webhooks.constructEvent(\n      body,\n      signature,\n      process.env.STRIPE_WEBHOOK_SECRET!\n    );\n  } catch (err: any) {\n    return new NextResponse(\`Webhook Error: \${err.message}\`, { status: 400 });\n  }\n\n  // Handle the event\n  switch (event.type) {\n    case 'checkout.session.completed':\n      const session = event.data.object;\n      // Fulfill the order\n      break;\n    default:\n      console.log(\`Unhandled event type \${event.type}\`);\n  }\n\n  return new NextResponse(null, { status: 200 });\n}`
+      },
+      {
+        path: 'package.json',
+        mergeType: 'package-json',
+        content: JSON.stringify({
+          dependencies: {
+            "stripe": "^17.4.0",
+            "@stripe/stripe-js": "^5.2.0"
+          }
+        })
+      }
+    ]
   },
   {
     slug: 'paystack',
@@ -113,6 +133,26 @@ export const SERVICE_LIBRARY: ApiService[] = [
       { key: 'NEXT_PUBLIC_SUPABASE_ANON_KEY', description: 'Supabase anonymous public key', required: true },
       { key: 'SUPABASE_SERVICE_ROLE_KEY', description: 'Full access secret key (Server only!)', required: true },
     ],
+    boilerplateFiles: [
+      {
+        path: 'src/lib/supabase/client.ts',
+        content: `import { createBrowserClient } from '@supabase/ssr';\n\nexport const createClient = () =>\n  createBrowserClient(\n    process.env.NEXT_PUBLIC_SUPABASE_URL!,\n    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!\n  );`
+      },
+      {
+        path: 'src/lib/supabase/server.ts',
+        content: `import { createServerClient } from '@supabase/ssr';\nimport { cookies } from 'next/headers';\n\nexport const createClient = async () => {\n  const cookieStore = await cookies();\n\n  return createServerClient(\n    process.env.NEXT_PUBLIC_SUPABASE_URL!,\n    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,\n    {\n      cookies: {\n        getAll() {\n          return cookieStore.getAll();\n        },\n        setAll(cookiesToSet) {\n          try {\n            cookiesToSet.forEach(({ name, value, options }) =>\n              cookieStore.set(name, value, options)\n            );\n          } catch {\n            // The \`setAll\` method was called from a Server Component.\n            // This can be ignored if you have middleware refreshing\n            // user sessions.\n          }\n        },\n      },\n    }\n  );\n};`
+      },
+      {
+        path: 'package.json',
+        mergeType: 'package-json',
+        content: JSON.stringify({
+          dependencies: {
+            "@supabase/ssr": "^0.5.2",
+            "@supabase/supabase-js": "^2.46.1"
+          }
+        })
+      }
+    ]
   },
   {
     slug: 'upstash',

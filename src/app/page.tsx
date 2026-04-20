@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Navbar from "@/components/Navbar";
 
 export default function HomePage() {
   const [projectCount, setProjectCount] = useState(0);
@@ -38,24 +39,7 @@ export default function HomePage() {
 
   return (
     <>
-      {/* Navbar */}
-      <nav className="navbar">
-        <div className="navbar-inner">
-          <Link href="/" className="navbar-brand">
-            <span className="logo-icon">⚡</span>
-            <span className="brand-text">Initra</span>
-          </Link>
-          <ul className="navbar-links">
-            <li><Link href="/wizard">Wizard</Link></li>
-            <li><Link href="/community">Community</Link></li>
-            <li>
-              <Link href="/wizard" className="btn btn-primary btn-sm">
-                Start Building →
-              </Link>
-            </li>
-          </ul>
-        </div>
-      </nav>
+      <Navbar />
 
       {/* Hero Section */}
       <section className="hero">
