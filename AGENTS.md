@@ -112,6 +112,48 @@ src/
 - `npm run build` — Production build
 - `npm run lint` — ESLint
 
+## Roadmap
+
+### 🔴 Critical — Makes or breaks the product
+
+1. **Richer generated output** — The engine produces decent skeletons but needs:
+   - Real file structure trees per template (not just "follow framework conventions")
+   - Specific anti-patterns to avoid per framework (e.g., "Never use `getServerSideProps` in App Router")
+   - Actual code snippets showing preferred patterns (imports, error handling, component structure)
+   - Database-specific conventions (e.g., Supabase RLS patterns, Prisma schema conventions)
+
+2. **Apply migration & wire up persistence** — Community hub and share links are in-memory demo data. Connect Supabase `initra` schema for real persistence.
+
+3. **Auth flow** — GitHub OAuth via Supabase Auth. Required for: "my sessions", persistent voting, agent contributions.
+
+### 🟡 High Impact — Differentiation
+
+4. **Custom rules editor** — After generation, let users add/edit/reorder rules before exporting. Markdown editor with drag-and-drop sections.
+
+5. **GitHub push integration** — Authorize GitHub and push generated files directly to a repo in one click.
+
+6. **More templates** — Currently 6. High-demand additions:
+   - Django / Flask
+   - SvelteKit / Vue (Nuxt)
+   - Spring Boot / Go
+   - Laravel
+   - Tauri (desktop)
+   - Chrome Extension
+
+7. **Template versioning** — Next.js 15 vs 16 have different conventions. Templates should be version-aware.
+
+### 🟢 Polish — Makes it feel complete
+
+8. **Syntax-highlighted preview** — Replace raw text `<div>` with proper code viewer (e.g., `shiki` or `react-syntax-highlighter`).
+
+9. **Unit tests for the engine** — Add `vitest` with snapshot tests for each template × IDE combination.
+
+10. **"Import from repo" feature** — Scan a GitHub repo's `package.json` / `pyproject.toml` to auto-detect stack config and pre-fill the wizard.
+
+11. **Mobile responsiveness** — Responsive breakpoints for wizard and community pages.
+
+12. **SEO + Open Graph** — Dynamic OG images for shared configs, per-page meta tags, sitemap.
+
 ## Conventions
 
 - Use TypeScript strict mode. Avoid `any`.
