@@ -7,6 +7,7 @@
 import { IDETarget, GeneratedFile, TemplateVariables } from './types';
 import { compose } from './prompt-composer';
 import { getFrameworkKnowledge } from './framework-knowledge';
+import { getPackageDefinition } from './package-library';
 
 /**
  * Format the generated content for a specific IDE target.
@@ -51,6 +52,52 @@ function getKnowledgeBlocks(vars: TemplateVariables) {
     conventions: knowledge.conventions,
     stackRules,
   };
+}
+
+/**
+ * Appends a "## Packages" section to content for each selected package.
+ * Includes install command, setup snippet, usage, conventions, and anti-patterns.
+ */
+function injectPackageKnowledge(content: string, vars: TemplateVariables): string {
+  const pkgSlugs = vars.selectedPackages ?? [];
+  if (!pkgSlugs.length) return content;
+
+  const sections: string[] = [];
+
+  for (const slug of pkgSlugs) {
+    const pkg = getPackageDefinition(slug);
+    if (!pkg) continue;
+
+    let section = `### ${pkg.name}`;
+
+    // package badge
+    const badge = pkg.npmPackage ?? pkg.pyPackage ?? pkg.pubPackage;
+    if (badge) section += `\n> \`${badge}\``;
+
+    if (pkg.knowledge.installCommand) {
+      section += `\n\n**Install:** \`${pkg.knowledge.installCommand}\``;
+    }
+    if (pkg.knowledge.setupSnippet) {
+      section += `\n\n**Setup:**\n${pkg.knowledge.setupSnippet}`;
+    }
+    if (pkg.knowledge.usageSnippet) {
+      section += `\n\n**Usage:**\n${pkg.knowledge.usageSnippet}`;
+    }
+    if (pkg.knowledge.conventions?.length) {
+      section += `\n\n**Conventions:**\n`;
+      section += pkg.knowledge.conventions.map(c => `- ${c}`).join('\n');
+    }
+    if (pkg.knowledge.antiPatterns?.length) {
+      section += `\n\n**Anti-Patterns:**\n`;
+      section += pkg.knowledge.antiPatterns.map(a => `- ${a}`).join('\n');
+    }
+
+    sections.push(section);
+  }
+
+  if (!sections.length) return content;
+
+  return content + `\n\n## Packages\n\n${sections.join('\n\n---\n\n')}`;
 }
 
 // ── Claude Code ─────────────────────────────────
@@ -113,6 +160,9 @@ function formatClaudeCode(vars: TemplateVariables, _base: string): GeneratedFile
       content += `\n\n## Stack-Specific Rules\n\n${kb.stackRules}`;
     }
   }
+
+  // Inject selected package knowledge
+  content = injectPackageKnowledge(content, vars);
 
   // Always include guardrails
   content += `\n\n## Guardrails
@@ -187,6 +237,9 @@ alwaysApply: true
       contextContent += `\n\n${kb.stackRules}`;
     }
   }
+
+  // Inject selected package knowledge into the context file
+  contextContent = injectPackageKnowledge(contextContent, vars);
 
   contextContent += `\n\n## Boundaries
 - Never modify migration files without asking.
@@ -304,6 +357,8 @@ This is a {{framework}} project using {{languageLabel}}.
     }
   }
 
+  content = injectPackageKnowledge(content, vars);
+
   content += `\n\n## Guardrails
 - Do not modify migration files without explicit confirmation
 - Do not commit .env or credentials files
@@ -375,6 +430,8 @@ Write clean, production-ready code following established project patterns.
     }
   }
 
+  content = injectPackageKnowledge(content, vars);
+
   content += `\n\n## Boundaries
 - Never modify migration files without asking
 - Never commit .env files
@@ -437,6 +494,8 @@ This is a {{framework}} application using {{languageLabel}}.
       content += `\n\n${kb.stackRules}`;
     }
   }
+
+  content = injectPackageKnowledge(content, vars);
 
   content += `\n\n## Do Not
 - Modify migration files without confirmation
@@ -518,6 +577,8 @@ function formatUniversal(vars: TemplateVariables, _base: string): GeneratedFile[
       content += `\n\n${kb.stackRules}`;
     }
   }
+
+  content = injectPackageKnowledge(content, vars);
 
   content += `\n\n## Guardrails
 - ❌ Never modify migration files without asking

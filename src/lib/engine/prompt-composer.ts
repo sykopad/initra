@@ -6,8 +6,9 @@
 import { TemplateVariables } from './types';
 
 /** Check if a template variable is considered "empty" / falsy */
-function isEmpty(value: string | boolean | undefined): boolean {
+function isEmpty(value: string | boolean | string[] | undefined): boolean {
   if (value === undefined || value === null || value === false) return true;
+  if (Array.isArray(value)) return value.length === 0;
   if (typeof value === 'string' && (!value || value === 'none' || value === 'false')) return true;
   return false;
 }
@@ -55,10 +56,11 @@ export function compose(template: string, variables: TemplateVariables): string 
 }
 
 /** Replace {{variableName}} with actual values */
-function interpolateVars(text: string, variables: TemplateVariables): string {
+function interpolateVars(text: string, variables: import('./types').TemplateVariables): string {
   return text.replace(/\{\{(\w+)\}\}/g, (_match, varName: string) => {
     const value = variables[varName];
     if (value === undefined || value === null) return '';
+    if (Array.isArray(value)) return value.join(', ');
     return String(value);
   });
 }
@@ -69,7 +71,8 @@ function interpolateVars(text: string, variables: TemplateVariables): string {
 export function extractVariables(
   templateSlug: string,
   projectName: string,
-  stackConfig: Record<string, string | boolean>
+  stackConfig: Record<string, string | boolean>,
+  selectedPackages: string[] = []
 ): TemplateVariables {
   const vars: TemplateVariables = {
     projectName: projectName || 'My Project',
@@ -82,6 +85,7 @@ export function extractVariables(
     testing: String(stackConfig.testing || ''),
     stateManagement: String(stackConfig.stateManagement || ''),
     packageManager: String(stackConfig.packageManager || 'npm'),
+    selectedPackages,
   };
 
   // Copy all stack config values
@@ -92,12 +96,12 @@ export function extractVariables(
   }
 
   // Derive computed variables
-  vars.devCommand = deriveDevCommand(templateSlug, vars.packageManager);
-  vars.buildCommand = deriveBuildCommand(templateSlug, vars.packageManager);
-  vars.testCommand = deriveTestCommand(vars.testing, vars.packageManager);
-  vars.installCommand = deriveInstallCommand(vars.packageManager);
-  vars.dbPushCommand = deriveDbPushCommand(vars.database);
-  vars.languageLabel = vars.language === 'typescript' ? 'TypeScript' : vars.language === 'python' ? 'Python' : vars.language === 'dart' ? 'Dart' : vars.language;
+  vars.devCommand = deriveDevCommand(templateSlug, vars.packageManager as string);
+  vars.buildCommand = deriveBuildCommand(templateSlug, vars.packageManager as string);
+  vars.testCommand = deriveTestCommand(vars.testing as string, vars.packageManager as string);
+  vars.installCommand = deriveInstallCommand(vars.packageManager as string);
+  vars.dbPushCommand = deriveDbPushCommand(vars.database as string);
+  vars.languageLabel = vars.language === 'typescript' ? 'TypeScript' : vars.language === 'python' ? 'Python' : vars.language === 'dart' ? 'Dart' : vars.language as string;
 
   return vars;
 }

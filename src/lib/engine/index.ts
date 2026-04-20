@@ -26,7 +26,8 @@ export function generateAgentFiles(config: WizardConfig): GenerationResult {
   const variables = extractVariables(
     config.templateSlug,
     config.projectName,
-    config.stackConfig
+    config.stackConfig,
+    config.selectedPackages ?? []
   );
 
   // 3. Generate files for each selected IDE

@@ -7,7 +7,7 @@ export async function POST(request: Request) {
     const body = await request.json();
 
     // Validate required fields
-    const { templateSlug, projectName, stackConfig, selectedIDEs } =
+    const { templateSlug, projectName, stackConfig, selectedIDEs, selectedPackages } =
       body as WizardConfig;
 
     if (!templateSlug) {
@@ -30,6 +30,7 @@ export async function POST(request: Request) {
       projectName: projectName || "My Project",
       stackConfig: stackConfig || {},
       selectedIDEs,
+      selectedPackages: selectedPackages ?? [],
     };
 
     const result = generateAgentFiles(config);

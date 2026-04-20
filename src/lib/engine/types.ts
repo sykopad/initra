@@ -22,6 +22,56 @@ export type IDETarget =
   | 'copilot'
   | 'universal';
 
+/** Package/library categories */
+export type PackageCategory =
+  | 'data-fetching'
+  | 'forms-validation'
+  | 'ui-components'
+  | 'animation'
+  | 'auth'
+  | 'payments'
+  | 'email'
+  | 'file-upload'
+  | 'monitoring'
+  | 'charts'
+  | 'realtime'
+  | 'background-jobs'
+  | 'other';
+
+/** Knowledge block for a package/library */
+export interface PackageKnowledge {
+  installCommand?: string;
+  setupSnippet?: string;
+  usageSnippet?: string;
+  antiPatterns?: string[];
+  conventions?: string[];
+}
+
+/** A package/library in the registry */
+export interface PackageDefinition {
+  slug: string;
+  name: string;
+  category: PackageCategory;
+  icon: string;
+  description: string;
+  /** npm package name for display badge */
+  npmPackage?: string;
+  /** PyPI package name for display badge */
+  pyPackage?: string;
+  /** pub.dev package name for display badge */
+  pubPackage?: string;
+  /** Which template slugs this package is compatible with */
+  compatibleTemplates: string[];
+  knowledge: PackageKnowledge;
+}
+
+/** Package category metadata for UI display */
+export interface PackageCategoryMeta {
+  slug: PackageCategory;
+  label: string;
+  icon: string;
+}
+
 /** Project template definition */
 export interface ProjectTemplate {
   slug: string;
@@ -51,6 +101,8 @@ export interface WizardConfig {
   projectName: string;
   stackConfig: Record<string, string | boolean>;
   selectedIDEs: IDETarget[];
+  /** Package slugs selected in Step 3 (defaults to []) */
+  selectedPackages: string[];
 }
 
 /** Single generated file output */
@@ -81,7 +133,8 @@ export interface TemplateVariables {
   testing: string;
   stateManagement: string;
   packageManager: string;
-  [key: string]: string | boolean | undefined;
+  selectedPackages: string[];
+  [key: string]: string | boolean | string[] | undefined;
 }
 
 /** IDE target configuration */
@@ -106,6 +159,6 @@ export interface PromptTemplate {
 /** Template section with conditional rendering */
 export interface TemplateSection {
   name: string;
-  condition?: string; // e.g., "database" — renders only if variable is truthy
+  condition?: string;
   content: string;
 }

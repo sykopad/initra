@@ -5,14 +5,18 @@ import Link from "next/link";
 import { generateAgentFiles } from "@/lib/engine";
 import { PROJECT_TEMPLATES, PROJECT_CATEGORIES } from "@/lib/engine/templates";
 import { IDE_TARGETS } from "@/lib/engine/ide-targets";
+import { PACKAGE_LIBRARY, PACKAGE_CATEGORIES, getPackagesForTemplate } from "@/lib/engine/package-library";
 import type { WizardConfig, GeneratedFile, IDETarget, ProjectTemplate, StackOption } from "@/lib/engine/types";
 
+
+
 const STEPS = [
-  { label: "Project", number: 1 },
-  { label: "Stack", number: 2 },
-  { label: "IDE", number: 3 },
-  { label: "Review", number: 4 },
-  { label: "Export", number: 5 },
+  { label: "Project",  number: 1 },
+  { label: "Stack",    number: 2 },
+  { label: "Packages", number: 3 },
+  { label: "IDE",      number: 4 },
+  { label: "Review",   number: 5 },
+  { label: "Export",   number: 6 },
 ];
 
 export default function WizardPage() {
@@ -22,6 +26,9 @@ export default function WizardPage() {
   const [projectName, setProjectName] = useState("");
   const [stackConfig, setStackConfig] = useState<Record<string, string | boolean>>({});
   const [selectedIDEs, setSelectedIDEs] = useState<IDETarget[]>([]);
+  const [selectedPackages, setSelectedPackages] = useState<string[]>([]);
+  const [pkgSearch, setPkgSearch] = useState("");
+  const [pkgCategory, setPkgCategory] = useState<string | null>(null);
   const [generatedFiles, setGeneratedFiles] = useState<GeneratedFile[]>([]);
   const [activeFileIndex, setActiveFileIndex] = useState(0);
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -59,6 +66,38 @@ export default function WizardPage() {
     );
   }, []);
 
+  // Toggle package selection
+  const togglePackage = useCallback((slug: string) => {
+    setSelectedPackages((prev) =>
+      prev.includes(slug) ? prev.filter((p) => p !== slug) : [...prev, slug]
+    );
+  }, []);
+
+  // Packages filtered by template, category, and search
+  const filteredPackages = useMemo(() => {
+    if (!selectedTemplate) return [];
+    let pkgs = getPackagesForTemplate(selectedTemplate.slug);
+    if (pkgCategory) pkgs = pkgs.filter((p) => p.category === pkgCategory);
+    if (pkgSearch) {
+      const q = pkgSearch.toLowerCase();
+      pkgs = pkgs.filter(
+        (p) =>
+          p.name.toLowerCase().includes(q) ||
+          p.description.toLowerCase().includes(q) ||
+          (p.npmPackage ?? p.pyPackage ?? p.pubPackage ?? "").toLowerCase().includes(q)
+      );
+    }
+    return pkgs;
+  }, [selectedTemplate, pkgCategory, pkgSearch]);
+
+  // Categories that have packages for this template
+  const availableCategories = useMemo(() => {
+    if (!selectedTemplate) return [];
+    const pkgs = getPackagesForTemplate(selectedTemplate.slug);
+    const cats = new Set(pkgs.map((p) => p.category));
+    return PACKAGE_CATEGORIES.filter((c) => cats.has(c.slug));
+  }, [selectedTemplate]);
+
   // Generate files
   const handleGenerate = useCallback(() => {
     if (!selectedTemplate || selectedIDEs.length === 0) return;
@@ -68,13 +107,14 @@ export default function WizardPage() {
       projectName: projectName || "My Project",
       stackConfig,
       selectedIDEs,
+      selectedPackages,
     };
 
     const result = generateAgentFiles(config);
     setGeneratedFiles(result.files);
     setActiveFileIndex(0);
-    setStep(4);
-  }, [selectedTemplate, projectName, stackConfig, selectedIDEs]);
+    setStep(5);
+  }, [selectedTemplate, projectName, stackConfig, selectedIDEs, selectedPackages]);
 
   // Copy file to clipboard
   const copyToClipboard = useCallback(async (content: string) => {
@@ -294,14 +334,156 @@ export default function WizardPage() {
                     ← Back
                   </button>
                   <button className="btn btn-primary" onClick={() => setStep(3)}>
-                    Choose IDE →
+                    Choose Packages →
                   </button>
                 </div>
               </>
             )}
 
-            {/* ── Step 3: Select IDE & Agent ───────────── */}
-            {step === 3 && (
+            {/* ── Step 3: Select Packages ────────────────── */}
+            {step === 3 && selectedTemplate && (
+              <>
+                <h2 className="wizard-step-title">Add packages &amp; libraries</h2>
+                <p className="wizard-step-subtitle">
+                  Select common packages for your {selectedTemplate.name} project. Skip to use defaults.
+                </p>
+
+                {/* Selected package tags */}
+                {selectedPackages.length > 0 && (
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginBottom: "1.5rem", justifyContent: "center" }}>
+                    {selectedPackages.map((slug) => {
+                      const pkg = PACKAGE_LIBRARY.find((p) => p.slug === slug);
+                      if (!pkg) return null;
+                      return (
+                        <span
+                          key={slug}
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "0.35rem",
+                            background: "var(--primary-subtle, rgba(124,58,237,0.15))",
+                            border: "1px solid var(--primary)",
+                            borderRadius: "999px",
+                            padding: "0.25rem 0.75rem",
+                            fontSize: "var(--text-sm)",
+                            color: "var(--primary-light, #a78bfa)",
+                          }}
+                        >
+                          {pkg.icon} {pkg.name}
+                          <button
+                            onClick={() => togglePackage(slug)}
+                            style={{ background: "none", border: "none", cursor: "pointer", padding: 0, color: "inherit", lineHeight: 1, fontSize: "1rem" }}
+                            aria-label={`Remove ${pkg.name}`}
+                          >
+                            ×
+                          </button>
+                        </span>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Category filter tabs */}
+                <div className="filter-tabs" style={{ justifyContent: "center", marginBottom: "1rem", flexWrap: "wrap" }}>
+                  <button
+                    className={`filter-tab ${!pkgCategory ? "active" : ""}`}
+                    onClick={() => setPkgCategory(null)}
+                  >
+                    All
+                  </button>
+                  {availableCategories.map((cat) => (
+                    <button
+                      key={cat.slug}
+                      className={`filter-tab ${pkgCategory === cat.slug ? "active" : ""}`}
+                      onClick={() => setPkgCategory(cat.slug)}
+                    >
+                      {cat.icon} {cat.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Search */}
+                <div className="search-input-wrapper" style={{ marginBottom: "1.5rem" }}>
+                  <span className="search-icon">🔍</span>
+                  <input
+                    type="text"
+                    className="search-input"
+                    placeholder="Search packages..."
+                    value={pkgSearch}
+                    onChange={(e) => setPkgSearch(e.target.value)}
+                  />
+                </div>
+
+                {/* Package grid */}
+                <div className="project-type-grid" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
+                  {filteredPackages.map((pkg) => {
+                    const isSelected = selectedPackages.includes(pkg.slug);
+                    const badge = pkg.npmPackage ?? pkg.pyPackage ?? pkg.pubPackage;
+                    return (
+                      <div
+                        key={pkg.slug}
+                        className={`project-type-card ${isSelected ? "selected" : ""}`}
+                        onClick={() => togglePackage(pkg.slug)}
+                        style={{ textAlign: "left", gap: "0.5rem", position: "relative" }}
+                      >
+                        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.25rem" }}>
+                          <span style={{ fontSize: "1.5rem" }}>{pkg.icon}</span>
+                          <span style={{ fontWeight: 700, fontSize: "var(--text-sm)" }}>{pkg.name}</span>
+                        </div>
+                        <p style={{ fontSize: "var(--text-xs)", color: "var(--text-secondary)", margin: 0, lineHeight: 1.4 }}>
+                          {pkg.description}
+                        </p>
+                        {badge && (
+                          <span
+                            style={{
+                              display: "inline-block",
+                              marginTop: "0.5rem",
+                              background: "rgba(255,255,255,0.07)",
+                              border: "1px solid rgba(255,255,255,0.12)",
+                              borderRadius: "4px",
+                              padding: "0.1rem 0.4rem",
+                              fontSize: "0.65rem",
+                              fontFamily: "monospace",
+                              color: "var(--text-muted)",
+                            }}
+                          >
+                            {badge}
+                          </span>
+                        )}
+                        {isSelected && (
+                          <div className="checkmark">✓</div>
+                        )}
+                      </div>
+                    );
+                  })}
+                  {filteredPackages.length === 0 && (
+                    <div style={{ gridColumn: "1/-1", textAlign: "center", padding: "2rem", color: "var(--text-muted)" }}>
+                      No packages found for this search.
+                    </div>
+                  )}
+                </div>
+
+                <div className="wizard-nav">
+                  <button className="btn btn-ghost" onClick={() => setStep(2)}>
+                    ← Back
+                  </button>
+                  <button className="btn btn-ghost" onClick={() => setStep(4)}>
+                    Skip →
+                  </button>
+                  <button
+                    className="btn btn-primary"
+                    onClick={() => setStep(4)}
+                  >
+                    {selectedPackages.length > 0
+                      ? `Continue with ${selectedPackages.length} package${selectedPackages.length > 1 ? "s" : ""} →`
+                      : "Choose IDE →"}
+                  </button>
+                </div>
+              </>
+            )}
+
+            {/* ── Step 4: Select IDE & Agent ───────────── */}
+            {step === 4 && (
               <>
                 <h2 className="wizard-step-title">Which IDE(s) do you use?</h2>
                 <p className="wizard-step-subtitle">
@@ -328,7 +510,7 @@ export default function WizardPage() {
                 </div>
 
                 <div className="wizard-nav">
-                  <button className="btn btn-ghost" onClick={() => setStep(2)}>
+                  <button className="btn btn-ghost" onClick={() => setStep(3)}>
                     ← Back
                   </button>
                   <button
@@ -343,8 +525,8 @@ export default function WizardPage() {
               </>
             )}
 
-            {/* ── Step 4: Review & Generate ────────────── */}
-            {step === 4 && generatedFiles.length > 0 && (
+            {/* ── Step 5: Review & Generate ─────────────── */}
+            {step === 5 && generatedFiles.length > 0 && (
               <>
                 <h2 className="wizard-step-title">Your Agent Files</h2>
                 <p className="wizard-step-subtitle">
@@ -415,18 +597,18 @@ export default function WizardPage() {
                 </div>
 
                 <div className="wizard-nav">
-                  <button className="btn btn-ghost" onClick={() => setStep(3)}>
+                  <button className="btn btn-ghost" onClick={() => setStep(4)}>
                     ← Back
                   </button>
-                  <button className="btn btn-primary" onClick={() => setStep(5)}>
+                  <button className="btn btn-primary" onClick={() => setStep(6)}>
                     📦 Export Files →
                   </button>
                 </div>
               </>
             )}
 
-            {/* ── Step 5: Download & Setup ─────────────── */}
-            {step === 5 && (
+            {/* ── Step 6: Download & Setup ─────────────── */}
+            {step === 6 && (
               <>
                 <h2 className="wizard-step-title">Export Your Files</h2>
                 <p className="wizard-step-subtitle">
