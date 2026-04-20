@@ -3,7 +3,7 @@
  * Orchestrates the autonomous birth of a venture.
  */
 
-import { Octokit } from '@octokit/rest';
+import { Octokit } from 'octokit';
 import { createClient } from '@/lib/supabase/server';
 import { generateAgentFiles } from '@/lib/engine';
 import { WizardConfig } from '@/lib/engine/types';
@@ -47,7 +47,7 @@ export async function hatchVenture(projectId: string) {
   try {
     // 2. Create GitHub Repository
     console.log(`[Hatch] Creating GitHub repo: ${repoName}`);
-    const { data: repo } = await octokit.repos.createForAuthenticatedUser({
+    const { data: repo } = await octokit.rest.repos.createForAuthenticatedUser({
       name: repoName,
       description: project.description,
       auto_init: true,
@@ -102,7 +102,7 @@ export async function hatchVenture(projectId: string) {
     // Push files to GitHub
     for (const file of result.files) {
       const content = Buffer.from(file.content).toString('base64');
-      await octokit.repos.createOrUpdateFileContents({
+      await octokit.rest.repos.createOrUpdateFileContents({
         owner: repo.owner.login,
         repo: repo.name,
         path: file.filePath,

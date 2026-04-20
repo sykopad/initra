@@ -14,6 +14,7 @@ import { getOverlay } from './templates';
 /**
  * Format the generated content for a specific IDE target.
  * Each IDE has its own file format, path, and structure requirements.
+ */
 export function formatForIDE(
   ideTarget: IDETarget,
   variables: TemplateVariables,
@@ -31,13 +32,9 @@ export function formatForIDE(
     case 'copilot':
       return formatCopilot(variables, baseContent);
     case 'trae':
-      return formatTrae(variables, baseContent);
     case 'aider':
-      return formatAider(variables, baseContent);
     case 'devin':
-      return formatDevin(variables, baseContent);
     case 'replit':
-      return formatReplit(variables, baseContent);
     case 'universal':
       return formatUniversal(variables, baseContent);
     default:

@@ -3,7 +3,7 @@
  * Uses LLMs to generate high-fidelity project ideas and full Wizard configs.
  */
 
-import { callOpenRouter } from '../ai/openrouter';
+import { callOpenRouter, DAILY_IDEA_MODEL } from '../ai/openrouter';
 import { WizardConfig, ProjectCategory } from './types';
 
 export interface VentureBlueprint {

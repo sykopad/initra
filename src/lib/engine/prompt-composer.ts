@@ -5,7 +5,6 @@
 
 import { TemplateVariables } from './types';
 import { getTemplate } from './templates';
-import { interpolate } from './boilerplate-engine';
 
 /** Check if a template variable is considered "empty" / falsy */
 function isEmpty(value: string | boolean | string[] | undefined): boolean {
@@ -145,7 +144,7 @@ export function extractVariables(
   // 2. Add Template-level Agent Instructions
   const template = getTemplate(templateSlug);
   if (template?.agentInstructions) {
-    vars.agentInstructions = interpolate(template.agentInstructions, vars);
+    vars.agentInstructions = interpolateVars(template.agentInstructions, vars);
   }
 
   return vars;
