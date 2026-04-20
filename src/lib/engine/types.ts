@@ -62,6 +62,8 @@ export interface PackageDefinition {
   pyPackage?: string;
   /** pub.dev package name for display badge */
   pubPackage?: string;
+  /** go package path for display badge */
+  goPackage?: string;
   /** Which template slugs this package is compatible with */
   compatibleTemplates: string[];
   /** Optional: templates explicitly excluded */
@@ -152,6 +154,7 @@ export interface WizardConfig {
   selectedPackages: string[];
   selectedServices: string[];
   includeBoilerplate?: boolean;
+  experienceLevel?: 'beginner' | 'experienced';
 }
 
 /** Boilerplate file definition */

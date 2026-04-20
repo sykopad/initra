@@ -116,7 +116,7 @@ function injectPackageKnowledge(content: string, vars: TemplateVariables): strin
     let section = `### ${pkg.name}`;
 
     // package badge
-    const badge = pkg.npmPackage ?? pkg.pyPackage ?? pkg.pubPackage;
+    const badge = pkg.npmPackage ?? pkg.pyPackage ?? pkg.pubPackage ?? pkg.goPackage;
     if (badge) section += `\n> \`${badge}\``;
 
     if (pkg.knowledge.installCommand) {
@@ -183,6 +183,36 @@ function injectServiceKnowledge(content: string, vars: TemplateVariables): strin
   return content + serviceContent;
 }
 
+/**
+ * Injects beginner-friendly setup guides if the user is a beginner
+ */
+function injectExperienceKnowledge(content: string, vars: TemplateVariables): string {
+  if (vars.experienceLevel !== 'beginner') return content;
+
+  let beginnerContent = '\n\n## 🚀 Getting Started (Beginner Friendly)\n\n';
+  beginnerContent += 'Welcome! Since you mentioned you are just getting started, here are the easiest ways to get your project live for free:\n\n';
+  
+  const slug = vars.templateSlug as string;
+  if (slug?.includes('next') || slug?.includes('nuxt')) {
+    beginnerContent += '### 1. Deployment (Vercel)\n';
+    beginnerContent += '- **Link**: [Vercel Dashboard](https://vercel.com/new)\n';
+    beginnerContent += '- **Instructions**: Connect your GitHub repo. Vercel will automatically detect your framework and deploy it.\n\n';
+  }
+
+  const stackConfig = vars.stackConfig as any;
+  if (stackConfig?.database === 'supabase' || (vars.selectedServices as string[])?.includes('supabase')) {
+    beginnerContent += '### 2. Database (Supabase)\n';
+    beginnerContent += '- **Link**: [Supabase Dashboard](https://supabase.com/dashboard)\n';
+    beginnerContent += '- **Instructions**: Create a new project. Copy the "Project URL" and "Anon Key" into your Vercel Environment Variables.\n\n';
+  }
+
+  beginnerContent += '### 3. Domains & Socials\n';
+  beginnerContent += '- **Domains**: We recommend [Namecheap](https://www.namecheap.com/) or [Google Domains](https://domains.google/).\n';
+  beginnerContent += '- **Logo**: Use ChatGPT or Canva to create a quick starting logo.\n\n';
+
+  return content + beginnerContent;
+}
+
 // ── Claude Code ─────────────────────────────────
 
 function formatClaudeCode(vars: TemplateVariables, _base: string): GeneratedFile[] {
@@ -245,6 +275,7 @@ function formatClaudeCode(vars: TemplateVariables, _base: string): GeneratedFile
   content = injectPackageKnowledge(content, vars);
   content = injectServiceKnowledge(content, vars);
   content = injectDocs(content, vars);
+  content = injectExperienceKnowledge(content, vars,);
 
   // Always include guardrails
   content += `\n\n## Guardrails

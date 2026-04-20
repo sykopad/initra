@@ -11,10 +11,12 @@ import { WizardConfig, GeneratedFile, IDETarget, ProjectTemplate, StackOption, A
 import { saveWizardSession, updateWizardFile } from "@/lib/actions/wizard";
 import Navbar from "@/components/Navbar";
 import AgentEditor from "@/components/AgentEditor";
+import DonationButton from "@/components/wizard/DonationButton";
 
 
 
 const STEPS = [
+  { label: "Start",    number: 0 },
   { label: "Project",  number: 1 },
   { label: "Stack",    number: 2 },
   { label: "Packages", number: 3 },
@@ -25,7 +27,13 @@ const STEPS = [
 ];
 
 export default function WizardPage() {
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(0);
+  const [wizardMode, setWizardMode] = useState<'manual' | 'ai'>('manual');
+  const [experienceLevel, setExperienceLevel] = useState<'beginner' | 'experienced'>('experienced');
+  const [aiGoal, setAiGoal] = useState("");
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [aiExplanation, setAiExplanation] = useState<string | null>(null);
+
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedTemplate, setSelectedTemplate] = useState<ProjectTemplate | null>(null);
   const [templateVersion, setTemplateVersion] = useState("");
@@ -175,6 +183,48 @@ export default function WizardPage() {
     setStep(4);
   }, [selectedPackages, stackConfig]);
 
+  // AI Assistant Mapping
+  const handleAiAnalysis = useCallback(async () => {
+    if (!aiGoal) return;
+    setIsAnalyzing(true);
+    setAiExplanation(null);
+
+    try {
+      const response = await fetch("/api/analyze-goal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ goal: aiGoal, experienceLevel }),
+      });
+
+      if (!response.ok) throw new Error("Failed to analyze goal");
+
+      const data = await response.json();
+      
+      // Auto-populate the wizard
+      const template = PROJECT_TEMPLATES.find(t => t.slug === data.templateSlug);
+      if (template) {
+        setSelectedTemplate(template);
+        setProjectName(data.projectName || "");
+        setStackConfig(data.stackConfig || {});
+        setSelectedPackages(data.selectedPackages || []);
+        setSelectedServices(data.selectedServices || []);
+        setAiExplanation(data.explanation);
+        
+        // Skip straight to Review if AI was thorough
+        setStep(6);
+      } else {
+        setToast("AI suggested a template that doesn't exist yet.");
+      }
+    } catch (err) {
+      console.error(err);
+      setToast("AI analysis failed. Falling back to manual mode.");
+      setWizardMode('manual');
+      setStep(1);
+    } finally {
+      setIsAnalyzing(false);
+    }
+  }, [aiGoal, experienceLevel]);
+
   // Generate files
   const handleGenerate = useCallback(() => {
     if (!selectedTemplate || selectedIDEs.length === 0) return;
@@ -188,12 +238,13 @@ export default function WizardPage() {
       selectedPackages,
       selectedServices,
       includeBoilerplate,
+      experienceLevel,
     };
 
     const result = generateAgentFiles(config);
     setGeneratedFiles(result.files);
     setActiveFileIndex(0);
-    setStep(6);
+    setStep(7);
 
     // Persist session in background and store ID for potential edits
     saveWizardSession(config, result.files).then(session => {
@@ -299,10 +350,108 @@ export default function WizardPage() {
 
           {/* Step Content */}
           <div className="wizard-content" key={step}>
-            {/* ── Step 1: Choose Project Type ──────────── */}
+            {/* ── Step 0: Initial Setup ────────────────── */}
+            {step === 0 && (
+              <div style={{ maxWidth: "600px", margin: "0 auto", textAlign: "center" }}>
+                <h2 className="wizard-step-title">How would you like to build?</h2>
+                <p className="wizard-step-subtitle" style={{ marginBottom: "2rem" }}>
+                  Select your path and experience level to customize your journey.
+                </p>
+
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem", marginBottom: "3rem" }}>
+                  <div 
+                    className={`project-type-card ${wizardMode === 'manual' ? 'selected' : ''}`}
+                    onClick={() => setWizardMode('manual')}
+                    style={{ padding: "2rem" }}
+                  >
+                    <span style={{ fontSize: "2.5rem", marginBottom: "1rem", display: "block" }}>🛠️</span>
+                    <h3>Manual Selection</h3>
+                    <p style={{ fontSize: "0.85rem" }}>Hand-pick your framework, database, and packages.</p>
+                  </div>
+                  <div 
+                    className={`project-type-card ${wizardMode === 'ai' ? 'selected' : ''}`}
+                    onClick={() => setWizardMode('ai')}
+                    style={{ padding: "2rem" }}
+                  >
+                    <span style={{ fontSize: "2.5rem", marginBottom: "1rem", display: "block" }}>✨</span>
+                    <h3>AI Assistant</h3>
+                    <p style={{ fontSize: "0.85rem" }}>Describe your goal and let AI suggest the perfect architecture.</p>
+                  </div>
+                </div>
+
+                <div className="glass-panel" style={{ padding: "2rem", textAlign: "left" }}>
+                  <h3 style={{ marginBottom: "1rem", fontSize: "1.1rem" }}>Your Experience Level</h3>
+                  <div style={{ display: "flex", gap: "1rem" }}>
+                    <button 
+                      className={`btn ${experienceLevel === 'experienced' ? 'btn-primary' : 'btn-ghost'}`}
+                      onClick={() => setExperienceLevel('experienced')}
+                      style={{ flex: 1 }}
+                    >
+                      Experienced Developer
+                    </button>
+                    <button 
+                      className={`btn ${experienceLevel === 'beginner' ? 'btn-primary' : 'btn-ghost'}`}
+                      onClick={() => setExperienceLevel('beginner')}
+                      style={{ flex: 1 }}
+                    >
+                      Business / New Dev
+                    </button>
+                  </div>
+                  <p style={{ marginTop: "1rem", fontSize: "0.85rem", color: "var(--text-secondary)" }}>
+                    {experienceLevel === 'beginner' 
+                      ? "✨ We'll provide extra guidance on setting up infrastructure like Vercel and Supabase for free." 
+                      : "💻 We'll focus on architecture, patterns, and agent orchestration."}
+                  </p>
+                </div>
+
+                <button 
+                  className="btn btn-primary" 
+                  style={{ marginTop: "2rem", width: "100%", padding: "1rem" }}
+                  onClick={() => setStep(1)}
+                >
+                  Continue →
+                </button>
+              </div>
+            )}
+
+            {/* ── Step 1: Manual or AI Project Path ──────── */}
             {step === 1 && (
-              <>
-                <h2 className="wizard-step-title">What are you building?</h2>
+              wizardMode === 'ai' ? (
+                <div style={{ maxWidth: "600px", margin: "0 auto" }}>
+                  <h2 className="wizard-step-title">What are you building?</h2>
+                  <p className="wizard-step-subtitle">Describe your project goal in a few sentences</p>
+                  
+                  <textarea
+                    className="form-input"
+                    style={{ minHeight: "150px", marginTop: "2rem", resize: "vertical" }}
+                    placeholder="Example: I want to build a fitness app for personal trainers that handles subscriptions, workout tracking, and has a dashboard for clients."
+                    value={aiGoal}
+                    onChange={(e) => setAiGoal(e.target.value)}
+                  />
+
+                  <div style={{ marginTop: "2rem" }}>
+                    <button 
+                      className="btn btn-primary" 
+                      style={{ width: "100%", padding: "1.2rem", fontSize: "1.1rem" }}
+                      onClick={handleAiAnalysis}
+                      disabled={!aiGoal || isAnalyzing}
+                    >
+                      {isAnalyzing ? "🪄 Analyzing Architectures..." : "Initialize with AI Assistant →"}
+                    </button>
+                    <button
+                      className="btn btn-ghost"
+                      style={{ width: "100%", marginTop: "1rem" }}
+                      onClick={() => {
+                        setWizardMode('manual');
+                      }}
+                    >
+                      Switch to Manual Mode
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <h2 className="wizard-step-title">What project type?</h2>
                 <p className="wizard-step-subtitle">Choose a project type to get started</p>
 
                 {/* Category filters */}
@@ -358,7 +507,7 @@ export default function WizardPage() {
                   </div>
                 )}
               </>
-            )}
+            ))}
 
             {/* ── Step 2: Configure Stack ──────────────── */}
             {step === 2 && selectedTemplate && (
@@ -777,18 +926,85 @@ export default function WizardPage() {
                   </button>
                   <button
                     className="btn btn-primary"
-                    onClick={handleGenerate}
+                    onClick={() => setStep(6)}
                     disabled={selectedIDEs.length === 0}
                     style={{ opacity: selectedIDEs.length === 0 ? 0.5 : 1 }}
                   >
-                    🔮 Generate Files ({selectedIDEs.length} selected)
+                    Next: Review Blueprint →
                   </button>
                 </div>
               </>
             )}
 
-            {/* ── Step 6: Review & Generate ─────────────── */}
-            {step === 6 && generatedFiles.length > 0 && (
+            {/* ── Step 6: Review Configuration ─────────── */}
+            {step === 6 && selectedTemplate && (
+              <>
+                <h2 className="wizard-step-title">Review your architecture</h2>
+                <p className="wizard-step-subtitle">Final check before we generate your agent files.</p>
+
+                {aiExplanation && (
+                  <div className="glass-panel" style={{ padding: "1.5rem", marginBottom: "2rem", borderLeft: "4px solid var(--primary)" }}>
+                    <h4 style={{ fontSize: "0.9rem", color: "var(--primary-light)", marginBottom: "0.5rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                      AI Architect Note
+                    </h4>
+                    <p style={{ fontSize: "0.95rem", fontStyle: "italic", color: "var(--text-primary)" }}>
+                      &quot;{aiExplanation}&quot;
+                    </p>
+                  </div>
+                )}
+
+                <div className="glass-panel" style={{ padding: "2rem", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2rem" }}>
+                  <div>
+                    <h3 style={{ fontSize: "1.1rem", marginBottom: "1rem" }}>Core Stack</h3>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                      <div className="review-item">
+                        <span className="label">Template:</span>
+                        <span className="value">{selectedTemplate.name}</span>
+                      </div>
+                      <div className="review-item">
+                        <span className="label">Project Name:</span>
+                        <span className="value">{projectName || "My Project"}</span>
+                      </div>
+                      {Object.entries(stackConfig).map(([key, val]) => (
+                        <div key={key} className="review-item">
+                          <span className="label">{key}:</span>
+                          <span className="value">{String(val)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <h3 style={{ fontSize: "1.1rem", marginBottom: "1rem" }}>Add-ons</h3>
+                    <p style={{ fontWeight: 600, fontSize: "0.9rem", marginBottom: "0.5rem" }}>Packages:</p>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem", marginBottom: "1rem" }}>
+                      {selectedPackages.map(p => (
+                        <span key={p} className="badge-outline">{p}</span>
+                      ))}
+                      {selectedPackages.length === 0 && <span className="text-muted">None</span>}
+                    </div>
+                    <p style={{ fontWeight: 600, fontSize: "0.9rem", marginBottom: "0.5rem" }}>Services:</p>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem" }}>
+                      {selectedServices.map(s => (
+                        <span key={s} className="badge-outline">{s}</span>
+                      ))}
+                      {selectedServices.length === 0 && <span className="text-muted">None</span>}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="wizard-nav">
+                  <button className="btn btn-ghost" onClick={() => setStep(5)}>
+                    ← Back
+                  </button>
+                  <button className="btn btn-primary" onClick={handleGenerate}>
+                    🔮 Generate Agent Files →
+                  </button>
+                </div>
+              </>
+            )}
+
+            {/* ── Step 7: Export & Results ──────────────── */}
+            {step === 7 && generatedFiles.length > 0 && (
               <>
                 <h2 className="wizard-step-title">Your Agent Files</h2>
                 <p className="wizard-step-subtitle">
@@ -957,6 +1173,15 @@ export default function WizardPage() {
                       team benefits from consistent AI agent behavior.
                     </p>
                   </div>
+                </div>
+
+                {/* Support Initra (Donation) */}
+                <div style={{ maxWidth: '600px', margin: '3rem auto 0' }}>
+                  <DonationButton 
+                    onSuccess={(amount) => {
+                      setToast(`Support detected! $${amount} added to your contribution.`);
+                    }} 
+                  />
                 </div>
 
                 <div className="wizard-nav">

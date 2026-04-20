@@ -1503,6 +1503,173 @@ app.use(helmet({
       ],
     },
   },
+
+  // ── Django Packages ───────────────────────────
+
+  {
+    slug: 'django-rest-framework',
+    name: 'Django REST Framework',
+    category: 'other',
+    icon: '🛠️',
+    description: 'A powerful and flexible toolkit for building Web APIs in Django',
+    language: 'python',
+    pyPackage: 'djangorestframework',
+    compatibleTemplates: ['django'],
+    documentationUrls: ['https://www.django-rest-framework.org/'],
+    knowledge: {
+      installCommand: 'pip install djangorestframework',
+      setupSnippet: `# settings.py
+INSTALLED_APPS = [
+    ...,
+    'rest_framework',
+]
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ]
+}`,
+      usageSnippet: `from rest_framework import viewsets
+from .serializers import UserSerializer
+from .models import User
+
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer`,
+      conventions: [
+        'Use Serializers to handle data conversion between models and JSON',
+        'Favor ViewSets and Routers for standard CRUD to reduce boilerplate',
+        'Use explicit permission classes for every view',
+      ],
+    },
+  },
+
+  {
+    slug: 'django-ninja',
+    name: 'Django Ninja',
+    category: 'other',
+    icon: '🥷',
+    description: 'Fast API framework for Django inspired by FastAPI and Pydantic',
+    language: 'python',
+    pyPackage: 'django-ninja',
+    compatibleTemplates: ['django'],
+    documentationUrls: ['https://django-ninja.rest-framework.com/'],
+    knowledge: {
+      installCommand: 'pip install django-ninja',
+      usageSnippet: `from ninja import NinjaAPI
+
+api = NinjaAPI()
+
+@api.get("/hello")
+def hello(request):
+    return {"message": "Hello world"}`,
+      conventions: [
+        'Use Schema classes (Pydantic) for request/response validation',
+        'Define the API instance in a central `api.py` file',
+        'Integrate into `urls.py` via `path("api/", api.urls)`',
+      ],
+    },
+  },
+
+  // ── Nuxt Packages ──────────────────────────────
+
+  {
+    slug: 'pinia-nuxt',
+    name: 'Pinia',
+    category: 'other',
+    icon: '🍍',
+    description: 'The intuitive store library for Vue and Nuxt',
+    language: 'typescript',
+    npmPackage: '@pinia/nuxt',
+    compatibleTemplates: ['nuxt'],
+    documentationUrls: ['https://pinia.vuejs.org/ssr/nuxt.html'],
+    knowledge: {
+      installCommand: 'npm install @pinia/nuxt',
+      usageSnippet: `// stores/counter.ts
+export const useCounterStore = defineStore('counter', {
+  state: () => ({ count: 0 }),
+  actions: {
+    increment() { this.count++ }
+  }
+})`,
+      conventions: [
+        'Use `defineStore` for every piece of global state',
+        'Prefer functional stores (Setup Stores) for better TS support',
+        'Stores are auto-imported in Nuxt — no need to import manually',
+      ],
+    },
+  },
+
+  {
+    slug: 'nuxt-supabase',
+    name: 'Nuxt Supabase',
+    category: 'auth',
+    icon: '⚡',
+    description: 'Supabase module for Nuxt — Auth, Database, Functions, and Realtime',
+    language: 'typescript',
+    npmPackage: '@nuxtjs/supabase',
+    compatibleTemplates: ['nuxt'],
+    documentationUrls: ['https://supabase.nuxtjs.org/'],
+    knowledge: {
+      installCommand: 'npm install @nuxtjs/supabase',
+      setupSnippet: `// nuxt.config.ts
+export default defineNuxtConfig({
+  modules: ['@nuxtjs/supabase'],
+  supabase: {
+    redirect: false
+  }
+})`,
+      usageSnippet: `<script setup>
+const client = useSupabaseClient()
+const { data: users } = await useAsyncData('users', async () => {
+  const { data } = await client.from('users').select('*')
+  return data
+})
+</script>`,
+      conventions: [
+        'Use `useSupabaseClient` for database/storage operations',
+        'Use `useSupabaseUser` for reactive auth state',
+        'Server-side operations should use `serverSupabaseClient` in API routes',
+      ],
+    },
+  },
+
+  // ── Go (Gin) Packages ──────────────────────────
+
+  {
+    slug: 'gorm',
+    name: 'GORM',
+    category: 'other',
+    icon: '🗄️',
+    description: 'The fantastic ORM library for Golang',
+    language: 'go',
+    goPackage: 'gorm.io/gorm',
+    compatibleTemplates: ['go-gin'],
+    documentationUrls: ['https://gorm.io/docs/'],
+    knowledge: {
+      installCommand: 'go get -u gorm.io/gorm gorm.io/driver/postgres',
+      setupSnippet: `import (
+  "gorm.io/driver/postgres"
+  "gorm.io/gorm"
+)
+
+dsn := "host=localhost user=gorm password=gorm dbname=gorm port=5432 sslmode=disable"
+db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})`,
+      usageSnippet: `type User struct {
+  gorm.Model
+  Name string
+}
+
+db.Create(&User{Name: "Jinzhu"})
+var user User
+db.First(&user, 1)`,
+      conventions: [
+        'Use `gorm.Model` for ID, CreatedAt, UpdatedAt, DeletedAt fields',
+        'Always check the `Error` field after operations',
+        'Use `AutoMigrate` for simple schema updates in development',
+      ],
+    },
+  },
 ];
 
 /** All package categories with display metadata */

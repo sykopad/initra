@@ -296,6 +296,123 @@ export default nextConfig;`
       }
     ]
   },
+  {
+    slug: 'nuxt',
+    name: 'Nuxt 3',
+    category: 'web-app',
+    icon: '💚',
+    description: 'The Intuitive Vue Framework — SSR, automatic routing, and hybrid rendering',
+    language: 'typescript',
+    availableVersions: [
+      { id: '4.4.2', label: 'Nuxt 4 (Stable)', status: 'stable', major: 4 },
+      { id: '3.13.0', label: 'Nuxt 3', status: 'stable', major: 3 }
+    ],
+    defaultStack: {
+      version: '4.4.2',
+      language: 'typescript',
+      styling: 'tailwind',
+      database: 'supabase',
+      auth: 'supabase-auth',
+      stateManagement: 'pinia',
+      deployment: 'vercel',
+      packageManager: 'npm',
+    },
+    stackOptions: [
+      {
+        fieldName: 'version',
+        fieldLabel: 'Nuxt Version',
+        fieldType: 'select',
+        options: [
+          { value: '4.4.2', label: 'Nuxt 4 (Stable)' },
+          { value: '3.13.0', label: 'Nuxt 3' },
+        ],
+        defaultValue: '4.4.2',
+        isRequired: true,
+        section: 'core',
+      },
+      {
+        fieldName: 'styling',
+        fieldLabel: 'Styling',
+        fieldType: 'select',
+        options: [
+          { value: 'tailwind', label: 'Tailwind CSS' },
+          { value: 'css-modules', label: 'CSS Modules' },
+          { value: 'uno-css', label: 'UnoCSS' },
+          { value: 'none', label: 'None' },
+        ],
+        defaultValue: 'tailwind',
+        isRequired: false,
+        section: 'core',
+      },
+      {
+        fieldName: 'stateManagement',
+        fieldLabel: 'State Management',
+        fieldType: 'select',
+        options: [
+          { value: 'pinia', label: 'Pinia (Recommended)' },
+          { value: 'vuex', label: 'Legacy Vuex' },
+          { value: 'none', label: 'None' },
+        ],
+        defaultValue: 'pinia',
+        isRequired: false,
+        section: 'core',
+      },
+    ],
+    boilerplateFiles: [
+      {
+        path: 'package.json',
+        mergeType: 'package-json',
+        content: JSON.stringify({
+          name: '{{projectSlug}}',
+          private: true,
+          type: 'module',
+          scripts: {
+            "build": "nuxt build",
+            "dev": "nuxt dev",
+            "generate": "nuxt generate",
+            "preview": "nuxt preview",
+            "postinstall": "nuxt prepare"
+          },
+          dependencies: {
+            "nuxt": "^4.4.2",
+            "vue": "latest",
+            "vue-router": "latest"
+          }
+        })
+      },
+      {
+        path: 'nuxt.config.ts',
+        content: `// https://nuxt.com/docs/api/configuration/nuxt-config
+export default defineNuxtConfig({
+  compatibilityDate: '2024-11-01',
+  devtools: { enabled: true },
+  modules: [
+    // MODULE_SLOT
+  ]
+})`
+      },
+      {
+        path: 'app.vue',
+        content: `<template>
+  <div>
+    <NuxtRouteAnnouncer />
+    <NuxtLayout>
+      <NuxtPage />
+    </NuxtLayout>
+  </div>
+</template>`
+      },
+      {
+        path: 'pages/index.vue',
+        content: `<template>
+  <div class="p-8">
+    <h1 class="text-3xl font-bold">{{projectName}}</h1>
+    <p class="mt-4">Welcome to your Nuxt 3 application.</p>
+  </div>
+</template>`
+      }
+    ]
+  },
 
   // ── Mobile Applications ──────────────────────
   {
@@ -502,6 +619,199 @@ export default nextConfig;`
         section: 'advanced',
       },
     ],
+  },
+  {
+    slug: 'django',
+    name: 'Django 6',
+    category: 'api-backend',
+    icon: '🎸',
+    description: 'The web framework for perfectionists with deadlines',
+    language: 'python',
+    availableVersions: [
+      { id: '6.0.4', label: 'Django 6 (Stable)', status: 'stable', major: 6 },
+      { id: '5.1.0', label: 'Django 5.1', status: 'stable', major: 5 }
+    ],
+    defaultStack: {
+      version: '6.0.4',
+      language: 'python',
+      database: 'postgresql',
+      packageManager: 'poetry',
+      auth: 'built-in',
+      deployment: 'docker',
+      testing: 'pytest',
+    },
+    stackOptions: [
+      {
+        fieldName: 'version',
+        fieldLabel: 'Django Version',
+        fieldType: 'select',
+        options: [
+          { value: '6.0.4', label: 'Django 6 (Stable)' },
+          { value: '5.1.0', label: 'Django 5.1' },
+        ],
+        defaultValue: '6.0.4',
+        isRequired: true,
+        section: 'core',
+      },
+      {
+        fieldName: 'packageManager',
+        fieldLabel: 'Package Manager',
+        fieldType: 'select',
+        options: [
+          { value: 'poetry', label: 'Poetry (Recommended)' },
+          { value: 'pip', label: 'pip / requirements.txt' },
+        ],
+        defaultValue: 'poetry',
+        isRequired: true,
+        section: 'core',
+      },
+    ],
+    boilerplateFiles: [
+      {
+        path: 'pyproject.toml',
+        condition: { field: 'packageManager', value: 'poetry' },
+        content: `[tool.poetry]
+name = "{{projectSlug}}"
+version = "0.1.0"
+description = ""
+authors = ["Initra User"]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+django = "^6.0.4"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"`
+      },
+      {
+        path: 'manage.py',
+        content: `#!/usr/bin/env python
+import os
+import sys
+
+def main():
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
+    try:
+        from django.core.management import execute_from_command_line
+    except ImportError as exc:
+        raise ImportError("Couldn't import Django.") from exc
+    execute_from_command_line(sys.argv)
+
+if __name__ == '__main__':
+    main()`
+      },
+      {
+        path: 'core/settings.py',
+        content: `from pathlib import Path
+import os
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-initra-default-key')
+DEBUG = True
+ALLOWED_HOSTS = []
+
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    # APP_SLOT
+]
+
+ROOT_URLCONF = 'core.urls'
+WSGI_APPLICATION = 'core.wsgi.application'`
+      },
+      {
+        path: 'core/urls.py',
+        content: `from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.name),
+    # ROUTE_SLOT
+]`
+      }
+    ]
+  },
+  {
+    slug: 'go-gin',
+    name: 'Go (Gin)',
+    category: 'api-backend',
+    icon: '🐹',
+    description: 'High-performance HTTP web framework in Go',
+    language: 'go',
+    availableVersions: [
+      { id: '1.10.0', label: 'Gin v1.10 (Latest)', status: 'stable', major: 1 }
+    ],
+    defaultStack: {
+      language: 'go',
+      database: 'postgresql',
+      orm: 'gorm',
+      deployment: 'docker',
+      testing: 'go-test',
+    },
+    stackOptions: [
+      {
+        fieldName: 'orm',
+        fieldLabel: 'ORM',
+        fieldType: 'select',
+        options: [
+          { value: 'gorm', label: 'GORM (Recommended)' },
+          { value: 'ent', label: 'Ent' },
+          { value: 'sqlx', label: 'Sqlx' },
+          { value: 'none', label: 'None (database/sql)' },
+        ],
+        defaultValue: 'gorm',
+        isRequired: true,
+        section: 'core',
+      },
+    ],
+    boilerplateFiles: [
+      {
+        path: 'go.mod',
+        content: `module {{projectSlug}}
+
+go 1.23
+
+require (
+	github.com/gin-gonic/gin v1.10.0
+)`
+      },
+      {
+        path: 'cmd/api/main.go',
+        content: `package main
+
+import (
+	"github.com/gin-gonic/gin"
+	"{{projectSlug}}/internal/router"
+)
+
+func main() {
+	r := gin.Default()
+	router.Setup(r)
+	r.Run() // listen and serve on 0.0.0.0:8080
+}`
+      },
+      {
+        path: 'internal/router/router.go',
+        content: `package router
+
+import (
+	"github.com/gin-gonic/gin"
+)
+
+func Setup(r *gin.Engine) {
+	r.GET("/ping", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"message": "pong",
+		})
+	})
+}`
+      }
+    ]
   },
 
   // ── Flutter ─────────────────────────────────

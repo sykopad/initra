@@ -11,9 +11,10 @@ This is NOT the Next.js you know. This version has breaking changes — APIs, co
 ## Project Overview
 
 **Initra** (Initiate Infrastructure) helps developers bootstrap projects by:
-1. Walking through a 7-step wizard to configure project, stack, packages, and services.
-2. Automatically generating tailored agent configuration files for 6+ IDEs.
-3. Generating a smart `.env.example` file with registration links for all selected APIs.
+1. Walking through a 8-step wizard (Start → Project → Stack → Packages → Services → IDE → Review → Export).
+2. **AI Assistant Mode**: Describe a goal and let AI suggest the perfect architecture mapping.
+3. **Tiered Model Engine**: Logic-based model selection (Mini, Codex, Opus) based on user tier.
+4. **Experience Tailoring**: Branched guidance (Dev vs Business Owner) for infrastructure setup.
 4. Injecting framework-specific knowledge, anti-patterns, and code snippets into agent files.
 5. Suggesting open-source community projects and voting on ideas.
 
@@ -33,7 +34,7 @@ This is NOT the Next.js you know. This version has breaking changes — APIs, co
 A **pure, deterministic TypeScript pipeline** — no LLM calls:
 
 ```
-WizardConfig → Template Resolver → Package Mapper → Service Selector → Variable Extractor → Prompt Composer → IDE Formatter → GeneratedFile[] (.md + .env.example)
+[AI Prompt (Step 0)] → Analyze Goal API → WizardConfig → Template Resolver → Package Mapper → Service Selector → Variable Extractor → Prompt Composer → IDE Formatter → GeneratedFile[] (.md + .env.example)
 ```
 
 | File | Purpose |
@@ -137,15 +138,11 @@ const supabase = createBrowserClient(url, key, {
 
 6. **GitHub push integration** — Authorize GitHub and push generated files directly to a repo in one click.
 
-7. **More templates** — Currently 6. High-demand additions:
-   - Django / Flask
-   - SvelteKit / Vue (Nuxt)
-   - Spring Boot / Go
-   - Laravel
-   - Tauri (desktop)
-   - Chrome Extension
+7. **More templates (Complete)** — Expanded library to 9+ frameworks. Added Django 6, Nuxt 3, and Go (Gin) with full boilerplate support. (Done 2026-04-20)
 
 8. **Template versioning** — Next.js 15 vs 16 have different conventions. Templates should be version-aware.
+
+9. **AI Goal Assistant (Complete)** — Context-aware project mapping, tiered model selection, and PayPal donation integration. (Done 2026-04-20)
 
 ### 🟢 Polish — Makes it feel complete
 
