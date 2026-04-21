@@ -54,15 +54,18 @@ export async function hatchVenture(projectId: string) {
   try {
     // 2. Create GitHub Repository
     console.log(`[Hatch] Creating GitHub repo: ${repoName}`);
+    await updateProvisioningStatus(projectId, { github: 'processing' });
     const { data: repo } = await octokit.rest.repos.createForAuthenticatedUser({
       name: repoName,
       description: project.description,
       auto_init: true,
-      private: false, // Community projects are public by default
+      private: false,
     });
+    await updateProvisioningStatus(projectId, { github: 'complete' });
 
     // 3. Create Vercel Project
     console.log(`[Hatch] Creating Vercel project...`);
+    await updateProvisioningStatus(projectId, { vercel: 'processing' });
     const vercelFramework = getVercelFramework(config.templateSlug);
     
     const vercelRes = await fetch(`https://api.vercel.com/v9/projects${VERCEL_TEAM_ID ? `?teamId=${VERCEL_TEAM_ID}` : ''}`, {
@@ -84,12 +87,17 @@ export async function hatchVenture(projectId: string) {
     if (!vercelRes.ok) {
       const vError = await vercelRes.json();
       console.error('Vercel Creation Error:', vError);
+      await updateProvisioningStatus(projectId, { vercel: 'failed' });
+      throw new Error(`Vercel creation failed: ${vError.message}`);
     }
 
     const vercelData = await vercelRes.json();
+    await updateProvisioningStatus(projectId, { vercel: 'complete' });
 
     // 4. Assign Subdomain
+    const domain = `${repoName}.initra.ai`; // Standardize
     console.log(`[Hatch] Assigning domain: ${domain}`);
+    await updateProvisioningStatus(projectId, { dns: 'processing' });
     await fetch(`https://api.vercel.com/v10/projects/${vercelData.id}/domains${VERCEL_TEAM_ID ? `?teamId=${VERCEL_TEAM_ID}` : ''}`, {
       method: 'POST',
       headers: {
@@ -98,9 +106,11 @@ export async function hatchVenture(projectId: string) {
       },
       body: JSON.stringify({ name: domain }),
     });
+    await updateProvisioningStatus(projectId, { dns: 'complete' });
 
     // 5. Create Sovereign Supabase Project
     console.log(`[Hatch] Provisioning sovereign database...`);
+    await updateProvisioningStatus(projectId, { supabase: 'processing' });
     let supabaseUrl = "";
     let supabaseAnonKey = "";
     let dbId = "";
@@ -119,8 +129,10 @@ export async function hatchVenture(projectId: string) {
       console.log(`[Hatch] Injecting migrations into database...`);
       await applyInitialSchema(dbId, schemaSql, MASTER_VENTURE_PASSWORD);
       
+      await updateProvisioningStatus(projectId, { supabase: 'complete' });
     } catch (sbErr) {
       console.warn("[Hatch] Database orchestration failed:", sbErr);
+      await updateProvisioningStatus(projectId, { supabase: 'failed' });
     }
 
     // 6. Inject Environment Variables into Vercel
@@ -131,17 +143,12 @@ export async function hatchVenture(projectId: string) {
         'NEXT_PUBLIC_SUPABASE_ANON_KEY': supabaseAnonKey,
       });
 
-      // 6.1 Inject GitHub Secrets (Hatching 3.0)
+      // 6.1 Inject GitHub Secrets
       console.log(`[Hatch] Provisioning GitHub Secrets for CI...`);
       try {
-        // Create Production Environment (Hatching 19)
         await createGitHubEnvironment(octokit, repo.owner.login, repo.name, 'Production');
-        
-        // Inject Scoped Secrets
         await injectEnvSecret(octokit, repo.owner.login, repo.name, 'Production', 'NEXT_PUBLIC_SUPABASE_URL', supabaseUrl);
         await injectEnvSecret(octokit, repo.owner.login, repo.name, 'Production', 'NEXT_PUBLIC_SUPABASE_ANON_KEY', supabaseAnonKey);
-        
-        // Also inject as repo secrets for universal fallback
         await injectRepoSecret(octokit, repo.owner.login, repo.name, 'NEXT_PUBLIC_SUPABASE_URL', supabaseUrl);
         await injectRepoSecret(octokit, repo.owner.login, repo.name, 'NEXT_PUBLIC_SUPABASE_ANON_KEY', supabaseAnonKey);
       } catch (secErr) {
@@ -152,7 +159,7 @@ export async function hatchVenture(projectId: string) {
     // 7. Generate & Push Content
     console.log(`[Hatch] Generating agent files...`);
     config.includeBoilerplate = true; 
-    config.includeTests = true; // Hatching 3.0
+    config.includeTests = true; 
     const result = await generateAgentFiles(config);
 
     // Push files to GitHub
@@ -165,10 +172,11 @@ export async function hatchVenture(projectId: string) {
         message: `chore: initra autonomous hatch - ${file.filename}`,
         content,
         branch: 'main',
+        sha: undefined // New repo
       });
     }
 
-    // 7.1 Branch Protection (Phase 19)
+    // 7.1 Branch Protection
     console.log(`[Hatch] Enforcing branch protection for 'main'...`);
     try {
       await setBranchProtection(octokit, repo.owner.login, repo.name, 'main', 'test'); 
@@ -176,7 +184,7 @@ export async function hatchVenture(projectId: string) {
       console.warn("[Hatch] Failed to set branch protection:", bpErr);
     }
 
-    // 8. Update Database
+    // 8. Update Database Completion
     await supabase
       .from('community_projects')
       .update({
@@ -184,12 +192,6 @@ export async function hatchVenture(projectId: string) {
         github_url: repo.html_url,
         live_url: `https://${domain}`,
         status: 'in_progress',
-        provisioning_status: {
-          github: "complete",
-          vercel: "complete",
-          supabase: supabaseUrl ? "complete" : "failed",
-          dns: "complete"
-        }
       })
       .eq('id', projectId);
 
@@ -347,4 +349,98 @@ async function setBranchProtection(octokit: Octokit, owner: string, repo: string
     restrictions: null,
   });
   console.log(`[GitHub] Branch protection enabled for '${branch}'.`);
+}
+
+/**
+ * Updates the provisioning status in the database
+ */
+async function updateProvisioningStatus(projectId: string, update: Record<string, string>) {
+  const supabase = await createClient();
+  
+  // First get current status to merge
+  const { data: project } = await supabase
+    .from('community_projects')
+    .select('provisioning_status')
+    .eq('id', projectId)
+    .single();
+    
+  const currentStatus = project?.provisioning_status || {};
+  
+  await supabase
+    .from('community_projects')
+    .update({
+      provisioning_status: { ...currentStatus, ...update }
+    })
+    .eq('id', projectId);
+}
+
+/**
+ * Retrieves the current hatching status for a project
+ */
+export async function getHatchStatus(projectId: string) {
+  const supabase = await createClient();
+  
+  const { data: project } = await supabase
+    .from('community_projects')
+    .select('provisioning_status, live_url, github_url, is_hatched')
+    .eq('id', projectId)
+    .single();
+    
+  if (!project) return null;
+
+  // If live_url exists, we can attempt to fetch Vercel status
+  let vercelStatus = 'building';
+  if (project.live_url) {
+     // For now, we'll assume 'ready' if is_hatched is true and the URL is reachable
+     // Future logic can call Vercel API with the projectId/domain
+     vercelStatus = project.is_hatched ? 'ready' : 'building';
+  }
+
+  return {
+    provisioningStatus: project.provisioning_status || {},
+    liveUrl: project.live_url,
+    githubUrl: project.github_url,
+    isHatched: project.is_hatched,
+    vercelStatus
+  };
+}
+
+/**
+ * Creates a project entry in the community_projects table
+ * to prepare it for hatching.
+ */
+export async function createHatchProject(
+  name: string,
+  description: string,
+  config: WizardConfig
+) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) throw new Error('Authentication required to hatch a project.');
+
+  const { data, error } = await supabase
+    .from('community_projects')
+    .insert({
+      title: name,
+      description: description,
+      user_id: user.id,
+      blueprint_config: config,
+      status: 'proposed',
+      provisioning_status: {
+        github: 'pending',
+        vercel: 'pending',
+        supabase: 'pending',
+        dns: 'pending'
+      }
+    })
+    .select('id')
+    .single();
+
+  if (error) {
+    console.error('Error creating hatch project:', error);
+    throw new Error('Failed to initialize hatching record.');
+  }
+
+  return data.id;
 }

@@ -9,6 +9,12 @@ interface DeploymentCenterProps {
   onOpenGitHubSync: () => void;
   syncResult: { url: string; repoFullName: string } | null;
   isPushing: boolean;
+  hatchStatus?: {
+    provisioningStatus: Record<string, string>;
+    vercelStatus: string;
+    liveUrl: string;
+    isHatched: boolean;
+  };
 }
 
 export default function DeploymentCenter({
@@ -16,248 +22,227 @@ export default function DeploymentCenter({
   generatedFiles,
   onOpenGitHubSync,
   syncResult,
-  isPushing
+  isPushing,
+  hatchStatus
 }: DeploymentCenterProps) {
 
-  const vercelDeployUrl = useMemo(() => {
-    if (!syncResult) return null;
-    return `https://vercel.com/new/import?s=${encodeURIComponent(syncResult.url)}&project-name=${encodeURIComponent(projectName.toLowerCase().replace(/\s+/g, '-'))}`;
-  }, [syncResult, projectName]);
+  const pillars = [
+    { id: 'github',   label: 'Code Repository',   icon: '🐙', key: 'github' },
+    { id: 'vercel',   label: 'Cloud Infrastructure', icon: '▲', key: 'vercel' },
+    { id: 'supabase', label: 'Sovereign Database',   icon: '⚡', key: 'supabase' },
+    { id: 'dns',      label: 'Domain Mapping',     icon: '🌐', key: 'dns' },
+  ];
 
-  const supabaseBranchUrl = useMemo(() => {
-    if (!syncResult) return null;
-    // Contextual link to Supabase branching (generic placeholder link as branching usually requires a specific project ref)
-    return `https://supabase.com/dashboard/projects`;
-  }, [syncResult]);
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'complete': return '#10B981';
+      case 'processing': return '#7C3AED';
+      case 'failed': return '#EF4444';
+      default: return 'rgba(255,255,255,0.1)';
+    }
+  };
+
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'complete': return 'Ready';
+      case 'processing': return 'In Progress...';
+      case 'failed': return 'Error';
+      default: return 'Pending';
+    }
+  };
 
   return (
-    <div className="deployment-center">
-      <div className="center-header">
-        <div className="status-badge">
-          {syncResult ? "✅ Connected" : "🔌 Pending Integration"}
+    <div className="provisioning-dashboard">
+      <div className="dashboard-header">
+        <div className="status-indicator">
+          <span className={`pulse-dot ${isPushing ? 'active' : ''}`}></span>
+          {isPushing ? "Orchestrating Venture Birth..." : hatchStatus?.isHatched ? "Venture Fully Hatched" : "System Ready"}
         </div>
-        <h3>Sync & Deployment Hub</h3>
-        <p>Integrate your agent boilerplate directly into your developer ecosystem.</p>
+        <h3>Infrastructure Status</h3>
       </div>
 
-      <div className="options-grid">
-        {/* GitHub Integration */}
-        <div 
-          className={`deploy-card ${syncResult ? 'success' : ''} ${isPushing ? 'processing' : ''}`}
-          onClick={!syncResult && !isPushing ? onOpenGitHubSync : undefined}
-        >
-          <div className="card-top">
-            <span className="platform-icon">🐙</span>
-            <div className="card-info">
-              <h4>GitHub Sync</h4>
-              <p>{syncResult ? `Pushed to ${syncResult.repoFullName}` : "Create repo & push rules"}</p>
+      <div className="pillars-grid">
+        {pillars.map((pillar) => {
+          const status = hatchStatus?.provisioningStatus[pillar.key] || 'pending';
+          return (
+            <div key={pillar.id} className={`pillar-card ${status}`}>
+              <div className="pillar-header">
+                <span className="pillar-icon">{pillar.icon}</span>
+                <div className="pillar-info">
+                  <span className="label">{pillar.label}</span>
+                  <span className="status">{getStatusLabel(status)}</span>
+                </div>
+              </div>
+              <div className="progress-track">
+                <div 
+                  className="progress-fill" 
+                  style={{ 
+                    width: status === 'complete' ? '100%' : status === 'processing' ? '60%' : '0%',
+                    backgroundColor: getStatusColor(status)
+                  }}
+                />
+              </div>
             </div>
-          </div>
-          {syncResult ? (
-            <a href={syncResult.url} target="_blank" rel="noopener noreferrer" className="card-action success">
-              View Repository →
-            </a>
-          ) : (
-            <button className="card-action" disabled={isPushing}>
-              {isPushing ? "Creating..." : "Initialize Repo →"}
-            </button>
-          )}
-        </div>
-
-        {/* Vercel Deployment */}
-        <div className={`deploy-card ${!syncResult ? 'disabled' : ''}`}>
-          <div className="card-top">
-            <span className="platform-icon">▲</span>
-            <div className="card-info">
-              <h4>Vercel Hosting</h4>
-              <p>One-click frontend deployment</p>
-            </div>
-          </div>
-          {syncResult ? (
-            <a href={vercelDeployUrl!} target="_blank" rel="noopener noreferrer" className="card-action vercel">
-              Deploy to Vercel →
-            </a>
-          ) : (
-            <button className="card-action" disabled>Push to GitHub first</button>
-          )}
-        </div>
-
-        {/* Supabase Branching */}
-        <div className={`deploy-card ${!syncResult ? 'disabled' : ''}`}>
-          <div className="card-top">
-            <span className="platform-icon">⚡</span>
-            <div className="card-info">
-              <h4>Supabase Branching</h4>
-              <p>Prepare database dev-branch</p>
-            </div>
-          </div>
-          {syncResult ? (
-            <a href={supabaseBranchUrl!} target="_blank" rel="noopener noreferrer" className="card-action supabase">
-              Branch Database →
-            </a>
-          ) : (
-            <button className="card-action" disabled>Push to GitHub first</button>
-          )}
-        </div>
+          );
+        })}
       </div>
+
+      {!syncResult && !isPushing && (
+        <button className="hatch-trigger-btn" onClick={onOpenGitHubSync}>
+          🚀 Hatch Sovereign Venture
+        </button>
+      )}
+
+      {syncResult && (
+        <div className="hatch-success-actions">
+           <a href={syncResult.url} target="_blank" rel="noreferrer" className="action-link github">View Source</a>
+           {hatchStatus?.liveUrl && <a href={hatchStatus.liveUrl} target="_blank" rel="noreferrer" className="action-link live">Visit Site</a>}
+        </div>
+      )}
 
       <style jsx>{`
-        .deployment-center {
-          margin-top: 1rem;
-          padding: 2rem;
+        .provisioning-dashboard {
+          padding: 1.5rem;
           background: rgba(255, 255, 255, 0.02);
           border: 1px solid rgba(255, 255, 255, 0.05);
           border-radius: 20px;
         }
 
-        .center-header {
+        .dashboard-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
           margin-bottom: 2rem;
         }
 
-        .status-badge {
-          display: inline-block;
-          font-size: 0.7rem;
-          font-weight: 700;
-          text-transform: uppercase;
-          letter-spacing: 0.05em;
+        .status-indicator {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          font-size: 0.75rem;
+          color: var(--text-muted);
+          background: rgba(255,255,255,0.05);
           padding: 4px 12px;
-          background: rgba(255, 255, 255, 0.05);
-          border-radius: 100px;
-          color: var(--text-muted);
-          margin-bottom: 1rem;
+          border-radius: 20px;
         }
 
-        h3 {
-          font-size: 1.5rem;
-          font-weight: 800;
-          margin-bottom: 0.5rem;
-          background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.6) 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
+        .pulse-dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background: #555;
         }
-
-        p {
-          color: var(--text-muted);
-          font-size: 0.95rem;
-        }
-
-        .options-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-          gap: 1.5rem;
-        }
-
-        .deploy-card {
-          background: rgba(255, 255, 255, 0.03);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 16px;
-          padding: 1.5rem;
-          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-          display: flex;
-          flex-direction: column;
-          gap: 1.5rem;
-          cursor: pointer;
-        }
-
-        .deploy-card:hover:not(.disabled):not(.success) {
-          transform: translateY(-5px);
-          background: rgba(255, 255, 255, 0.05);
-          border-color: var(--primary);
-          box-shadow: 0 20px 40px -15px rgba(0,0,0,0.4);
-        }
-
-        .deploy-card.disabled {
-          opacity: 0.5;
-          cursor: not-allowed;
-          filter: grayscale(1);
-        }
-
-        .deploy-card.success {
-          border-color: var(--success);
-          background: rgba(16, 185, 129, 0.05);
-          cursor: default;
-        }
-
-        .card-top {
-          display: flex;
-          align-items: center;
-          gap: 1rem;
-        }
-
-        .platform-icon {
-          font-size: 2rem;
-          width: 54px;
-          height: 54px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background: rgba(255, 255, 255, 0.05);
-          border-radius: 12px;
-          box-shadow: inset 0 1px 1px rgba(255,255,255,0.1);
-        }
-
-        .card-info h4 {
-          font-size: 1.1rem;
-          font-weight: 700;
-          margin-bottom: 0.25rem;
-        }
-
-        .card-info p {
-          font-size: 0.85rem;
-          color: var(--text-muted);
-        }
-
-        .card-action {
-          width: 100%;
-          padding: 0.75rem;
-          background: rgba(255, 255, 255, 0.05);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 8px;
-          color: white;
-          font-weight: 600;
-          font-size: 0.9rem;
-          text-align: center;
-          transition: all 0.2s;
-          cursor: pointer;
-          text-decoration: none;
-        }
-
-        .deploy-card:hover .card-action:not([disabled]) {
+        .pulse-dot.active {
           background: var(--primary);
-          border-color: var(--primary);
-        }
-
-        .card-action.success {
-          background: var(--success);
-          border-color: var(--success);
-        }
-
-        .card-action.vercel {
-          background: #000;
-          border-color: #333;
-        }
-        .card-action.vercel:hover {
-          border-color: #fff;
-        }
-
-        .card-action.supabase {
-          background: #1c1c1c;
-          border-color: var(--success);
-          color: var(--success);
-        }
-        .card-action.supabase:hover {
-          background: var(--success);
-          color: #000;
+          animation: pulse 1.5s infinite;
         }
 
         @keyframes pulse {
-          0% { opacity: 1; }
-          50% { opacity: 0.6; }
-          100% { opacity: 1; }
+          0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(124, 58, 237, 0.7); }
+          70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(124, 58, 237, 0); }
+          100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(124, 58, 237, 0); }
         }
 
-        .processing {
-          animation: pulse 1.5s infinite ease-in-out;
+        h3 {
+          font-size: 0.9rem;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          color: var(--text-muted);
+          margin: 0;
+        }
+
+        .pillars-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 1rem;
+          margin-bottom: 1.5rem;
+        }
+
+        .pillar-card {
+          background: rgba(255,255,255,0.03);
+          border: 1px solid rgba(255,255,255,0.05);
+          border-radius: 12px;
+          padding: 1rem;
+        }
+
+        .pillar-header {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          margin-bottom: 1rem;
+        }
+
+        .pillar-icon {
+          font-size: 1.5rem;
+        }
+
+        .pillar-info {
+          display: flex;
+          flex-direction: column;
+        }
+
+        .pillar-info .label {
+          font-size: 0.75rem;
+          font-weight: 600;
+          color: var(--text-primary);
+        }
+
+        .pillar-info .status {
+          font-size: 0.65rem;
+          color: var(--text-muted);
+        }
+
+        .progress-track {
+          height: 4px;
+          background: rgba(255,255,255,0.05);
+          border-radius: 2px;
+          overflow: hidden;
+        }
+
+        .progress-fill {
+          height: 100%;
+          transition: width 0.5s ease-in-out;
+        }
+
+        .hatch-trigger-btn {
+          width: 100%;
+          padding: 1rem;
+          background: var(--primary);
+          border: none;
+          border-radius: 12px;
+          color: white;
+          font-weight: 700;
+          cursor: pointer;
+          box-shadow: 0 10px 20px -5px rgba(124, 58, 237, 0.4);
+          transition: transform 0.2s;
+        }
+        .hatch-trigger-btn:hover {
+          transform: translateY(-2px);
+          filter: brightness(1.1);
+        }
+
+        .hatch-success-actions {
+           display: flex;
+           gap: 1rem;
+        }
+
+        .action-link {
+           flex: 1;
+           text-align: center;
+           padding: 0.75rem;
+           border-radius: 8px;
+           font-size: 0.85rem;
+           font-weight: 600;
+           text-decoration: none;
+        }
+        .action-link.github {
+           background: #24292e;
+           color: white;
+        }
+        .action-link.live {
+           background: var(--success);
+           color: white;
         }
       `}</style>
     </div>

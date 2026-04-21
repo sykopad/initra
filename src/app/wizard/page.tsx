@@ -12,6 +12,7 @@ import { SERVICE_LIBRARY, SERVICE_CATEGORIES, getRecommendedServices } from "@/l
 import { WizardConfig, GeneratedFile, IDETarget, ProjectTemplate, StackOption, ApiService } from "@/lib/engine/types";
 import { BRAIN_MODULES } from "@/lib/engine/intelligence-overlays";
 import { saveWizardSession, updateWizardFile } from "@/lib/actions/wizard";
+import { getHatchStatus, createHatchProject, hatchVenture } from "@/lib/actions/hatch";
 import Navbar from "@/components/Navbar";
 import AgentEditor from "@/components/AgentEditor";
 import DonationButton from "@/components/wizard/DonationButton";
@@ -75,6 +76,8 @@ export default function WizardPage() {
   const [isSharing, setIsSharing] = useState(false);
   const [showRepoModal, setShowRepoModal] = useState(false);
   const [syncResult, setSyncResult] = useState<{ url: string; repoFullName: string } | null>(null);
+  const [hatchStatus, setHatchStatus] = useState<any>(null);
+  const [currentProjectId, setCurrentProjectId] = useState<string | null>(null);
   const [shareUrl, setShareUrl] = useState<string | null>(null);
   const [modelSlug, setModelSlug] = useState<string | undefined>(AI_MODELS[0].slug);
   const [userCredits, setUserCredits] = useState(0);
@@ -139,6 +142,32 @@ export default function WizardPage() {
     setSelectedServices(project.recommendedServices);
     setStep(2); // Go to config step, but we might skip some options for layman
   }, []);
+
+  // ── Polling Hook for Hatching Status ──
+  useEffect(() => {
+    let interval: any;
+    if (isPushing && currentProjectId) {
+      const poll = async () => {
+        try {
+          const status = await getHatchStatus(currentProjectId);
+          if (status) {
+            setHatchStatus(status);
+            // If hatched, stop pushing state
+            if (status.isHatched) {
+              setIsPushing(false);
+              setSyncResult({ url: status.githubUrl || "", repoFullName: "" });
+            }
+          }
+        } catch (err) {
+          console.error("Polling error:", err);
+        }
+      };
+      
+      poll(); // Initial poll
+      interval = setInterval(poll, 3000);
+    }
+    return () => clearInterval(interval);
+  }, [isPushing, currentProjectId]);
 
   // Toggle IDE selection
   const toggleIDE = useCallback((ide: IDETarget) => {
@@ -369,39 +398,46 @@ export default function WizardPage() {
     setTimeout(() => setToast(null), 2500);
   }, [generatedFiles, projectName]);
 
-  // Push to GitHub
+  // Push to GitHub -> Actually Hatch Full Venture 2.0
   const handlePushToGitHub = useCallback(async (settings: RepoSettings) => {
     if (!projectName || generatedFiles.length === 0) return;
     setIsPushing(true);
-    setToast("Creating GitHub repository...");
+    setToast("Initializing Infrastructure Hatchery...");
 
     try {
-      const response = await fetch("/api/github/push", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          repoName: settings.name,
-          isPrivate: settings.isPrivate,
-          description: settings.description,
-          files: generatedFiles
-        }),
+      // 1. Create project in DB
+      const config: WizardConfig = {
+        templateSlug: selectedTemplate!.slug,
+        templateVersion: String(stackConfig.version || templateVersion),
+        projectName: projectName || "My Project",
+        stackConfig,
+        selectedIDEs,
+        selectedPackages,
+        selectedServices,
+        includeBoilerplate,
+        experienceLevel,
+        orchestrationMode,
+        selectedOverlays,
+        modelSlug,
+      };
+
+      const id = await createHatchProject(settings.name, settings.description || "", config);
+      setCurrentProjectId(id);
+      setToast("🚀 Project initialized! Starting multi-pillar provisioning...");
+
+      // 2. Trigger async hatching
+      hatchVenture(id).catch(err => {
+        console.error("Hatch background error:", err);
       });
 
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "Failed to push to GitHub");
-
-      setSyncResult({ url: data.url, repoFullName: data.repoFullName });
+      // 3. Status polling will pick up from here
       setShowRepoModal(false);
-      setToast("🚀 Project pushed successfully!");
-      
-      // Auto-save the session state if needed
     } catch (err: any) {
       console.error(err);
       setToast(`❌ Error: ${err.message}`);
-    } finally {
       setIsPushing(false);
     }
-  }, [projectName, generatedFiles]);
+  }, [projectName, generatedFiles, selectedTemplate, stackConfig, selectedIDEs, selectedPackages, selectedServices, templateVersion, includeBoilerplate, experienceLevel, orchestrationMode, selectedOverlays, modelSlug]);
 
   // Handle GitHub Import
   const handleRepoImport = useCallback(async () => {
@@ -1478,158 +1514,93 @@ export default function WizardPage() {
               </>
             )}
 
-            {/* ── Step 7: Export & Results ──────────────── */}
-            {step === 7 && generatedFiles.length > 0 && (
+            {/* ── Step 8: Hatch Engine 2.0 Dashboard ────────── */}
+            {step === 8 && generatedFiles.length > 0 && (
               <>
-                <h2 className="wizard-step-title">Your Agent Files</h2>
-                <p className="wizard-step-subtitle">
-                  Review the generated content. {generatedFiles.length} file{generatedFiles.length > 1 ? "s" : ""} ready.
-                </p>
-
-                <div className="review-layout">
-                  {/* File Preview */}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
                   <div>
-                    <div className="file-tabs">
-                      {generatedFiles.map((file, idx) => (
-                        <button
-                          key={idx}
-                          className={`file-tab ${activeFileIndex === idx ? "active" : ""}`}
-                          onClick={() => setActiveFileIndex(idx)}
-                        >
-                          {file.filename === '.env.example' ? '🔑' : '📄'} {file.filename}
-                        </button>
-                      ))}
-                    </div>
-                    <div className="code-preview-wrapper" style={{ minHeight: '400px' }}>
-                      <CodeViewer 
-                        code={generatedFiles[activeFileIndex]?.content || ""} 
-                        language={getLanguage(generatedFiles[activeFileIndex]?.filename || "")} 
-                        filename={generatedFiles[activeFileIndex]?.filePath}
-                      />
-                    </div>
-                    <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.75rem" }}>
-                      <button
-                        className="btn btn-secondary btn-sm"
-                        onClick={() => copyToClipboard(generatedFiles[activeFileIndex]?.content || "")}
-                      >
-                        📋 Copy
-                      </button>
-                      <button
-                        className="btn btn-secondary btn-sm"
-                        onClick={() => setIsEditing(true)}
-                      >
-                        ✍️ Edit Rules
-                      </button>
-                      <span style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)", display: "flex", alignItems: "center" }}>
-                        {generatedFiles[activeFileIndex]?.filePath}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Summary Sidebar */}
-                  <div className="review-sidebar">
-                    <div className="card-glass review-summary">
-                      <h3>📋 Configuration</h3>
-                      <div className="review-item">
-                        <span className="label">Template</span>
-                        <span className="value">{selectedTemplate?.name}</span>
-                      </div>
-                      <div className="review-item">
-                        <span className="label">Project</span>
-                        <span className="value">{projectName || "My Project"}</span>
-                      </div>
-                      <div className="review-item">
-                        <span className="label">Stack</span>
-                        <span className="value">{Object.keys(stackConfig).length} choices</span>
-                      </div>
-                      <div className="review-item">
-                        <span className="label">Packages</span>
-                        <span className="value">{selectedPackages.length} selected</span>
-                      </div>
-                      <div className="review-item">
-                        <span className="label">Services</span>
-                        <span className="value" style={{ color: "var(--success)" }}>{selectedServices.length} selected</span>
-                      </div>
-                      <div className="review-item">
-                        <span className="label">Files</span>
-                        <span className="value">{generatedFiles.length} generated</span>
-                      </div>
-
-                      {selectedServices.length > 0 && (
-                        <div style={{ marginTop: "1rem", paddingTop: "1rem", borderTop: "1px solid rgba(255,255,255,0.1)" }}>
-                           <h4 style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginBottom: "0.5rem", textTransform: "uppercase" }}>Env Vars Required</h4>
-                           <div style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
-                              {selectedServices.flatMap(s => 
-                                SERVICE_LIBRARY.find(sl => sl.slug === s)?.envVars.map(e => (
-                                   <code key={e.key} style={{ fontSize: "0.6rem", background: "var(--bg-glass)", padding: "2px 4px", borderRadius: "3px" }}>{e.key}</code>
-                                )) || []
-                              )}
-                           </div>
-                        </div>
-                      )}
-                    </div>
-
-                    <div style={{ marginTop: "1rem" }}>
-                      <DonationButton />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="wizard-nav">
-                  <button className="btn btn-ghost" onClick={() => setStep(5)}>
-                    ← Back
-                  </button>
-                  <button className="btn btn-primary" onClick={() => setStep(7)}>
-                    📦 Export & Finish →
-                  </button>
-                </div>
-
-                <hr style={{ margin: "4rem 0", borderColor: "var(--border-subtle)", opacity: 0.3 }} />
-
-                <h2 className="wizard-step-title">Export Your Files</h2>
-                <p className="wizard-step-subtitle">
-                  Download your agent configuration and <code>.env.example</code> setup.
-                </p>
-
-                <div style={{ marginTop: "2rem" }}>
-                  <DeploymentCenter 
-                    projectName={projectName}
-                    generatedFiles={generatedFiles}
-                    onOpenGitHubSync={() => setShowRepoModal(true)}
-                    syncResult={syncResult}
-                    isPushing={isPushing}
-                  />
-                </div>
-
-                <div className="download-grid" style={{ marginTop: "2rem" }}>
-                  <div className="card download-option" onClick={downloadZip}>
-                    <span className="download-icon">📁</span>
-                    <h3>Download ZIP</h3>
-                    <p>All files in the correct directory structure, including <code>.env.example</code>.</p>
-                  </div>
-                  <div
-                    className="card download-option"
-                    onClick={() => {
-                      const allContent = generatedFiles
-                        .map((f) => `// ─── ${f.filePath} ───\n\n${f.content}`)
-                        .join("\n\n\n");
-                      copyToClipboard(allContent);
-                    }}
-                  >
-                    <span className="download-icon">📋</span>
-                    <h3>Copy All</h3>
-                    <p>Copy all file contents to clipboard with file path headers.</p>
-                  </div>
-                  <div
-                    className={`card download-option ${isSharing ? "loading" : ""}`}
-                    onClick={!isSharing ? handleShareConfig : undefined}
-                    style={shareUrl ? { borderColor: 'var(--accent-purple)', background: 'rgba(255,100,255,0.05)' } : {}}
-                  >
-                    <span className="download-icon">🔗</span>
-                    <h3>{shareUrl ? "✅ Link Copied" : "Share Config"}</h3>
-                    <p>
-                      {isSharing ? "Generating..." : shareUrl ? `Shared at ${shareUrl}` : "Generate a permalink to share your configuration with the community."}
+                    <h2 className="wizard-step-title" style={{ textAlign: "left", margin: 0 }}>Hatchery Dashboard</h2>
+                    <p className="wizard-step-subtitle" style={{ textAlign: "left", margin: "0.25rem 0 0 0" }}>
+                      Refine your rules and monitor infrastructure provisioning in real-time.
                     </p>
+                  </div>
+                  <div style={{ display: "flex", gap: "0.75rem" }}>
+                    <button className="btn btn-ghost btn-sm" onClick={downloadZip}>📦 ZIP</button>
+                    <button className={`btn btn-ghost btn-sm ${isSharing ? 'loading' : ''}`} onClick={!isSharing ? handleShareConfig : undefined}>🔗 Share</button>
+                  </div>
+                </div>
+
+                <div className="hatch-workspace" style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: "2rem", minHeight: "75vh" }}>
+                  {/* Left Column: Rules Editor */}
+                  <div className="workspace-editor-side" style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                    <div className="glass-panel" style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", padding: "1.5rem" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+                        <div className="file-tabs" style={{ marginBottom: 0 }}>
+                          {generatedFiles.map((file, idx) => (
+                            <button
+                              key={idx}
+                              className={`file-tab ${activeFileIndex === idx ? "active" : ""}`}
+                              onClick={() => setActiveFileIndex(idx)}
+                              style={{ fontSize: "0.7rem", padding: "4px 10px" }}
+                            >
+                              {file.filename === '.env.example' ? '🔑' : '📄'} {file.filename}
+                            </button>
+                          ))}
+                        </div>
+                        <button className="btn btn-primary btn-sm" onClick={() => setIsEditing(true)}>✍️ Edit</button>
+                      </div>
+
+                      <div className="code-viewer-container" style={{ flex: 1, position: "relative", borderRadius: "12px", background: "rgba(0,0,0,0.2)", overflow: "auto" }}>
+                        <CodeViewer 
+                          code={generatedFiles[activeFileIndex]?.content || ""} 
+                          language={getLanguage(generatedFiles[activeFileIndex]?.filename || "")} 
+                          filename={generatedFiles[activeFileIndex]?.filePath}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right Column: Infrastructure & Preview */}
+                  <div className="workspace-infra-side" style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+                    {/* Step 1: Provisioning Centers */}
+                    <DeploymentCenter 
+                      projectName={projectName}
+                      generatedFiles={generatedFiles}
+                      onOpenGitHubSync={() => setShowRepoModal(true)}
+                      syncResult={syncResult}
+                      isPushing={isPushing}
+                      hatchStatus={hatchStatus}
+                    />
+
+                    {/* Step 2: Live Preview Iframe */}
+                    <div className="glass-panel" style={{ flex: 1, minHeight: "400px", display: "flex", flexDirection: "column", padding: "1rem", position: "relative" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.75rem" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                          <span style={{ fontSize: "0.8rem", color: "var(--text-muted)", background: "rgba(255,255,255,0.05)", padding: "2px 8px", borderRadius: "4px", fontFamily: "monospace" }}>
+                            {hatchStatus?.liveUrl || 'waiting-for-cloud...'}
+                          </span>
+                        </div>
+                        <div className="preview-status" style={{ fontSize: "0.7rem", color: hatchStatus?.vercelStatus === 'ready' ? 'var(--success)' : 'var(--text-muted)' }}>
+                           ● {hatchStatus?.vercelStatus?.toUpperCase() || 'OFFLINE'}
+                        </div>
+                      </div>
+
+                      <div className="preview-frame-wrapper" style={{ flex: 1, background: "white", borderRadius: "8px", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        {hatchStatus?.vercelStatus === 'ready' ? (
+                          <iframe 
+                            src={hatchStatus.liveUrl} 
+                            style={{ width: "100%", height: "100%", border: "none" }}
+                            title="Live Venture Preview"
+                          />
+                        ) : (
+                          <div style={{ textAlign: "center", color: "#666" }}>
+                             <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>🐣</div>
+                             <p style={{ fontWeight: 600 }}>Incubating Application...</p>
+                             <p style={{ fontSize: "0.8rem", color: "#999" }}>Preview active once Vercel deployment completes.</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -1641,56 +1612,8 @@ export default function WizardPage() {
                   isPushing={isPushing}
                 />
 
-                {/* Setup Instructions */}
-                <div className="setup-instructions">
-                  <h3>🛠️ Setup Instructions</h3>
-                  <div className="setup-step">
-                    <div className="step-number">1</div>
-                    <p>Extract the ZIP file into your project root directory</p>
-                  </div>
-                  <div className="setup-step">
-                    <div className="step-number">2</div>
-                    <p>
-                      Open your project in your IDE. The agent should automatically detect
-                      the configuration files.
-                    </p>
-                  </div>
-                  <div className="setup-step">
-                    <div className="step-number">3</div>
-                    <p>
-                      For Cursor: files go in <code>.cursor/rules/</code> — 
-                      For Claude: <code>CLAUDE.md</code> in project root — 
-                      For Windsurf: <code>.windsurf/rules/</code>
-                    </p>
-                  </div>
-                  <div className="setup-step">
-                    <div className="step-number">4</div>
-                    <p>
-                      Start a new chat session with your AI agent. It will automatically read
-                      the config files and follow your project conventions!
-                    </p>
-                  </div>
-                  <div className="setup-step">
-                    <div className="step-number">5</div>
-                    <p>
-                      <strong>Pro tip:</strong> Commit these files to your repo so your whole
-                      team benefits from consistent AI agent behavior.
-                    </p>
-                  </div>
-                </div>
-
-                {/* Support Initra (Donation) */}
-                <div style={{ maxWidth: '600px', margin: '3rem auto 0' }}>
-                  <DonationButton 
-                    userId={user?.id}
-                    onSuccess={(amount) => {
-                      setToast(`Support detected! $${amount} added to your contribution.`);
-                    }} 
-                  />
-                </div>
-
-                <div className="wizard-nav">
-                  <button className="btn btn-ghost" onClick={() => setStep(6)}>
+                <div className="wizard-nav" style={{ marginTop: "3rem" }}>
+                  <button className="btn btn-ghost" onClick={() => setStep(7)}>
                     ← Back to Review
                   </button>
                   <Link href="/community" className="btn btn-primary">
