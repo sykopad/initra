@@ -131,7 +131,7 @@ export interface ProjectTemplate {
   /** Primary language: 'typescript', 'python', 'dart', 'go', 'rust', 'java' */
   language: string;
   availableVersions: FrameworkVersion[];
-  defaultStack: Record<string, string>;
+  defaultStack: Record<string, string | boolean | string[] | undefined>;
   stackOptions: StackOption[];
   boilerplateFiles?: BoilerplateFile[];
   /** Optional: specialized instructions for the IDE agent for this template */
@@ -144,7 +144,7 @@ export interface StackOption {
   fieldLabel: string;
   fieldType: 'select' | 'multi-select' | 'toggle' | 'text';
   options?: { value: string; label: string }[];
-  defaultValue: string | boolean;
+  defaultValue: string | boolean | string[];
   isRequired: boolean;
   section: 'core' | 'advanced';
   description?: string;
@@ -155,7 +155,7 @@ export interface WizardConfig {
   templateSlug: string;
   templateVersion: string;
   projectName: string;
-  stackConfig: Record<string, string | boolean>;
+  stackConfig: Record<string, string | boolean | string[] | undefined>;
   selectedIDEs: IDETarget[];
   selectedPackages: string[];
   selectedServices: string[];

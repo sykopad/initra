@@ -45,7 +45,7 @@ export default function WizardPage() {
   const [selectedTemplate, setSelectedTemplate] = useState<ProjectTemplate | null>(null);
   const [templateVersion, setTemplateVersion] = useState("");
   const [projectName, setProjectName] = useState("");
-  const [stackConfig, setStackConfig] = useState<Record<string, string | boolean>>({});
+  const [stackConfig, setStackConfig] = useState<Record<string, string | boolean | string[] | undefined>>({});
   const [selectedIDEs, setSelectedIDEs] = useState<IDETarget[]>([]);
   const [selectedPackages, setSelectedPackages] = useState<string[]>([]);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
@@ -822,7 +822,7 @@ export default function WizardPage() {
                 {experienceLevel === 'beginner' && (
                   <div style={{ maxWidth: "800px", margin: "0 auto 3rem" }}>
                     <ColorPicker 
-                      initialColors={stackConfig.brandColors as string[] || []}
+                      initialColors={(stackConfig.brandColors as string[]) || []}
                       onColorsChange={(colors) => setStackConfig(prev => ({ ...prev, brandColors: colors }))} 
                     />
                   </div>
@@ -1651,8 +1651,8 @@ function StackField({
   onChange,
 }: {
   option: StackOption;
-  value: string | boolean | undefined;
-  onChange: (val: string | boolean) => void;
+  value: string | boolean | string[] | undefined;
+  onChange: (val: string | boolean | string[]) => void;
 }) {
   if (option.fieldType === "toggle") {
     return (

@@ -251,7 +251,7 @@ export const SERVICE_CATEGORIES = [
 /** 
  * Automatically recommend services based on selected packages 
  */
-export function getRecommendedServices(selectedPackages: string[], stackConfig: Record<string, string | boolean>): string[] {
+export function getRecommendedServices(selectedPackages: string[], stackConfig: Record<string, string | boolean | string[] | undefined>): string[] {
   const recommended = new Set<string>();
 
   // Map packages to services

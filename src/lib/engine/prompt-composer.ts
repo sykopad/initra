@@ -73,7 +73,7 @@ export function extractVariables(
   templateSlug: string,
   templateVersion: string,
   projectName: string,
-  stackConfig: Record<string, string | boolean>,
+  stackConfig: Record<string, string | boolean | string[] | undefined>,
   selectedPackages: string[] = [],
   selectedServices: string[] = [],
   experienceLevel: 'beginner' | 'experienced' = 'experienced',
