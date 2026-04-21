@@ -245,11 +245,23 @@ We implement frameworks **one at a time** to ensure maximum accuracy and deep he
 59. **Pro Infrastructure**: Support for Vercel Teams and advanced deployment orchestration. (Done 2026-04-21)
 60. **GitHub Secrets Orchestration**: Automated injection of Supabase keys into GitHub Repository Secrets. (Done 2026-04-21)
 
-### 🟣 Phase 18: Expert Brain Overlays (Active)
+### 🟣 Phase 18: Expert Brain Overlays (Complete)
 
-61. **Behavioral Module Registry**: Specialized instructions for Designer, Reasoning, and Security profiles.
-62. **Framework-Specific ADRs**: Automated injection of architectural decision records for Next.js 16/Nuxt 4.
-63. **Spatial Awareness Injection**: Mapping heuristic "Landmarks" directly into agent instructions.
+61. **Behavioral Module Registry**: Specialized instructions for Designer, Reasoning, and Security profiles. (Done 2026-04-21)
+62. **Framework-Specific ADRs**: Automated injection of architectural decision records for Next.js 16/Nuxt 4. (Done 2026-04-21)
+63. **Spatial Awareness Injection**: Mapping heuristic "Landmarks" directly into agent instructions. (Done 2026-04-21)
+
+### ⚡ Phase 19: Deployment Orchestration Expansion (Complete)
+
+64. **GitHub Environment Provisioning**: Automated creation of "Production" and "Preview" environments with scoped secrets. (Done 2026-04-21)
+65. **Branch Protection Orchestration**: Programmatic enforcement of CI passing rules for birthed repositories. (Done 2026-04-21)
+66. **Granular Provisioning Feedback**: Real-time lifecycle status updates for the full "Hatch" sequence. (Done 2026-04-21)
+
+### 🧩 Phase 20: IDE Library Expansion (Active)
+
+67. **Trae AI Support**: Native `.trae/rules/project_rules.md` generation with adaptive instructions.
+68. **Aider & Devin Support**: Optimized instruction templates for leading AI agents.
+69. **Replit Agent Orchestration**: Specialized root-level instructions for Replit Workspace birth.
 
 ## Conventions
 

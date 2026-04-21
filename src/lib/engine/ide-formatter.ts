@@ -32,9 +32,13 @@ export function formatForIDE(
     case 'copilot':
       return formatCopilot(variables, baseContent);
     case 'trae':
+      return formatTrae(variables, baseContent);
     case 'aider':
+      return formatAider(variables, baseContent);
     case 'devin':
+      return formatDevin(variables, baseContent);
     case 'replit':
+      return formatReplit(variables, baseContent);
     case 'universal':
       return formatUniversal(variables, baseContent);
     default:
@@ -925,6 +929,72 @@ function formatUniversal(vars: TemplateVariables, _base: string): GeneratedFile[
     ideTarget: 'universal',
     filename: 'AGENTS.md',
     filePath: 'AGENTS.md',
+    content,
+  }];
+}
+
+/**
+ * Trae AI specialized format (.trae/rules/project_rules.md)
+ */
+function formatTrae(vars: TemplateVariables, _base: string): GeneratedFile[] {
+  let content = compose(\`# Project Rules — {{projectName}}\n\nAdaptive instructions for the Trae AI IDE.\n\n\`, vars);
+  content = injectIntelligence(content, vars);
+  content = injectOverlays(content, vars);
+  content = injectPackageKnowledge(content, vars);
+
+  return [{
+    ideTarget: 'trae',
+    filename: 'project_rules.md',
+    filePath: '.trae/rules/project_rules.md',
+    content,
+  }];
+}
+
+/**
+ * Aider specialized format (.aider.instructions.md)
+ */
+function formatAider(vars: TemplateVariables, _base: string): GeneratedFile[] {
+  let content = compose(\`# Aider Instructions — {{projectName}}\n\nCompact directives for Aider autonomous sessions.\n\n\`, vars);
+  content = injectIntelligence(content, vars);
+  content = injectPackageKnowledge(content, vars);
+  content += \`\n\n## Aider Mode\n- Use --auto-test whenever possible.\n- Use --architect mode for structural changes.\n\`;
+
+  return [{
+    ideTarget: 'aider',
+    filename: '.aider.instructions.md',
+    filePath: '.aider.instructions.md',
+    content,
+  }];
+}
+
+/**
+ * Devin specialized format (.devin/instructions.md)
+ */
+function formatDevin(vars: TemplateVariables, _base: string): GeneratedFile[] {
+  let content = compose(\`# Devin Project Instructions — {{projectName}}\n\n\`, vars);
+  content = injectIntelligence(content, vars);
+  content = injectOverlays(content, vars);
+  content = injectServiceKnowledge(content, vars);
+
+  return [{
+    ideTarget: 'devin',
+    filename: 'instructions.md',
+    filePath: '.devin/instructions.md',
+    content,
+  }];
+}
+
+/**
+ * Replit Agent specialized format (.replit-instructions.md)
+ */
+function formatReplit(vars: TemplateVariables, _base: string): GeneratedFile[] {
+  let content = compose(\`# Replit Workspace Instructions — {{projectName}}\n\n\`, vars);
+  content = injectIntelligence(content, vars);
+  
+  return [{
+    ideTarget: 'replit',
+    filename: '.replit-instructions.md',
+    filePath: '.replit-instructions.md',
     content,
   }];
 }

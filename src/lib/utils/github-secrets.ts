@@ -58,3 +58,43 @@ export async function injectRepoSecret(
     throw error;
   }
 }
+
+/**
+ * Provisions a secret to a specific GitHub Environment.
+ */
+export async function injectEnvSecret(
+  octokit: Octokit, 
+  owner: string, 
+  repo: string, 
+  environment: string,
+  secretName: string, 
+  secretValue: string
+) {
+  try {
+    // 1. Get the repository ID (required for environment secrets API in some versions)
+    const { data: repository } = await octokit.rest.repos.get({ owner, repo });
+
+    // 2. Get the public key for the environment
+    const { data: publicKey } = await octokit.rest.actions.getEnvironmentPublicKey({
+      repository_id: repository.id,
+      environment_name: environment,
+    });
+
+    // 3. Encrypt the secret value
+    const encryptedValue = await encryptSecret(publicKey.key, secretValue);
+
+    // 4. Create or update the environment secret
+    await octokit.rest.actions.createOrUpdateEnvironmentSecret({
+      repository_id: repository.id,
+      environment_name: environment,
+      secret_name: secretName,
+      encrypted_value: encryptedValue,
+      key_id: publicKey.key_id,
+    });
+
+    console.log(`[GitHub] Secret '${secretName}' injected successfully into environment '${environment}'`);
+  } catch (error) {
+    console.error(`[GitHub] Failed to inject environment secret '${secretName}':`, error);
+    throw error;
+  }
+}

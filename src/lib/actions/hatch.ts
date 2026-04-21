@@ -10,7 +10,7 @@ import { WizardConfig } from '@/lib/engine/types';
 
 import { Client } from 'pg';
 import { callOpenRouter } from '@/lib/ai/openrouter';
-import { injectRepoSecret } from '@/lib/utils/github-secrets';
+import { injectRepoSecret, injectEnvSecret } from '@/lib/utils/github-secrets';
 
 const VERCEL_TOKEN = process.env.VERCEL_TOKEN;
 const VERCEL_TEAM_ID = process.env.VERCEL_TEAM_ID;
@@ -134,6 +134,14 @@ export async function hatchVenture(projectId: string) {
       // 6.1 Inject GitHub Secrets (Hatching 3.0)
       console.log(`[Hatch] Provisioning GitHub Secrets for CI...`);
       try {
+        // Create Production Environment (Hatching 19)
+        await createGitHubEnvironment(octokit, repo.owner.login, repo.name, 'Production');
+        
+        // Inject Scoped Secrets
+        await injectEnvSecret(octokit, repo.owner.login, repo.name, 'Production', 'NEXT_PUBLIC_SUPABASE_URL', supabaseUrl);
+        await injectEnvSecret(octokit, repo.owner.login, repo.name, 'Production', 'NEXT_PUBLIC_SUPABASE_ANON_KEY', supabaseAnonKey);
+        
+        // Also inject as repo secrets for universal fallback
         await injectRepoSecret(octokit, repo.owner.login, repo.name, 'NEXT_PUBLIC_SUPABASE_URL', supabaseUrl);
         await injectRepoSecret(octokit, repo.owner.login, repo.name, 'NEXT_PUBLIC_SUPABASE_ANON_KEY', supabaseAnonKey);
       } catch (secErr) {
@@ -158,6 +166,14 @@ export async function hatchVenture(projectId: string) {
         content,
         branch: 'main',
       });
+    }
+
+    // 7.1 Branch Protection (Phase 19)
+    console.log(`[Hatch] Enforcing branch protection for 'main'...`);
+    try {
+      await setBranchProtection(octokit, repo.owner.login, repo.name, 'main', 'test'); 
+    } catch (bpErr) {
+      console.warn("[Hatch] Failed to set branch protection:", bpErr);
     }
 
     // 8. Update Database
@@ -300,4 +316,35 @@ async function injectVercelEnv(projectId: string, env: Record<string, string>) {
       }),
     });
   }
+}
+
+/**
+ * Creates a GitHub Environment
+ */
+async function createGitHubEnvironment(octokit: Octokit, owner: string, repo: string, name: string) {
+  await octokit.rest.repos.createOrUpdateEnvironment({
+    owner,
+    repo,
+    environment_name: name,
+  });
+  console.log(`[GitHub] Environment '${name}' created.`);
+}
+
+/**
+ * Enforces branch protection rules
+ */
+async function setBranchProtection(octokit: Octokit, owner: string, repo: string, branch: string, checkName: string) {
+  await octokit.rest.repos.updateBranchProtection({
+    owner,
+    repo,
+    branch,
+    required_status_checks: {
+      strict: true,
+      contexts: [checkName], // 'test' matches our CI job name in initra-ci.yml
+    },
+    enforce_admins: true,
+    required_pull_request_reviews: null,
+    restrictions: null,
+  });
+  console.log(`[GitHub] Branch protection enabled for '${branch}'.`);
 }
