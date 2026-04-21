@@ -25,7 +25,11 @@ export async function GET(req: Request) {
         description: blueprint.description,
         category: blueprint.category,
         impact_statement: blueprint.impactStatement,
-        blueprint_config: blueprint.wizardConfig,
+        blueprint_config: {
+          ...blueprint.wizardConfig,
+          architectureReasoning: blueprint.architectureReasoning,
+          suggestedBrains: blueprint.suggestedBrains
+        },
         agent_instructions: blueprint.workOrders.join('\n'),
         venture_type: 'ai-generated',
         status: 'proposed',

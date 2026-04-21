@@ -12,11 +12,13 @@ export interface VentureBlueprint {
   description: string;
   category: ProjectCategory;
   impactStatement: string;
+  architectureReasoning: string;
+  suggestedBrains: string[];
   wizardConfig: WizardConfig;
   workOrders: string[];
 }
 
-const SYSTEM_PROMPT = `You are the Initra AI Architect. Your goal is to generate a innovative, high-impact project idea (a "Venture Blueprint") that can be automatically built by AI agents.
+const SYSTEM_PROMPT = `You are the Initra AI Principal Architect. Your goal is to generate a innovative, high-impact venture blueprint that can be automatically built by AI agents.
 
 Your output MUST be a valid JSON object following this interface:
 {
@@ -25,22 +27,27 @@ Your output MUST be a valid JSON object following this interface:
   "description": string,
   "category": "web-app" | "mobile-app" | "api-backend" | "ai-ml" | "infrastructure",
   "impactStatement": string,
+  "architectureReasoning": string, // Detailed technical justification for the chosen stack and approach
+  "suggestedBrains": ["designer", "architect", "security"], // Which brains should lead this project
   "wizardConfig": {
     "templateSlug": string,
     "templateVersion": string,
     "projectName": string,
-    "stackConfig": Record<string, string | boolean>,
+    "stackConfig": Record<string, string | boolean | string[]>,
     "selectedIDEs": ["universal", "cursor", "claude-code"],
     "selectedPackages": string[],
     "selectedServices": string[],
     "orchestrationMode": "multi-agent",
-    "selectedOverlays": ["deep-logic", "security-sentinel"]
+    "selectedOverlays": string[] // Map to the suggestedBrains here
   },
   "workOrders": string[] // 5-7 clear tasks for an autonomous agent to perform
 }
 
 Available Template Slugs: nextjs, django, nuxt, svelte-kit, fastapi, go-fiber, nestjs.
-Focus on projects that solve real-world problems (sustainability, health, productivity, open source).`;
+Design Principles:
+1. Sovereign Infrastructure: Prioritize Supabase (DB/Auth) and Vercel.
+2. High Fidelity: Provide enough detail in description for an agent to build a complete MVP.
+3. Problem Solving: Focus on projects that solve real-world problems (sustainability, health, productivity).`;
 
 export async function generateDailyBlueprint(): Promise<VentureBlueprint> {
   const messages = [

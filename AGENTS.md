@@ -263,11 +263,17 @@ We implement frameworks **one at a time** to ensure maximum accuracy and deep he
 68. **Aider & Devin Support**: Optimized instruction templates for leading AI agents. (Done 2026-04-21)
 69. **Replit Agent Orchestration**: Specialized root-level instructions for Replit Workspace birth. (Done 2026-04-21)
 
-### 🟣 Phase 21: Expert Brain Overlays — UI Integration (Active)
+### 🟣 Phase 21: Expert Brain Overlays — UI Integration (Complete)
 
-70. **Brain Selection Interface**: Dedicated wizard step for visual "Brain Profile" selection.
-71. **Intelligence Preview**: Live preview of behavioral directives during selection.
-72. **Spatial Awareness Dashboard**: Display identified repo landmarks in the project overview.
+70. **Brain Selection Interface**: Dedicated wizard step for visual "Brain Profile" selection. (Done 2026-04-21)
+71. **Intelligence Preview**: Live preview of behavioral directives during selection. (Done 2026-04-21)
+72. **Spatial Awareness Dashboard**: Display identified repo landmarks in the project overview. (Done 2026-04-21)
+
+### 🌐 Phase 22: AI Idea Fabric (Complete)
+
+73. **Claude Opus 4.6 Migration**: Upgraded autonomous brainstorming to use the high-reasoning Opus 4.6 model. (Done 2026-04-21)
+74. **Architectural Blueprints**: Refined generation prompt to produce high-fidelity technical justifications and work orders. (Done 2026-04-21)
+75. **Persona-Aware Generation**: Daily ideas now include suggested Brain Overlays and Agent persona mappings. (Done 2026-04-21)
 
 ## Conventions
 
