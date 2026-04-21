@@ -201,11 +201,11 @@ const supabase = createBrowserClient(url, key, {
 41. **Logic Segmentation**: Identify Edge Functions, API Routes, and Middleware as editable logic blocks. (Done 2026-04-21)
 42. **Config Heuristics**: Targeted editing of Tailwind configs and framework settings. (Done 2026-04-21)
 
-### 🟢 Phase 12: Nuxt 4 (Vue.js) (Active)
+### 🟢 Phase 12: Nuxt 4 (Vue.js) (Complete)
 
-43. **Nuxt 4 Heuristic Archetypes**: Detection of `layouts/`, `pages/`, and `composables/`.
-44. **Nitro Segmentation**: Identify Nitro API routes and server middleware.
-45. **Nuxt-specific Landmarks**: Recognize `NuxtLayout` and `NuxtPage` entry points.
+43. **Nuxt 4 Heuristic Archetypes (Complete)**: Detection of `layouts/`, `pages/`, and `composables/`. (Done 2026-04-21)
+44. **Nitro Segmentation (Complete)**: Identify Nitro API routes and server middleware. (Done 2026-04-21)
+45. **Nuxt-specific Landmarks (Complete)**: Recognize `NuxtLayout` and `NuxtPage` entry points. (Done 2026-04-21)
 
 ## Framework Roadmap
 
@@ -233,11 +233,11 @@ We implement frameworks **one at a time** to ensure maximum accuracy and deep he
 53. **State Management Heuristics**: Detect Bloc, Provider, or Riverpod patterns. (Done 2026-04-21)
 54. **Mobile Navigation Mapping**: Identification of Router and NavRail landmarks. (Done 2026-04-21)
 
-### 📊 Phase 16: Autonomous Quality Audits (Active)
+### 📊 Phase 16: Autonomous Quality Audits (Complete)
 
-55. **Heuristic Scorecard**: Implementation of SEO, Security, and Performance audit rules.
-56. **UI Integration**: Dynamic "Health Gauge" and check-list in the repo builder.
-57. **Framework-Specific Audits**: Specialized rules for Next.js Metadata and Django settings.
+55. **Heuristic Scorecard (Complete)**: Implementation of SEO, Security, and Performance audit rules. (Done 2026-04-21)
+56. **UI Integration (Complete)**: Dynamic "Health Gauge" and check-list in the repo builder. (Done 2026-04-21)
+57. **AI Auto-Repair Engine (Complete)**: Specialized prompt sequences for autonomous fixes. (Done 2026-04-21)
 
 ### ⚡ Phase 17: Hatching 3.0 (Complete)
 
@@ -287,17 +287,17 @@ We implement frameworks **one at a time** to ensure maximum accuracy and deep he
 80. **Command Center Dashboard**: Unified "My Ventures" management hub with project deletion and repo disconnection tools. (Done 2026-04-21)
 81. **Global Header Integration**: Standardized navigation and theme orchestration across the user dashboard. (Done 2026-04-21)
 
-### 🌐 Phase 25: Community Ecosystem & Discovery (Active)
+### 🌐 Phase 25: Community Ecosystem & Discovery (Complete)
 
-82. **Venture Discovery Feed**: Transform the dashboard into a community hub where users can share and discover public venture blueprints.
-83. **Fork & Hatch Orchestration**: Enable users to fork shared agent configurations and hatch them instantly into their own infrastructure.
-84. **Social Signals**: Implement engagement metrics (votes, views) to surface the highest quality agent workflows.
+82. **Venture Discovery Feed (Complete)**: Transformed the dashboard into a community hub. (Done 2026-04-21)
+83. **Fork & Hatch Orchestration (Complete)**: Enabled forking and instant hatching. (Done 2026-04-21)
+84. **Social Signals (Complete)**: Implemented engagement metrics (votes, forks) and trending score. (Done 2026-04-21)
 
-### 📊 Phase 26: Autonomous Quality Audits (Active)
+### 📊 Phase 26: Autonomous Quality Audits (Complete)
 
-85. **Pro Heuristic Scorecard**: Implementation of deep SEO, Security, and Accessibility audit rules with actionable improvement feedback.
-86. **AI Auto-Repair Engine**: Specialized prompt sequences that can autonomously fix identified architectural flaws.
-87. **Framework-Specific ADR Injection**: Automated generation of Architectural Decision Records based on audit findings.
+85. **Pro Heuristic Scorecard (Complete)**: Implementation of deep SEO, Security, and Accessibility audit rules. (Done 2026-04-21)
+86. **AI Auto-Repair Engine (Complete)**: Specialized prompt sequences for autonomous fixes. (Done 2026-04-21)
+87. **Framework-Specific ADR Injection (Complete)**: Automated generation of ADRs based on audit findings. (Done 2026-04-21)
 
 ## Conventions
 

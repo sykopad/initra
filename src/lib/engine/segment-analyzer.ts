@@ -148,15 +148,27 @@ export async function analyzeRepository(
       // C. Logic (Nitro API, Composables, Plugins, Middleware)
       else if (
         (file.startsWith("server/") && (file.endsWith(".ts") || file.endsWith(".js"))) ||
-        (file.includes("composables/") && (file.endsWith(".ts") || file.endsWith(".js"))) ||
+        (file.includes("composables/") && (file.endsWith(".ts") || file.endsWith(".js") || file.endsWith(".vue"))) ||
         (file.includes("plugins/") && (file.endsWith(".ts") || file.endsWith(".js"))) ||
-        (file.includes("middleware/") && (file.endsWith(".ts") || file.endsWith(".js")))
+        (file.includes("middleware/") && (file.endsWith(".ts") || file.endsWith(".js"))) ||
+        (file.includes("utils/") && (file.endsWith(".ts") || file.endsWith(".js")))
       ) {
         let logicType = "Nitro API Endpoint";
-        if (file.includes("composables/")) logicType = "Vue Composable";
-        if (file.includes("plugins/")) logicType = "Nuxt Plugin";
-        if (file.includes("middleware/")) logicType = "Nuxt Middleware";
-        if (file.includes("server/middleware")) logicType = "Server Middleware";
+        let desc = "Server-side business logic and data orchestration.";
+        
+        if (file.includes("composables/")) {
+          logicType = "Vue Composable";
+          desc = "Reusable stateful logic built with Vue Composition API.";
+        } else if (file.includes("plugins/")) {
+          logicType = "Nuxt Plugin";
+          desc = "Application-level plugin for Nuxt lifecycle and global context.";
+        } else if (file.includes("middleware/")) {
+          logicType = file.startsWith("server/") ? "Server Middleware" : "Route Middleware";
+          desc = "Logic executed before route entry or request handling.";
+        } else if (file.includes("utils/")) {
+          logicType = "Utility Function";
+          desc = "Pure helper functions and shared logic.";
+        }
 
         segments.push({
           name: logicType,
@@ -164,7 +176,7 @@ export async function analyzeRepository(
           isLogic: true,
           domain: detectDomain(file),
           filePath: file,
-          description: "Nuxt/Nitro business logic and reactive orchestration.",
+          description: desc,
           confidence: 0.95
         });
       }
@@ -177,13 +189,13 @@ export async function analyzeRepository(
           isLogic: true,
           domain: detectDomain(file),
           filePath: file,
-          description: "Pinia global state management and persistence logic.",
-          confidence: 0.9
+          description: "Pinia global state management and persistent store.",
+          confidence: 0.95
         });
       }
 
       // E. UI Components & Landmarks
-      else if (file.includes("components/") && file.endsWith(".vue")) {
+      else if (file.includes("components/") && (file.endsWith(".vue") || file.endsWith(".ts") || file.endsWith(".js"))) {
         const landmark = detectLandmark(file);
         if (landmark !== 'unknown' || file.includes("base/") || file.includes("shared/") || file.includes("ui/")) {
           segments.push({
@@ -193,16 +205,16 @@ export async function analyzeRepository(
             domain: detectDomain(file),
             filePath: file,
             description: `Identified ${landmark !== 'unknown' ? landmark : 'UI'} Vue component.`,
-            confidence: landmark !== 'unknown' ? 0.8 : 0.6
+            confidence: landmark !== 'unknown' ? 0.9 : 0.7
           });
         }
       }
 
-      // F. Config & Assets
+      // F. Config & Styling
       else if (lowerFile.includes("nuxt.config") || lowerFile.includes("app.config") || lowerFile.includes("tailwind.config") || lowerFile.includes("assets/css")) {
         segments.push({
           name: lowerFile.includes("nuxt.config") ? "Nuxt Config" : (lowerFile.includes("app.config") ? "App Config" : "Global Styles"),
-          type: "style",
+          type: "config",
           domain: "Design System",
           filePath: file,
           description: "Framework configuration and global design tokens.",

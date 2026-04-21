@@ -8,18 +8,28 @@ export async function getCommunityProjects(filter: string = "All") {
   
   let query = supabase
     .from("community_projects")
-    .select("*")
-    .order("venture_type", { ascending: false }) // AI-generated first
-    .order("vote_score", { ascending: false });
+    .select("*");
 
-  if (filter !== "All") {
+  if (filter === "Trending") {
+    query = query.order("trending_score", { ascending: false });
+  } else if (filter === "Recent") {
+    query = query.order("created_at", { ascending: false });
+  } else {
+    query = query
+      .order("venture_type", { ascending: false }) // AI-generated first
+      .order("vote_score", { ascending: false });
+  }
+
+  if (filter !== "All" && filter !== "Trending" && filter !== "Recent") {
     const statusMap: Record<string, string> = {
       Proposed: "proposed",
       "In Progress": "in_progress",
       "Needs Agents": "needs_agents",
       Completed: "completed",
     };
-    query = query.eq("status", statusMap[filter]);
+    if (statusMap[filter]) {
+      query = query.eq("status", statusMap[filter]);
+    }
   }
 
   const { data, error } = await query;
@@ -75,6 +85,26 @@ export async function voteProject(projectId: string, value: number) {
   }
 
   revalidatePath("/community");
+  
+  // 3. Update Trending Score
+  await updateTrendingScore(projectId);
+}
+
+async function updateTrendingScore(projectId: string) {
+  const supabase = await createClient();
+  const { data: project } = await supabase
+    .from("community_projects")
+    .select("vote_score, fork_count")
+    .eq("id", projectId)
+    .single();
+
+  if (project) {
+    const score = (project.vote_score * 1.5) + (project.fork_count * 5);
+    await supabase
+      .from("community_projects")
+      .update({ trending_score: score })
+      .eq("id", projectId);
+  }
 }
 
 export async function suggestProject(formData: {
@@ -214,7 +244,12 @@ export async function forkVentureAction(projectId: string) {
 
   if (sessionError) throw sessionError;
 
+  // 4. Increment Fork Count
+  await supabase.rpc('increment_fork_count', { project_id: projectId });
+  await updateTrendingScore(projectId);
+
   revalidatePath("/dashboard");
+  revalidatePath("/community");
   return { sessionId: session.id };
 }
 

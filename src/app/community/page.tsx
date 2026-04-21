@@ -42,6 +42,8 @@ interface CommunityProject {
   is_hatched: boolean;
   live_url?: string;
   github_url?: string;
+  fork_count: number;
+  trending_score: number;
   blueprint_config?: any;
 }
 
@@ -61,6 +63,7 @@ export default function CommunityPage() {
   const [isPending, startTransition] = useTransition();
   const [hatchingId, setHatchingId] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [activeFilter, setActiveFilter] = useState("Trending");
 
   // New project form state
   const [showSuggestModal, setShowSuggestModal] = useState(false);
@@ -68,9 +71,10 @@ export default function CommunityPage() {
   const [newDescription, setNewDescription] = useState("");
 
   const loadData = useCallback(async () => {
+    setLoading(true);
     try {
       const [fetchedProjects, fetchedVotes] = await Promise.all([
-        getCommunityProjects("All"),
+        getCommunityProjects(activeFilter),
         getUserVotes()
       ]);
       setProjects(fetchedProjects as any);
@@ -80,7 +84,7 @@ export default function CommunityPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [activeFilter]);
 
   const handleGenerate = async () => {
     setIsGenerating(true);
@@ -146,6 +150,8 @@ export default function CommunityPage() {
   const aiGenerated = projects.filter(p => p.venture_type === 'ai-generated');
   const userSuggested = projects.filter(p => p.venture_type === 'user-suggested');
 
+  const filterOptions = ["Trending", "Recent", "Votes", "Proposed", "Needs Agents", "Completed"];
+
   return (
     <>
       <Navbar />
@@ -160,6 +166,20 @@ export default function CommunityPage() {
             <p style={{ fontSize: '1.25rem', color: 'var(--text-secondary)', maxWidth: '700px', margin: '0 auto' }}>
               Hatch autonomous ventures or discover community-led blueprints architected by Claude 4.6.
             </p>
+          </div>
+
+          {/* Filtering Hub */}
+          <div className="filter-pill-container" style={{ display: 'flex', justifyContent: 'center', gap: '0.75rem', marginBottom: '4rem', flexWrap: 'wrap' }}>
+            {filterOptions.map(opt => (
+              <button 
+                key={opt}
+                className={`filter-pill ${activeFilter === opt ? 'active' : ''}`}
+                onClick={() => setActiveFilter(opt)}
+                disabled={loading}
+              >
+                {opt}
+              </button>
+            ))}
           </div>
 
           {/* AI VENTURES SECTION */}
@@ -188,6 +208,7 @@ export default function CommunityPage() {
                 <div className="category-row">
                   <span className="badge-outline">{project.category}</span>
                   <span className="badge-soft">{project.blueprint_config?.templateSlug}</span>
+                  {project.trending_score > 50 && <span className="badge-trending">🔥 Trending</span>}
                 </div>
                 
                 <h3 className="venture-title">{project.title}</h3>
@@ -209,6 +230,11 @@ export default function CommunityPage() {
                     <button onClick={() => handleVoteAction(project.id, 1)} className={userVotes[project.id] === 1 ? 'active' : ''}>▲</button>
                     <span>{project.vote_score}</span>
                     <button onClick={() => handleVoteAction(project.id, -1)} className={userVotes[project.id] === -1 ? 'active' : ''}>▼</button>
+                  </div>
+
+                  <div className="fork-display">
+                    <span className="icon">🔱</span>
+                    <span className="count"><strong>{project.fork_count || 0}</strong> Hatches</span>
                   </div>
                   
                   <div className="action-group">
@@ -293,9 +319,32 @@ export default function CommunityPage() {
           border-color: var(--success);
         }
         
-        .category-row { display: flex; gap: 0.75rem; marginBottom: 1.5rem; }
+        .category-row { display: flex; align-items: center; gap: 0.75rem; marginBottom: 1.5rem; }
         .badge-outline { font-size: 0.7rem; padding: 2px 8px; border: 1px solid var(--border-medium); border-radius: 4px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
         .badge-soft { font-size: 0.7rem; padding: 2px 8px; background: rgba(124,58,237,0.1); color: var(--primary-light); border-radius: 4px; }
+        .badge-trending { font-size: 0.7rem; padding: 2px 8px; background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%); color: white; border-radius: 4px; font-weight: 700; }
+        
+        .filter-pill-container { }
+        .filter-pill { 
+          padding: 8px 18px; 
+          border-radius: 20px; 
+          border: 1px solid var(--border-medium); 
+          background: rgba(255,255,255,0.02); 
+          color: var(--text-secondary); 
+          cursor: pointer; 
+          font-size: 0.9rem; 
+          transition: all 0.2s;
+        }
+        .filter-pill:hover { background: rgba(255,255,255,0.05); }
+        .filter-pill.active { 
+          background: var(--primary); 
+          color: white; 
+          border-color: var(--primary); 
+          box-shadow: 0 4px 12px rgba(124,58,237,0.3);
+        }
+
+        .fork-display { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; color: var(--text-secondary); }
+        .fork-display .icon { font-size: 1rem; opacity: 0.8; }
         
         .venture-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 1rem; color: var(--text-primary); }
         .venture-description { font-size: 0.95rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 1.5rem; }

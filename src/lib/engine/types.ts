@@ -294,5 +294,6 @@ export interface AuditCheck {
   title: string;
   status: 'pass' | 'fail' | 'warning';
   message: string;
-  category: 'SEO' | 'Security' | 'Performance';
+  category: 'SEO' | 'Security' | 'Performance' | 'Accessibility';
+  actionable_repair?: string;
 }

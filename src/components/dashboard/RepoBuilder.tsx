@@ -6,6 +6,8 @@ import SegmentCard from "./SegmentCard";
 import AuditScorecard from "./AuditScorecard";
 import { AuditResult } from "@/lib/engine/types";
 import { disconnectRepo } from "@/lib/actions/projects";
+import { repairAuditAction } from "@/lib/actions/audit";
+import { AuditCheck } from "@/lib/engine/types";
 
 interface Repo {
   id: string;
@@ -127,6 +129,19 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
     }
   };
 
+  const handleRepair = async (check: AuditCheck) => {
+    if (!activeRepo) return;
+    try {
+      const res = await repairAuditAction(activeRepo.id, check, activeRepo.framework);
+      if (res.success) {
+        setPendingChanges({ code: res.newCode, filePath: res.filePath });
+        // NOTE: In a future iteration, we will also push the ADR file automatically.
+      }
+    } catch (err: any) {
+      alert("Repair failed: " + err.message);
+    }
+  };
+
   return (
     <div className="repo-builder dashboard-card">
       <div className="card-header">
@@ -207,7 +222,7 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
             </div>
           </div>
           
-          {audit && <AuditScorecard audit={audit} />}
+          {audit && <AuditScorecard audit={audit} onRepair={handleRepair} />}
 
           {/* Grouped Segments View */}
           <div className="domains-container">
