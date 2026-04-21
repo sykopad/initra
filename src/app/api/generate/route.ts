@@ -27,12 +27,41 @@ export async function POST(request: Request) {
       }
     }
 
-    const model = getModelForTier(tier);
-    console.log(`[Generate API] Using model: ${model} for tier: ${tier}`);
+    const { 
+      templateSlug, 
+      templateVersion, 
+      projectName, 
+      stackConfig, 
+      selectedIDEs, 
+      selectedPackages, 
+      selectedServices,
+      modelSlug 
+    } = body as WizardConfig;
 
-    // Validate required fields
-    const { templateSlug, templateVersion, projectName, stackConfig, selectedIDEs, selectedPackages, selectedServices } =
-      body as WizardConfig;
+    // 2. Identify Model and Pricing
+    const { getModelBySlug, getDefaultModel } = await import("@/lib/ai/models");
+    const { deductCredits } = await import("@/lib/credits/service");
+    
+    const selectedModel = modelSlug ? getModelBySlug(modelSlug) : getDefaultModel();
+    const modelToUse = selectedModel?.slug || "openai/gpt-4o-mini";
+    
+    if (selectedModel?.isPremium) {
+      if (!user) {
+        return NextResponse.json({ error: "Premium models require login." }, { status: 401 });
+      }
+      
+      const deduction = await deductCredits(
+        user.id, 
+        selectedModel.creditCost, 
+        `Generation using ${selectedModel.name} for project: ${projectName || "Untitled"}`
+      );
+
+      if (!deduction.success) {
+        return NextResponse.json({ error: deduction.error }, { status: 403 });
+      }
+    }
+
+    console.log(`[Generate API] Using model: ${modelToUse} for user: ${user?.id || 'anonymous'}`);
 
     if (!templateSlug) {
       return NextResponse.json(
@@ -58,6 +87,7 @@ export async function POST(request: Request) {
       selectedPackages: selectedPackages ?? [],
       selectedServices: selectedServices ?? [],
       experienceLevel: body.experienceLevel ?? 'experienced',
+      modelSlug: selectedModel?.slug
     };
 
     const result = generateAgentFiles(config);

@@ -169,6 +169,7 @@ export interface WizardConfig {
   projectTypeSlug?: string;
   brandColors?: string[];
   logoUrl?: string;
+  modelSlug?: string;
 }
 
 /** Boilerplate file definition */

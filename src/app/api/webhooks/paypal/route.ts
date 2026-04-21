@@ -23,17 +23,33 @@ export async function POST(req: Request) {
   if (eventType === 'CHECKOUT.ORDER.APPROVED' || eventType === 'PAYMENT.CAPTURE.COMPLETED') {
     const resource = body.resource;
     
-    // Extract user ID from custom_id (we'll need to pass this during order creation)
-    const userId = resource.custom_id || resource.purchase_units?.[0]?.custom_id;
-    const amount = resource.amount?.value || resource.purchase_units?.[0]?.amount?.value;
+    const rawCustomId = resource.custom_id || resource.purchase_units?.[0]?.custom_id;
+    const amount = Number(resource.amount?.value || resource.purchase_units?.[0]?.amount?.value);
 
-    if (!userId) {
+    if (!rawCustomId) {
       console.error("No userId found in PayPal metadata (custom_id)");
       return NextResponse.json({ error: "No userId in metadata" }, { status: 400 });
     }
 
-    // 3. Update User Profile in Supabase
+    const { addCredits } = await import("@/lib/credits/service");
     const supabase = await createClient();
+
+    // Handle "credits:USER_ID" format for credit purchases
+    if (rawCustomId.startsWith('credits:')) {
+      const userId = rawCustomId.replace('credits:', '');
+      
+      const creditAmount = amount * 20; // $1 = 20 credits
+      const result = await addCredits(userId, creditAmount, `PayPal Purchase: $${amount}`);
+      
+      if (!result.success) {
+        return NextResponse.json({ error: "Failed to add credits" }, { status: 500 });
+      }
+
+      return NextResponse.json({ success: true, creditsAdded: creditAmount });
+    }
+
+    // Handle Legacy/Donation "USER_ID" format
+    const userId = rawCustomId;
     
     const { data: profile, error: fetchError } = await supabase
       .from('profiles')
@@ -46,7 +62,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Profile not found" }, { status: 404 });
     }
 
-    const newDonationTotal = Number(profile.donation_total) + Number(amount);
+    const newDonationTotal = Number(profile.donation_total) + amount;
     
     // Logic: If total donation > $10, upgrade to 'elite'. If > $1, upgrade to 'pro'.
     let newTier = 'community';

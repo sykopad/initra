@@ -19,6 +19,8 @@ import CodeViewer from "@/components/wizard/CodeViewer";
 import { saveSharedConfig } from "@/lib/actions/shared";
 import RepoSyncModal, { RepoSettings } from "@/components/wizard/RepoSyncModal";
 import DeploymentCenter from "@/components/wizard/DeploymentCenter";
+import ModelSelector from "@/components/wizard/ModelSelector";
+import { AI_MODELS } from "@/lib/ai/models";
 
 
 
@@ -72,11 +74,18 @@ export default function WizardPage() {
   const [showRepoModal, setShowRepoModal] = useState(false);
   const [syncResult, setSyncResult] = useState<{ url: string; repoFullName: string } | null>(null);
   const [shareUrl, setShareUrl] = useState<string | null>(null);
+  const [modelSlug, setModelSlug] = useState<string | undefined>(AI_MODELS[0].slug);
+  const [userCredits, setUserCredits] = useState(0);
 
   useEffect(() => {
     const supabase = createClient();
     supabase.auth.getUser().then(({ data }) => {
       setUser(data.user);
+      if (data.user) {
+        supabase.from('profiles').select('credits').eq('id', data.user.id).single().then(({ data: profile }) => {
+          if (profile) setUserCredits(profile.credits || 0);
+        });
+      }
     });
   }, []);
 
@@ -289,6 +298,7 @@ export default function WizardPage() {
       experienceLevel,
       orchestrationMode,
       selectedOverlays,
+      modelSlug,
     };
 
     const result = generateAgentFiles(config);
@@ -563,6 +573,23 @@ export default function WizardPage() {
                     <h3>I'm a Layman</h3>
                     <p style={{ fontSize: "0.85rem" }}>I want to build a project without worrying about the code.</p>
                   </div>
+                </div>
+
+                <div className="glass-panel" style={{ padding: "2rem", textAlign: "left", marginBottom: "2rem" }}>
+                  <h3 style={{ marginBottom: "1rem", fontSize: "1.1rem" }}>Select Intelligence Engine</h3>
+                  <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", marginBottom: "1rem" }}>
+                    Choose the AI model that will draft your infrastructure. Premium models offer higher reasoning and coding competence.
+                  </p>
+                  <ModelSelector 
+                    selectedModelSlug={modelSlug} 
+                    onSelect={setModelSlug} 
+                    userCredits={userCredits} 
+                  />
+                  {AI_MODELS.find(m => m.slug === modelSlug)?.isPremium && !user && (
+                    <div style={{ marginTop: "1rem", padding: "0.8rem", background: "rgba(248, 113, 113, 0.1)", borderRadius: "8px", border: "1px solid rgba(248, 113, 113, 0.2)", fontSize: "0.85rem", color: "#fca5a5" }}>
+                      ⚠️ Premium models require you to <Link href="/login" style={{ textDecoration: "underline", color: "inherit" }}>Login</Link>.
+                    </div>
+                  )}
                 </div>
 
                 <div className="glass-panel" style={{ padding: "2rem", textAlign: "left" }}>

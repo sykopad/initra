@@ -126,6 +126,9 @@ export default function Navbar() {
                     <p className="user-email">{user.email}</p>
                   </div>
                   <div className="dropdown-divider"></div>
+                   <Link href="/dashboard" className="dropdown-item">
+                    Dashboard
+                  </Link>
                   <button onClick={handleLogout} className="dropdown-item logout">
                     Sign Out
                   </button>
