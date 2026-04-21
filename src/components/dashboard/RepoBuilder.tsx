@@ -180,7 +180,6 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
           </div>
           {error && <p className="error-msg" style={{ marginTop: '10px', color: 'var(--accent-rose)' }}>{error}</p>}
         </div>
-        </div>
       ) : (
         <div className="builder-view animate-fade-in">
           <div className="repo-status" style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
