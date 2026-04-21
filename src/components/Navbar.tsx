@@ -60,10 +60,10 @@ export default function Navbar() {
     <nav className="navbar">
       <div className="navbar-inner">
         <Link href="/" className="navbar-brand">
-          <img src="/initra-dark.svg" alt="Initra Logo" className="brand-logo logo-dark" height="32" />
-          <img src="/initra-light.svg" alt="Initra Logo" className="brand-logo logo-light" height="32" />
+          <img src="/initra-dark.svg" alt="Initra Logo" className="brand-logo logo-dark" height="55" />
+          <img src="/initra-light.svg" alt="Initra Logo" className="brand-logo logo-light" height="55" />
         </Link>
-        
+
         <ul className="navbar-links">
           <li>
             <Link href="/" className={pathname === "/" ? "active" : ""}>
@@ -80,13 +80,13 @@ export default function Navbar() {
               Community
             </Link>
           </li>
-          
+
           <li className="navbar-divider"></li>
 
           <li>
-            <button 
-              onClick={toggleTheme} 
-              className="theme-toggle" 
+            <button
+              onClick={toggleTheme}
+              className="theme-toggle"
               aria-label="Toggle Theme"
               title={`Switch to ${theme === 'light' ? 'Dark' : 'Light'} Mode`}
             >
@@ -109,15 +109,15 @@ export default function Navbar() {
               )}
             </button>
           </li>
-          
+
           {loading ? (
             <li className="nav-skeleton"></li>
           ) : user ? (
             <li className="user-menu-item">
               <div className="user-profile">
-                <img 
-                  src={user.user_metadata.avatar_url || `https://ui-avatars.com/api/?name=${user.user_metadata.full_name || 'User'}&background=7c3aed&color=fff`} 
-                  alt="Profile" 
+                <img
+                  src={user.user_metadata.avatar_url || `https://ui-avatars.com/api/?name=${user.user_metadata.full_name || 'User'}&background=7c3aed&color=fff`}
+                  alt="Profile"
                   className="avatar"
                 />
                 <div className="user-dropdown">
@@ -126,7 +126,7 @@ export default function Navbar() {
                     <p className="user-email">{user.email}</p>
                   </div>
                   <div className="dropdown-divider"></div>
-                   <Link href="/dashboard" className="dropdown-item">
+                  <Link href="/dashboard" className="dropdown-item">
                     Dashboard
                   </Link>
                   <button onClick={handleLogout} className="dropdown-item logout">
