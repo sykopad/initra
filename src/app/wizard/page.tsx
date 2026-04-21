@@ -1269,8 +1269,8 @@ export default function WizardPage() {
 
                         {selectedBrains.includes(module.id) && <div className="checkmark" style={{ background: "var(--primary)" }}>✓</div>}
                       </div>
-                    );
-                  })}
+                    )
+                  )}
                 </div>
 
                 <div className="wizard-nav">
@@ -1406,8 +1406,8 @@ export default function WizardPage() {
                                   <div className="checkmark" style={{ background: "var(--primary)", width: "16px", height: "16px", fontSize: "10px" }}>✓</div>
                                 )}
                             </div>
-                          );
-                        })}
+                            )
+                        )}
                       </div>
                     </div>
                   </div>
