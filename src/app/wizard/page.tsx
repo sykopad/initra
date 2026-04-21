@@ -391,6 +391,20 @@ export default function WizardPage() {
         setStackConfig(config.stackConfig || {});
         setSelectedPackages(config.selectedPackages || []);
         
+        // Ensure template version is set
+        const version = config.templateVersion || template.availableVersions[0]?.id || "";
+        setTemplateVersion(version);
+
+        // Pre-populate recommended services based on detected packages
+        const recommendedServices = getRecommendedServices(config.selectedPackages || [], config.stackConfig || {});
+        setSelectedServices(recommendedServices);
+
+        // Pre-populate a default IDE (Universal) to enable generation and fix the empty "Back" state
+        const universalIDE = IDE_TARGETS.find(i => i.slug === 'universal');
+        if (universalIDE) {
+          setSelectedIDEs([universalIDE]);
+        }
+        
         setToast("✅ Repository detected! Reviewing configuration...");
         setTimeout(() => setStep(6), 1500);
       }
@@ -1213,10 +1227,10 @@ export default function WizardPage() {
                   </div>
                 )}
 
-                <div className="glass-panel" style={{ padding: "2rem", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2rem" }}>
-                  <div>
-                    <h3 style={{ fontSize: "1.1rem", marginBottom: "1rem" }}>Core Stack</h3>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                <div className="glass-panel" style={{ padding: "2.5rem", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4rem" }}>
+                  <div style={{ borderRight: "1px solid rgba(255,255,255,0.05)", paddingRight: "2rem" }}>
+                    <h3 style={{ fontSize: "1.1rem", marginBottom: "1.5rem", color: "var(--primary-light)" }}>Core Stack</h3>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
                       <div className="review-item">
                         <span className="label">Template:</span>
                         <span className="value">{selectedTemplate.name}</span>
@@ -1234,7 +1248,7 @@ export default function WizardPage() {
                     </div>
                   </div>
                   <div>
-                    <h3 style={{ fontSize: "1.1rem", marginBottom: "1rem" }}>Add-ons</h3>
+                    <h3 style={{ fontSize: "1.1rem", marginBottom: "1.5rem", color: "var(--secondary-light)" }}>Add-ons & Agent Modes</h3>
                     <p style={{ fontWeight: 600, fontSize: "0.9rem", marginBottom: "0.5rem" }}>Packages:</p>
                     <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem", marginBottom: "1rem" }}>
                       {selectedPackages.map(p => (

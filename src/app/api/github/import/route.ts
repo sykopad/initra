@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { cookies } from "next/headers";
 import { Octokit } from "octokit";
 import { PACKAGE_LIBRARY } from "@/lib/engine/package-library";
 import { PROJECT_TEMPLATES } from "@/lib/engine/templates";
@@ -21,12 +22,18 @@ export async function POST(req: Request) {
 
     const supabase = await createClient();
     const { data: { session } } = await supabase.auth.getSession();
+    const cookieStore = await cookies();
     
-    if (!session?.provider_token) {
-      return NextResponse.json({ error: "GitHub authentication required" }, { status: 401 });
+    // Fallback to the secure cookie if the session doesn't have the provider_token
+    const providerToken = session?.provider_token || cookieStore.get("sb-github-token")?.value;
+    
+    if (!providerToken) {
+      return NextResponse.json({ 
+        error: "GitHub authentication required. Please log out and sign back in with GitHub." 
+      }, { status: 401 });
     }
 
-    const octokit = new Octokit({ auth: session.provider_token });
+    const octokit = new Octokit({ auth: providerToken });
 
     // 1. Fetch root file list to detect framework
     const { data: rootFiles } = await octokit.rest.repos.getContent({

@@ -31,8 +31,15 @@ export default function Navbar() {
   }, [supabase.auth]);
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
-    window.location.reload();
+    try {
+      await fetch("/api/auth/signout", { method: "POST" });
+      window.location.reload();
+    } catch (err) {
+      console.error("Logout failed:", err);
+      // Fallback to client-side only if fetch fails
+      await supabase.auth.signOut();
+      window.location.reload();
+    }
   };
 
   return (

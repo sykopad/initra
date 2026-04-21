@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { cookies } from "next/headers";
 import { Octokit } from "octokit";
 
 export async function POST(req: Request) {
@@ -12,13 +13,15 @@ export async function POST(req: Request) {
 
     const supabase = await createClient();
     const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    const cookieStore = await cookies();
 
     if (sessionError || !session) {
       return NextResponse.json({ error: "Authentication required" }, { status: 401 });
     }
 
     // Retrieve the provider token (GitHub Access Token)
-    const providerToken = session.provider_token;
+    // Fallback to the secure cookie if the session doesn't have the provider_token
+    const providerToken = session.provider_token || cookieStore.get("sb-github-token")?.value;
 
     if (!providerToken) {
       return NextResponse.json({ 
