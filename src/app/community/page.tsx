@@ -166,15 +166,18 @@ export default function CommunityPage() {
           <div className="section-title" style={{ marginBottom: '2.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
             <div>
               <h2 style={{ fontSize: '1.75rem', fontWeight: 800 }}>⚡ AI Architected</h2>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>Daily high-fidelity venture blueprints from the Initra engine.</p>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>High-fidelity venture blueprints. Costs 50 Credits per generation.</p>
             </div>
-            <button 
-              className={`btn ${isGenerating ? 'btn-ghost' : 'btn-primary'}`}
-              onClick={handleGenerate}
-              disabled={isGenerating}
-            >
-              {isGenerating ? "🧠 Architecting..." : "✨ Request New Idea"}
-            </button>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
+              <button 
+                className={`btn ${isGenerating ? 'btn-ghost' : 'btn-primary'}`}
+                onClick={handleGenerate}
+                disabled={isGenerating || loading}
+              >
+                {isGenerating ? "🧠 Architecting..." : "✨ Draft New Idea (50 CR)"}
+              </button>
+              {loading && <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Checking session...</span>}
+            </div>
           </div>
 
           <div className="community-grid" style={{ marginBottom: '6rem' }}>

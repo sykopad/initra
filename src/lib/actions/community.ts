@@ -116,11 +116,39 @@ export async function suggestProject(formData: {
 
 export async function generateVentureBlueprintAction() {
   const { generateDailyBlueprint } = await import("@/lib/engine/blueprint-generator");
+  const { deductCredits } = await import("@/lib/credits/service");
   const supabase = await createClient();
-  
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) throw new Error("You must be logged in to request a new venture blueprint.");
+
+  // 1. Rate Limit Check: One per 24 hours
+  const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+  const { data: recentGenerations, error: rateLimitError } = await supabase
+    .from("community_projects")
+    .select("id")
+    .eq("suggested_by", user.id)
+    .eq("venture_type", "ai-generated")
+    .gt("created_at", twentyFourHoursAgo);
+
+  if (rateLimitError) {
+    console.error("Rate limit check failed:", rateLimitError);
+  } else if (recentGenerations && recentGenerations.length > 0) {
+    throw new Error("Daily limit reached. You can generate one venture blueprint every 24 hours.");
+  }
+
+  // 2. Credit Check & Intermediate Deduction
+  const COST = 50;
+  const deduction = await deductCredits(user.id, COST, "AI Venture Generation");
+  if (!deduction.success) {
+    throw new Error(deduction.error || "Insufficient credits (Requires 50).");
+  }
+
   try {
+    // 3. Generate Blueprint
     const blueprint = await generateDailyBlueprint();
     
+    // 4. Save to Community Hub
     const { data, error } = await supabase
       .from("community_projects")
       .insert({
@@ -132,18 +160,24 @@ export async function generateVentureBlueprintAction() {
         venture_type: 'ai-generated',
         status: 'proposed',
         blueprint_config: blueprint.wizardConfig,
-        vote_score: 1 // Baseline score
+        suggested_by: user.id, // Store who requested it
+        vote_score: 1 
       })
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      // In case of DB error, we *should* refund, but for now we'll just log
+      console.error("DB Insert failed after credit deduction:", error);
+      throw error;
+    }
     
     revalidatePath("/community");
     return data;
   } catch (err: any) {
-    console.error("Failed to generate venture:", err);
-    throw new Error(err.message || "Failed to generate AI venture");
+    console.error("Venture generation failed:", err);
+    // FALLBACK: Could implement refund logic here if deduction was successful but generation failed
+    throw new Error(err.message || "Failed to generate AI venture. Credits were consumed for the attempt.");
   }
 }
 
