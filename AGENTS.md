@@ -8,15 +8,15 @@
 This is NOT the Next.js you know. This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
 <!-- END:nextjs-agent-rules -->
 
-## Project Overview
+**Initra** (Initiate Infrastructure) is a high-performance **Autonomous SaaS Builder** that empowers developers to create and manage applications on their own Git infrastructure. 
 
-**Initra** (Initiate Infrastructure) helps developers bootstrap projects by:
-1. Walking through a 8-step wizard (Start → Project → Stack → Packages → Services → IDE → Review → Export).
-2. **AI Assistant Mode**: Describe a goal and let AI suggest the perfect architecture mapping.
-3. **Tiered Model Engine**: Logic-based model selection (Mini, Codex, Opus) based on user tier.
-4. **Experience Tailoring**: Branched guidance (Dev vs Business Owner) for infrastructure setup.
-4. Injecting framework-specific knowledge, anti-patterns, and code snippets into agent files.
-5. Suggesting open-source community projects and voting on ideas.
+Positioned as a developer-first alternative to platforms like **Lovable** and **Base44**, Initra eliminates vendor lock-in by:
+1. **Deep Repository Analysis**: Scans existing GitHub repos to identify UI segments (Headers, Pages, Layouts).
+2. **SaaS Builder Mode**: Interactive interface to customize individual components via targeted AI prompts.
+3. **Credit-Based Economy**: Tiered model registry (Claude Opus 4.7, GPT-5 Codex) with performance-optimized pricing.
+4. **Git Infrastructure Ownership**: All changes are pushed directly to the user's own repository, ensuring 100% code ownership.
+5. **Multi-Agent Orchestration**: Synthesis of high-fidelity objectives into specialized IDE rules and agent workflows.
+6. **Community Ecosystem**: Suggestions, voting, and agent contributions for open-source venture blueprints.
 
 ## Tech Stack
 
@@ -178,12 +178,26 @@ const supabase = createBrowserClient(url, key, {
 25. **Donation Integration (Complete)** — Homepage updated with a support rationale for scaling the Venture Studio infrastructure beyond Vercel Hobby limits.
 26. **Autonomous Worker Injection (Complete)** — Automated delivery of GitHub Action workflows that spin up coding agents (Aider) upon project birth. (Done 2026-04-20)
 
-### 🌈 Phase 8: Experience Personalization (Complete 2026-04-21)
+30. **Guided Service Reasoning**: Business-friendly explanations for suggested infrastructure (e.g., "Why Supabase?"). (Done 2026-04-21)
 
-27. **Dual Wizard Flow**: Branched journey for "Developers" (Manual) vs "Laymen" (Goal-oriented).
-28. **Brand Identity Extraction**: Automatic sampling of uploaded logos to derive CSS variables and theme tokens.
-29. **Project-Specific Agent Context**: Automated synthesis of high-fidelity objectives (e.g., "Build an E-commerce store for specialized coffee") injected into agent rules.
-30. **Guided Service Reasoning**: Business-friendly explanations for suggested infrastructure (e.g., "Why Supabase?").
+### 🚀 Phase 9: The Autonomous SaaS Pivot (Active)
+
+31. **Deep Repository Segmentation**: Heuristic analyzer for framework-specific landmarks (Header, Navbar, Layout, Pages).
+32. **Targeted AI Editing**: Component-specific prompt engineering for high-fidelity code patching.
+33. **GitHub Push Orchestration**: One-click commits and branch management for AI-generated changes.
+34. **Profit-Driven Model Hub**: Integrated registry for 7+ premium models (Opus 4.7, Codex 5.3) with credit-based monetization.
+
+## Framework Roadmap
+
+We implement frameworks **one at a time** to ensure maximum accuracy and deep heuristic analysis.
+
+| Framework | Status | Methodology |
+|-----------|--------|-------------|
+| **Next.js 16 (App Router)** | ✅ Deep | Full layout/page/component segmentation & targeted editing. |
+| **Nuxt 4 (Vue.js)** | ⏳ Planned (May) | Composition API heuristics and directory-based segmentation. |
+| **Django 6** | 📅 Planned (June) | Model/View/Template (MVT) pattern recognition and logic patching. |
+| **Go (Gin/Axum)** | 📅 Planned (July) | High-performance route segmentation and handler optimization. |
+| **Flutter 4** | 📅 Planned (Aug) | Mobile widget-tree analysis and segmented UI customization. |
 
 ## Conventions
 

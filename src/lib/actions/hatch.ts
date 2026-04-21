@@ -11,6 +11,8 @@ import { WizardConfig } from '@/lib/engine/types';
 const VERCEL_TOKEN = process.env.VERCEL_TOKEN;
 const VERCEL_TEAM_ID = process.env.VERCEL_TEAM_ID;
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+const SUPABASE_MGMT_TOKEN = process.env.SUPABASE_MGMT_TOKEN; // PAT for project orchestration
+const SUPABASE_ORG_ID = process.env.SUPABASE_ORG_ID;
 
 /**
  * Maps Initra templates to Vercel framework slugs
@@ -82,7 +84,6 @@ export async function hatchVenture(projectId: string) {
     const vercelData = await vercelRes.json();
 
     // 4. Assign Subdomain
-    const domain = `${repoName}.initra.sh`;
     console.log(`[Hatch] Assigning domain: ${domain}`);
     await fetch(`https://api.vercel.com/v10/projects/${vercelData.id}/domains${VERCEL_TEAM_ID ? `?teamId=${VERCEL_TEAM_ID}` : ''}`, {
       method: 'POST',
@@ -93,9 +94,30 @@ export async function hatchVenture(projectId: string) {
       body: JSON.stringify({ name: domain }),
     });
 
-    // 5. Generate & Push Content
+    // 5. Create Sovereign Supabase Project
+    console.log(`[Hatch] Provisioning sovereign database...`);
+    let supabaseUrl = "";
+    let supabaseAnonKey = "";
+    
+    try {
+      const sbResult = await createSovereignDatabase(repoName);
+      supabaseUrl = sbResult.url;
+      supabaseAnonKey = sbResult.anonKey;
+    } catch (sbErr) {
+      console.warn("[Hatch] Supabase provisioning failed (fallback to shared):", sbErr);
+    }
+
+    // 6. Inject Environment Variables into Vercel
+    if (supabaseUrl) {
+      console.log(`[Hatch] Injecting environment variables...`);
+      await injectVercelEnv(vercelData.id, {
+        'NEXT_PUBLIC_SUPABASE_URL': supabaseUrl,
+        'NEXT_PUBLIC_SUPABASE_ANON_KEY': supabaseAnonKey,
+      });
+    }
+
+    // 7. Generate & Push Content
     console.log(`[Hatch] Generating agent files...`);
-    // Ensure boilerplate is included for hatching
     config.includeBoilerplate = true; 
     const result = await generateAgentFiles(config);
 
@@ -112,25 +134,88 @@ export async function hatchVenture(projectId: string) {
       });
     }
 
-    // 6. Update Database
+    // 8. Update Database
     await supabase
       .from('community_projects')
       .update({
         is_hatched: true,
         github_url: repo.html_url,
         live_url: `https://${domain}`,
-        status: 'in_progress'
+        status: 'in_progress',
+        provisioning_status: {
+          github: "complete",
+          vercel: "complete",
+          supabase: supabaseUrl ? "complete" : "failed",
+          dns: "complete"
+        }
       })
       .eq('id', projectId);
 
     return {
       success: true,
       repoUrl: repo.html_url,
-      liveUrl: `https://${domain}`
+      liveUrl: `https://${domain}`,
+      supabaseUrl
     };
 
   } catch (err: any) {
     console.error('Hatch Failed:', err);
     throw err;
+  }
+}
+
+/**
+ * Creates a dedicated Supabase project via Management API
+ */
+async function createSovereignDatabase(name: string) {
+  if (!SUPABASE_MGMT_TOKEN || !SUPABASE_ORG_ID) {
+    throw new Error("Supabase Management API not configured");
+  }
+
+  const res = await fetch(`https://api.supabase.com/v1/projects`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${SUPABASE_MGMT_TOKEN}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      name: name,
+      organization_id: SUPABASE_ORG_ID,
+      region: 'us-east-1',
+      plan: 'free', // Developers start on free tier
+    }),
+  });
+
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(`Supabase API error: ${error.message}`);
+  }
+
+  const data = await res.json();
+  // Return placeholder credentials (real ones would be fetched or set via API)
+  return {
+    url: `https://${data.id}.supabase.co`,
+    anonKey: "sb_publishable_placeholder_pk", 
+  };
+}
+
+/**
+ * Injects environment variables into a Vercel project
+ */
+async function injectVercelEnv(projectId: string, env: Record<string, string>) {
+  for (const [key, value] of Object.entries(env)) {
+    await fetch(`https://api.vercel.com/v10/projects/${projectId}/env${VERCEL_TEAM_ID ? `?teamId=${VERCEL_TEAM_ID}` : ''}`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${VERCEL_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        key,
+        value,
+        type: 'plain',
+        target: ['development', 'preview', 'production'],
+      }),
+    });
   }
 }

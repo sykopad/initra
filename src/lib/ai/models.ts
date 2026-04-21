@@ -35,7 +35,7 @@ export const AI_MODELS: AIModel[] = [
     provider: 'Anthropic',
     slug: 'anthropic/claude-opus-4.7',
     description: 'The pinnacle of reasoning and coding capability. Best for complex architectures.',
-    creditCost: 10,
+    creditCost: 15,
     isPremium: true,
     contextLimit: '1,000,000',
     releaseDate: 'Apr 16, 2026'
@@ -46,7 +46,7 @@ export const AI_MODELS: AIModel[] = [
     provider: 'Anthropic',
     slug: 'anthropic/claude-opus-4.6',
     description: 'High-fidelity logic and deep reasoning for advanced infrastructures.',
-    creditCost: 10,
+    creditCost: 15,
     isPremium: true,
     contextLimit: '1,000,000',
     releaseDate: 'Feb 4, 2026'
@@ -57,7 +57,7 @@ export const AI_MODELS: AIModel[] = [
     provider: 'OpenAI',
     slug: 'openai/gpt-5.3-codex',
     description: 'Optimized for massive codebase context and precise logic injections.',
-    creditCost: 5,
+    creditCost: 8,
     isPremium: true,
     contextLimit: '400,000',
     releaseDate: 'Feb 24, 2026'
@@ -68,7 +68,7 @@ export const AI_MODELS: AIModel[] = [
     provider: 'OpenAI',
     slug: 'openai/gpt-5.2-codex',
     description: 'Reliable, large-context codex for robust backend generation.',
-    creditCost: 5,
+    creditCost: 8,
     isPremium: true,
     contextLimit: '400,000',
     releaseDate: 'Jan 14, 2026'
@@ -79,7 +79,7 @@ export const AI_MODELS: AIModel[] = [
     provider: 'Google',
     slug: 'google/gemini-3.1-pro-preview',
     description: 'Massive 1M+ context window for full-stack synthesis.',
-    creditCost: 4,
+    creditCost: 6,
     isPremium: true,
     contextLimit: '1,048,576',
     releaseDate: 'Feb 19, 2026'
@@ -90,7 +90,7 @@ export const AI_MODELS: AIModel[] = [
     provider: 'Qwen',
     slug: 'qwen/qwen3-coder-next',
     description: 'Next-gen open-weights coder with exceptional efficiency.',
-    creditCost: 1,
+    creditCost: 2,
     isPremium: true,
     contextLimit: '262,144',
     releaseDate: 'Feb 4, 2026'
@@ -101,7 +101,7 @@ export const AI_MODELS: AIModel[] = [
     provider: 'Kwaipilot',
     slug: 'kwaipilot/kat-coder-pro-v2',
     description: 'Specialized enterprise coder for rapid infrastructure generation.',
-    creditCost: 1,
+    creditCost: 3,
     isPremium: true,
     contextLimit: '256,000',
     releaseDate: 'Mar 27, 2026'

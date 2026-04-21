@@ -57,13 +57,23 @@ export default async function DashboardPage() {
       <div className="dashboard-grid">
         <RepoBuilder initialRepos={syncedRepos} />
 
-        {/* Credits Section */}
+        {/* Credits & Subscription Section */}
         <section className="dashboard-card credit-card">
           <div className="card-header">
-            <h3>Credit Balance</h3>
+            <div>
+              <h3>Credit Balance</h3>
+              <div className="tier-pill">{profile?.tier || 'Community'} Member</div>
+            </div>
             <span className="balance-badge">{profile?.credits || 0} Credits</span>
           </div>
-          <p>1 Credit = $0.05. Use credits for premium AI models like Claude Opus or GPT-5 Codex.</p>
+          
+          <div className="subscription-info">
+            {profile?.tier === 'community' ? (
+              <p className="promo-text">Upgrade to <strong>Pro</strong> for monthly credit refills and automatic <strong>Sovereign DB</strong> provisioning.</p>
+            ) : (
+              <p className="refill-text">Next refill: <strong>{new Date(profile?.next_refill_at).toLocaleDateString()}</strong></p>
+            )}
+          </div>
           
           <div className="purchase-section" style={{ marginTop: '1.5rem' }}>
             <h4 style={{ marginBottom: '1rem', fontSize: '1rem' }}>Top up Credits</h4>
@@ -179,6 +189,24 @@ export default async function DashboardPage() {
           font-size: 0.9rem;
           font-weight: 600;
         }
+        .tier-pill {
+          display: inline-block;
+          font-size: 0.7rem;
+          text-transform: uppercase;
+          letter-spacing: 0.1em;
+          color: #fbbf24;
+          font-weight: 800;
+          margin-top: 4px;
+        }
+        .promo-text, .refill-text {
+          font-size: 0.85rem;
+          color: var(--text-muted);
+          padding: 12px;
+          background: rgba(255, 255, 255, 0.03);
+          border-radius: 8px;
+          border-left: 3px solid #6366f1;
+        }
+        .promo-text strong { color: #fcd34d; }
         .purchase-buttons {
           display: flex;
           flex-direction: column;
