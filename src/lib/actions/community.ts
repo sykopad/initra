@@ -113,6 +113,7 @@ export async function suggestProject(formData: {
   category: string;
   impactStatement: string;
   tags: string[];
+  suggestion_type: 'initra' | 'project';
 }) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();

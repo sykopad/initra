@@ -45,6 +45,7 @@ interface CommunityProject {
   fork_count: number;
   trending_score: number;
   blueprint_config?: any;
+  suggestion_type?: 'initra' | 'project';
 }
 
 const STATUS_LABELS: Record<string, string> = {
@@ -69,6 +70,11 @@ export default function CommunityPage() {
   const [showSuggestModal, setShowSuggestModal] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [newDescription, setNewDescription] = useState("");
+  const [suggestionType, setSuggestionType] = useState<'initra' | 'project'>('project');
+  const [newCategory, setNewCategory] = useState("");
+  const [newImpact, setNewImpact] = useState("");
+  const [newTags, setNewTags] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -104,6 +110,34 @@ export default function CommunityPage() {
       router.push(`/wizard?sessionId=${sessionId}`);
     } catch (err: any) {
       alert("Fork failed: " + err.message);
+    }
+  };
+
+  const handleSubmitSuggestion = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newTitle.trim() || !newDescription.trim()) return;
+    
+    setIsSubmitting(true);
+    try {
+      await suggestProject({
+        title: newTitle,
+        description: newDescription,
+        category: newCategory || (suggestionType === 'initra' ? 'Feature' : 'Other'),
+        impactStatement: newImpact,
+        tags: newTags.split(',').map(t => t.trim()).filter(Boolean),
+        suggestion_type: suggestionType,
+      });
+      setShowSuggestModal(false);
+      setNewTitle("");
+      setNewDescription("");
+      setNewCategory("");
+      setNewImpact("");
+      setNewTags("");
+      loadData();
+    } catch (err: any) {
+      alert("Failed to submit idea: " + err.message);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -148,7 +182,8 @@ export default function CommunityPage() {
   };
 
   const aiGenerated = projects.filter(p => p.venture_type === 'ai-generated');
-  const userSuggested = projects.filter(p => p.venture_type === 'user-suggested');
+  const userSuggestedInitra = projects.filter(p => p.venture_type === 'user-suggested' && p.suggestion_type === 'initra');
+  const userSuggestedProjects = projects.filter(p => p.venture_type === 'user-suggested' && (p.suggestion_type === 'project' || !p.suggestion_type));
 
   const filterOptions = ["Trending", "Recent", "Votes", "Proposed", "Needs Agents", "Completed"];
 
@@ -270,25 +305,148 @@ export default function CommunityPage() {
               <h2 style={{ fontSize: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                 💡 Community Proposals
               </h2>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Citizen-led project ideas for the future of Initra.</p>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Citizen-led ideas for Initra platform and new ventures.</p>
             </div>
             <button className="btn btn-primary btn-sm" onClick={() => setShowSuggestModal(true)}>+ Propose Idea</button>
           </div>
 
-          <div className="community-grid">
-            {userSuggested.map(project => (
+          <h3 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', color: 'var(--text-primary)' }}>Initra Platform Ideas</h3>
+          <div className="community-grid" style={{ marginBottom: '4rem' }}>
+            {userSuggestedInitra.length === 0 ? (
+              <p style={{ color: 'var(--text-muted)' }}>No platform ideas proposed yet.</p>
+            ) : userSuggestedInitra.map(project => (
               <div key={project.id} className="card community-card">
+                 <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem' }}>
+                    <span className="badge-soft">Platform</span>
+                    <span className="badge-outline">{project.category}</span>
+                 </div>
                  <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>{project.title}</h3>
                  <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{project.description}</p>
-                 <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'space-between' }}>
-                    <span className="status-badge proposed">{STATUS_LABELS[project.status]}</span>
-                    <div className="vote-controls small">
-                      <span className="vote-score">{project.vote_score} votes</span>
+                 <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span className="status-badge proposed">{STATUS_LABELS[project.status] || project.status}</span>
+                    <div className="vote-pill small">
+                      <button onClick={() => handleVoteAction(project.id, 1)} className={userVotes[project.id] === 1 ? 'active' : ''}>▲</button>
+                      <span>{project.vote_score}</span>
+                      <button onClick={() => handleVoteAction(project.id, -1)} className={userVotes[project.id] === -1 ? 'active' : ''}>▼</button>
                     </div>
                  </div>
               </div>
             ))}
           </div>
+
+          <h3 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', color: 'var(--text-primary)' }}>Venture/Project Ideas</h3>
+          <div className="community-grid">
+            {userSuggestedProjects.length === 0 ? (
+              <p style={{ color: 'var(--text-muted)' }}>No project ideas proposed yet.</p>
+            ) : userSuggestedProjects.map(project => (
+              <div key={project.id} className="card community-card">
+                 <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem' }}>
+                    <span className="badge-soft">Project</span>
+                    <span className="badge-outline">{project.category}</span>
+                 </div>
+                 <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>{project.title}</h3>
+                 <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{project.description}</p>
+                 <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span className="status-badge proposed">{STATUS_LABELS[project.status] || project.status}</span>
+                    <div className="vote-pill small">
+                      <button onClick={() => handleVoteAction(project.id, 1)} className={userVotes[project.id] === 1 ? 'active' : ''}>▲</button>
+                      <span>{project.vote_score}</span>
+                      <button onClick={() => handleVoteAction(project.id, -1)} className={userVotes[project.id] === -1 ? 'active' : ''}>▼</button>
+                    </div>
+                 </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Suggest Idea Modal */}
+          {showSuggestModal && (
+            <div className="modal-overlay">
+              <div className="modal-content">
+                <button className="modal-close" onClick={() => setShowSuggestModal(false)}>×</button>
+                <h2>Propose an Idea</h2>
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>Share your vision with the community.</p>
+                
+                <form onSubmit={handleSubmitSuggestion}>
+                  <div className="form-group">
+                    <label>Idea Type</label>
+                    <select 
+                      value={suggestionType} 
+                      onChange={(e) => setSuggestionType(e.target.value as 'initra' | 'project')}
+                      className="form-input"
+                    >
+                      <option value="project">Venture / Project Idea</option>
+                      <option value="initra">Initra Platform Feature</option>
+                    </select>
+                  </div>
+                  
+                  <div className="form-group">
+                    <label>Title</label>
+                    <input 
+                      type="text" 
+                      className="form-input" 
+                      placeholder="E.g. AI-powered CRM" 
+                      value={newTitle} 
+                      onChange={e => setNewTitle(e.target.value)} 
+                      required 
+                    />
+                  </div>
+                  
+                  <div className="form-group">
+                    <label>Description</label>
+                    <textarea 
+                      className="form-input" 
+                      placeholder="Describe what it does and why it's needed..." 
+                      rows={3} 
+                      value={newDescription} 
+                      onChange={e => setNewDescription(e.target.value)} 
+                      required 
+                    />
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '1rem' }}>
+                    <div className="form-group" style={{ flex: 1 }}>
+                      <label>Category</label>
+                      <input 
+                        type="text" 
+                        className="form-input" 
+                        placeholder={suggestionType === 'initra' ? "E.g. UI/UX" : "E.g. SaaS"} 
+                        value={newCategory} 
+                        onChange={e => setNewCategory(e.target.value)} 
+                      />
+                    </div>
+                    <div className="form-group" style={{ flex: 1 }}>
+                      <label>Tags (comma separated)</label>
+                      <input 
+                        type="text" 
+                        className="form-input" 
+                        placeholder="E.g. AI, Analytics" 
+                        value={newTags} 
+                        onChange={e => setNewTags(e.target.value)} 
+                      />
+                    </div>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Impact Statement (Optional)</label>
+                    <input 
+                      type="text" 
+                      className="form-input" 
+                      placeholder="How will this change the world?" 
+                      value={newImpact} 
+                      onChange={e => setNewImpact(e.target.value)} 
+                    />
+                  </div>
+                  
+                  <div className="modal-actions">
+                    <button type="button" className="btn btn-ghost" onClick={() => setShowSuggestModal(false)}>Cancel</button>
+                    <button type="submit" className="btn btn-primary" disabled={isSubmitting || !newTitle.trim() || !newDescription.trim()}>
+                      {isSubmitting ? "Submitting..." : "Submit Proposal"}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
 
         </div>
       </div>
@@ -394,6 +552,60 @@ export default function CommunityPage() {
         .action-group { display: flex; gap: 0.75rem; }
         
         .skeleton-card { background: rgba(255,255,255,0.02); borderRadius: 16px; border: 1px dashed rgba(255,255,255,0.1); }
+
+        .modal-overlay {
+          position: fixed;
+          top: 0; left: 0; right: 0; bottom: 0;
+          background: rgba(0, 0, 0, 0.7);
+          backdrop-filter: blur(4px);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 1000;
+        }
+        .modal-content {
+          background: var(--bg-card);
+          border: 1px solid var(--border-medium);
+          border-radius: 16px;
+          padding: 2rem;
+          width: 90%;
+          max-width: 500px;
+          position: relative;
+        }
+        .modal-close {
+          position: absolute;
+          top: 1rem; right: 1rem;
+          background: none; border: none;
+          color: var(--text-muted);
+          font-size: 1.5rem; cursor: pointer;
+        }
+        .form-group { margin-bottom: 1.25rem; }
+        .form-group label {
+          display: block;
+          font-size: 0.85rem;
+          font-weight: 600;
+          color: var(--text-secondary);
+          margin-bottom: 0.5rem;
+        }
+        .form-input {
+          width: 100%;
+          background: var(--bg-tertiary);
+          border: 1px solid var(--border-subtle);
+          color: var(--text-primary);
+          padding: 0.75rem 1rem;
+          border-radius: 8px;
+          font-size: 0.95rem;
+        }
+        .form-input:focus {
+          outline: none;
+          border-color: var(--primary);
+        }
+        .modal-actions {
+          display: flex;
+          justify-content: flex-end;
+          gap: 1rem;
+          margin-top: 2rem;
+        }
       `}</style>
     </>
   );
