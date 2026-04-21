@@ -215,8 +215,17 @@ We implement frameworks **one at a time** to ensure maximum accuracy and deep he
 |-----------|--------|-------------|
 | **Next.js 16 (App Router)** | ✅ Deep | Full layout/page/component segmentation & targeted editing. |
 | **Nuxt 4 (Vue.js)** | ⏳ Planned (May) | Composition API heuristics and directory-based segmentation. |
-| **Django 6** | 📅 Planned (June) | Model/View/Template (MVT) pattern recognition and logic patching. |
-| **Go (Gin/Axum)** | 📅 Planned (July) | High-performance route segmentation and handler optimization. |
+### 🟢 Phase 13: Django 6 (Python) (Complete)
+
+46. **Django 6 Heuristic Archetypes**: Detection of `models.py`, `views.py`, and `templates/`. (Done 2026-04-21)
+47. **MVT Segmentation**: Logic/UI separation for Python and HTML blocks. (Done 2026-04-21)
+48. **Landmark Detection**: Recognition of `base.html` and Django-specific layout files. (Done 2026-04-21)
+
+### 🔵 Phase 14: Go (Gin/Axum) (Active)
+
+49. **Go Route Recognition**: Identification of Gin/Axum route handlers and middleware.
+50. **Domain Clustering**: Mapping Go packages to feature domains.
+51. **Template Parsing**: Heuristic detection of Go templates (`.gohtml`, `.tmpl`).
 | **Flutter 4** | 📅 Planned (Aug) | Mobile widget-tree analysis and segmented UI customization. |
 
 ## Conventions

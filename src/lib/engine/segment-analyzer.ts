@@ -31,6 +31,8 @@ export async function analyzeRepository(
     framework = "nextjs";
   } else if (files.includes("nuxt.config.ts") || files.includes("nuxt.config.js")) {
     framework = "nuxt";
+  } else if (files.includes("manage.py") || files.some(f => f.includes("settings.py"))) {
+    framework = "django";
   }
 
   const segments: RepoSegment[] = [];
@@ -179,6 +181,58 @@ export async function analyzeRepository(
         });
       }
     }
+  } else if (framework === "django") {
+    // 3. Deep Heuristics for Django 6 (MVT)
+    
+    for (const file of files) {
+      const lowerFile = file.toLowerCase();
+      
+      // A. Models, Views, URLs (Logic)
+      if (file.endsWith("models.py") || file.endsWith("views.py") || file.endsWith("urls.py") || file.endsWith("admin.py") || file.endsWith("forms.py")) {
+        let logicType = "Backend Logic";
+        if (file.endsWith("models.py")) logicType = "Data Model";
+        if (file.endsWith("views.py")) logicType = "View Logic";
+        if (file.endsWith("urls.py")) logicType = "URL Router";
+        
+        segments.push({
+          name: logicType,
+          type: "logic",
+          isLogic: true,
+          domain: detectDomain(file),
+          filePath: file,
+          description: "Python business logic and data definitions.",
+          confidence: 1.0
+        });
+      }
+
+      // B. Templates (UI)
+      else if (file.includes("templates/") && file.endsWith(".html")) {
+        const isLayout = lowerFile.includes("base.html") || lowerFile.includes("layout.html");
+        const landmark = detectLandmark(file);
+        
+        segments.push({
+          name: formatComponentName(file),
+          type: isLayout ? "layout" : (landmark !== 'unknown' ? "component" : "page"),
+          landmarkType: landmark,
+          domain: detectDomain(file),
+          filePath: file,
+          description: isLayout ? "Global structural template." : "HTML representation template.",
+          confidence: isLayout ? 1.0 : 0.8
+        });
+      }
+
+      // C. Settings & Config
+      else if (file.endsWith("settings.py") || file.endsWith("apps.py")) {
+        segments.push({
+          name: file.endsWith("settings.py") ? "Django Settings" : "App Config",
+          type: "config",
+          domain: "General Configuration",
+          filePath: file,
+          description: "Global framework and app-level settings.",
+          confidence: 1.0
+        });
+      }
+    }
   }
 
   // Final filtering: Sort by confidence and domain
@@ -194,15 +248,14 @@ function capitalize(s: string) {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
-/** Helper: Detect Feature Domain */
 function detectDomain(path: string): string {
   const p = path.toLowerCase();
-  if (p.includes("auth")) return "Auth & Security";
-  if (p.includes("billing") || p.includes("subscription") || p.includes("pricing")) return "Billing";
-  if (p.includes("dashboard") || p.includes("admin")) return "Dashboard";
-  if (p.includes("settings") || p.includes("profile")) return "Account Settings";
-  if (p.includes("api/")) return "Backend Logic";
-  if (p.includes("marketing") || p.includes("landing")) return "Marketing";
+  if (p.includes("auth") || p.includes("account") || p.includes("user") || p.includes("login") || p.includes("signup")) return "Auth & Security";
+  if (p.includes("billing") || p.includes("subscription") || p.includes("pricing") || p.includes("payment")) return "Billing";
+  if (p.includes("dashboard") || p.includes("admin") || p.includes("panel")) return "Dashboard";
+  if (p.includes("settings") || p.includes("profile") || p.includes("preferences")) return "Account Settings";
+  if (p.includes("api/") || p.includes("views/") || p.includes("logic/")) return "Backend Logic";
+  if (p.includes("marketing") || p.includes("landing") || p.includes("promo")) return "Marketing";
   return "Core Application";
 }
 
