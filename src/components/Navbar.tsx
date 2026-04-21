@@ -12,6 +12,8 @@ export default function Navbar() {
   const pathname = usePathname();
   const supabase = createClient();
 
+  const [theme, setTheme] = useState<"light" | "dark">("dark");
+
   useEffect(() => {
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -21,6 +23,11 @@ export default function Navbar() {
 
     getUser();
 
+    // Initial theme sync
+    const savedTheme = localStorage.getItem('initra-theme') as "light" | "dark" | null;
+    const initialTheme = savedTheme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    setTheme(initialTheme);
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => {
         setUser(session?.user ?? null);
@@ -29,6 +36,13 @@ export default function Navbar() {
 
     return () => subscription.unsubscribe();
   }, [supabase.auth]);
+
+  const toggleTheme = () => {
+    const newTheme = theme === "light" ? "dark" : "light";
+    setTheme(newTheme);
+    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('initra-theme', newTheme);
+  };
 
   const handleLogout = async () => {
     try {
@@ -68,6 +82,33 @@ export default function Navbar() {
           </li>
           
           <li className="navbar-divider"></li>
+
+          <li>
+            <button 
+              onClick={toggleTheme} 
+              className="theme-toggle" 
+              aria-label="Toggle Theme"
+              title={`Switch to ${theme === 'light' ? 'Dark' : 'Light'} Mode`}
+            >
+              {theme === "light" ? (
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                </svg>
+              ) : (
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="5" />
+                  <line x1="12" y1="1" x2="12" y2="3" />
+                  <line x1="12" y1="21" x2="12" y2="23" />
+                  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                  <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                  <line x1="1" y1="12" x2="3" y2="12" />
+                  <line x1="21" y1="12" x2="23" y2="12" />
+                  <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                  <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+                </svg>
+              )}
+            </button>
+          </li>
           
           {loading ? (
             <li className="nav-skeleton"></li>
@@ -105,26 +146,59 @@ export default function Navbar() {
         .navbar-links {
           display: flex;
           align-items: center;
-          gap: 1.5rem;
+          gap: 1.25rem;
           list-style: none;
         }
 
         .navbar-divider {
           width: 1px;
-          height: 20px;
-          background: rgba(255,255,255,0.1);
-          margin: 0 0.5rem;
+          height: 18px;
+          background: var(--border-medium);
+          margin: 0 0.25rem;
+        }
+
+        .navbar-links li a,
+        .navbar-links li a:visited {
+          color: var(--text-secondary);
+          text-decoration: none;
+          font-size: 0.9375rem;
+          font-weight: 500;
+          font-family: var(--font-heading);
+          transition: all var(--transition-base);
+        }
+
+        .navbar-links li a:hover {
+          color: var(--text-primary);
         }
 
         .active {
-          color: var(--primary-light) !important;
+          color: var(--text-primary) !important;
+          font-weight: 700 !important;
+        }
+
+        .theme-toggle {
+          background: none;
+          border: none;
+          color: var(--text-secondary);
+          cursor: pointer;
+          padding: 8px;
+          border-radius: 8px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all var(--transition-base);
+        }
+
+        .theme-toggle:hover {
+          background: var(--bg-glass-hover);
+          color: var(--text-primary);
         }
 
         .nav-skeleton {
           width: 32px;
           height: 32px;
           border-radius: 50%;
-          background: rgba(255,255,255,0.05);
+          background: var(--bg-glass);
           animation: pulse 1.5s infinite;
         }
 
@@ -142,23 +216,24 @@ export default function Navbar() {
         }
 
         .user-profile:hover .avatar {
-          border-color: var(--primary);
+          border-color: var(--accent-violet);
         }
 
         .user-dropdown {
           position: absolute;
-          top: calc(100% + 10px);
+          top: calc(100% + 12px);
           right: 0;
-          width: 200px;
-          background: #1a1a1a;
-          border: 1px solid rgba(255,255,255,0.1);
+          width: 220px;
+          background: var(--bg-secondary);
+          border: 1px solid var(--border-medium);
           border-radius: 12px;
-          box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+          box-shadow: var(--shadow-lg);
           opacity: 0;
           visibility: hidden;
           transform: translateY(10px);
-          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+          transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
           z-index: 100;
+          overflow: hidden;
         }
 
         .user-profile:hover .user-dropdown {
@@ -175,6 +250,7 @@ export default function Navbar() {
           font-weight: 600;
           font-size: 0.875rem;
           margin-bottom: 0.125rem;
+          color: var(--text-primary);
         }
 
         .user-email {
@@ -184,28 +260,28 @@ export default function Navbar() {
 
         .dropdown-divider {
           height: 1px;
-          background: rgba(255,255,255,0.1);
+          background: var(--border-subtle);
         }
 
         .dropdown-item {
           width: 100%;
           text-align: left;
-          padding: 0.75rem 1rem;
+          padding: 0.875rem 1rem;
           background: none;
           border: none;
           color: var(--text-secondary);
           font-size: 0.875rem;
           cursor: pointer;
-          transition: background 0.2s;
+          transition: all 0.2s;
         }
 
         .dropdown-item:hover {
-          background: rgba(255,255,255,0.05);
-          color: white;
+          background: var(--bg-glass-hover);
+          color: var(--text-primary);
         }
 
         .logout {
-          color: var(--danger-light);
+          color: var(--accent-rose);
         }
 
         @keyframes pulse {

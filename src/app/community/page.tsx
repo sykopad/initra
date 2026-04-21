@@ -158,7 +158,7 @@ export default function CommunityPage() {
                        <span style={{ fontSize: '0.7rem', padding: '2px 6px', background: 'rgba(124,58,237,0.2)', border: '1px solid var(--primary)', borderRadius: '4px', color: 'var(--primary-light)' }}>
                          {project.category}
                        </span>
-                       <span style={{ fontSize: '0.7rem', padding: '2px 6px', background: 'rgba(255,255,255,0.05)', borderRadius: '4px' }}>
+                       <span style={{ fontSize: '0.7rem', padding: '2px 6px', background: 'var(--bg-glass)', borderRadius: '4px' }}>
                          {project.blueprint_config?.templateSlug}
                        </span>
                     </div>
@@ -175,7 +175,7 @@ export default function CommunityPage() {
                   </div>
                 </div>
 
-                <div className="card-footer" style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '1rem', marginTop: 'auto', display: 'flex', gap: '0.5rem' }}>
+                <div className="card-footer" style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: '1rem', marginTop: 'auto', display: 'flex', gap: '0.5rem' }}>
                    {project.is_hatched ? (
                      <>
                        <a href={project.live_url} target="_blank" className="btn btn-sm btn-primary">🌐 Visit Site</a>
@@ -225,17 +225,23 @@ export default function CommunityPage() {
       </div>
 
       <style jsx>{`
-        .community-container { padding: 80px 0; min-height: 100vh; background: radial-gradient(circle at top right, rgba(124,58,237,0.05), transparent 40%); }
+        .community-container { padding: 80px 0; min-height: 100vh; }
         .community-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 2rem; }
-        .community-card { padding: 1.5rem; display: flex; flexDirection: column; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid rgba(255,255,255,0.05); }
-        .community-card:hover { border-color: rgba(124,58,237,0.3); transform: translateY(-4px); }
-        .community-card.hatched { border-color: var(--success); }
+        .community-card { 
+          padding: 1.5rem; 
+          display: flex; 
+          flex-direction: column; 
+          border: 1px solid var(--border-medium);
+          background: var(--bg-card);
+        }
+        .community-card:hover { border-color: var(--accent-violet); transform: translateY(-2px); }
+        .community-card.hatched { border-color: var(--accent-emerald); }
         
-        .vote-controls { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px; background: rgba(255,255,255,0.03); border-radius: 8px; }
+        .vote-controls { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px; background: var(--bg-tertiary); border-radius: 8px; border: 1px solid var(--border-subtle); }
         .vote-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.2rem; transition: all 0.2s; }
-        .vote-btn:hover { color: var(--primary); }
-        .vote-btn.active { color: var(--primary-light); transform: scale(1.2); }
-        .vote-score { font-weight: 700; font-size: 1rem; color: #fff; }
+        .vote-btn:hover { color: var(--accent-violet-light); }
+        .vote-btn.active { color: var(--accent-violet); transform: scale(1.1); }
+        .vote-score { font-weight: 700; font-size: 1rem; color: var(--text-primary); }
 
         .hatched-ribbon { position: absolute; top: 12px; right: 12px; background: var(--success); color: #000; font-size: 0.6rem; font-weight: 900; padding: 2px 8px; borderRadius: 4px; letterSpacing: 0.05em; }
 

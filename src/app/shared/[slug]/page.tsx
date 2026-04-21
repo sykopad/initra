@@ -56,59 +56,59 @@ export default async function SharedConfigPage({ params }: Props) {
                 Shared by <strong>{shared.profiles?.display_name || "Anonymous"}</strong> • {new Date(shared.created_at).toLocaleDateString()}
               </p>
 
-              <div className="card-glass p-8 mb-8">
-                <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "1.5rem" }}>
-                  <span style={{ fontSize: "2.5rem" }}>{template?.icon}</span>
+              <div className="card p-8 mb-8" style={{ background: "var(--bg-card)", borderColor: "var(--border-medium)" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "1.25rem", marginBottom: "2rem" }}>
+                  <span style={{ fontSize: "3rem" }}>{template?.icon}</span>
                   <div>
-                    <h2 style={{ fontSize: "1.25rem", color: "var(--text-primary)" }}>{template?.name} Template</h2>
-                    <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)" }}>Configured for {shared.config.stackConfig.language}</p>
+                    <h2 style={{ fontSize: "1.5rem", color: "var(--text-primary)", fontWeight: 700 }}>{template?.name}</h2>
+                    <p style={{ fontSize: "0.9rem", color: "var(--text-accent)", fontWeight: 500 }}>Configured for {shared.config.stackConfig.language}</p>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                  <div className="p-4 rounded-lg bg-white/5 border border-white/10">
-                    <span className="block text-xs uppercase text-muted mb-1">Packages</span>
-                    <span className="font-semibold">{shared.config.selectedPackages.length}</span>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "1rem", marginBottom: "2rem" }}>
+                  <div style={{ padding: "1rem", borderRadius: "12px", background: "var(--bg-tertiary)", border: "1px solid var(--border-subtle)" }}>
+                    <span style={{ display: "block", fontSize: "0.7rem", textTransform: "uppercase", color: "var(--text-muted)", marginBottom: "0.25rem", fontWeight: 700 }}>Packages</span>
+                    <span style={{ fontSize: "1.1rem", fontWeight: 700, color: "var(--text-primary)" }}>{shared.config.selectedPackages.length}</span>
                   </div>
-                  <div className="p-4 rounded-lg bg-white/5 border border-white/10">
-                    <span className="block text-xs uppercase text-muted mb-1">Services</span>
-                    <span className="font-semibold">{shared.config.selectedServices.length}</span>
+                  <div style={{ padding: "1rem", borderRadius: "12px", background: "var(--bg-tertiary)", border: "1px solid var(--border-subtle)" }}>
+                    <span style={{ display: "block", fontSize: "0.7rem", textTransform: "uppercase", color: "var(--text-muted)", marginBottom: "0.25rem", fontWeight: 700 }}>Services</span>
+                    <span style={{ fontSize: "1.1rem", fontWeight: 700, color: "var(--text-primary)" }}>{shared.config.selectedServices.length}</span>
                   </div>
-                  <div className="p-4 rounded-lg bg-white/5 border border-white/10">
-                    <span className="block text-xs uppercase text-muted mb-1">Database</span>
-                    <span className="font-semibold">{shared.config.stackConfig.database || "None"}</span>
+                  <div style={{ padding: "1rem", borderRadius: "12px", background: "var(--bg-tertiary)", border: "1px solid var(--border-subtle)" }}>
+                    <span style={{ display: "block", fontSize: "0.7rem", textTransform: "uppercase", color: "var(--text-muted)", marginBottom: "0.25rem", fontWeight: 700 }}>Database</span>
+                    <span style={{ fontSize: "1.1rem", fontWeight: 700, color: "var(--text-primary)" }}>{shared.config.stackConfig.database || "None"}</span>
                   </div>
-                  <div className="p-4 rounded-lg bg-white/5 border border-white/10">
-                    <span className="block text-xs uppercase text-muted mb-1">Auth</span>
-                    <span className="font-semibold">{shared.config.stackConfig.auth || "None"}</span>
+                  <div style={{ padding: "1rem", borderRadius: "12px", background: "var(--bg-tertiary)", border: "1px solid var(--border-subtle)" }}>
+                    <span style={{ display: "block", fontSize: "0.7rem", textTransform: "uppercase", color: "var(--text-muted)", marginBottom: "0.25rem", fontWeight: 700 }}>Auth</span>
+                    <span style={{ fontSize: "1.1rem", fontWeight: 700, color: "var(--text-primary)" }}>{shared.config.stackConfig.auth || "None"}</span>
                   </div>
                 </div>
 
-                <div style={{ padding: "1.5rem", background: "rgba(0,255,255,0.03)", borderRadius: "12px", border: "1px dashed rgba(0,255,255,0.1)" }}>
-                   <p className="text-sm italic text-secondary text-center">
+                <div style={{ padding: "1.5rem", background: "var(--bg-primary)", borderRadius: "12px", border: "1px dashed var(--border-accent)" }}>
+                   <p style={{ fontSize: "0.9rem", fontStyle: "italic", color: "var(--text-secondary)", textAlign: "center", margin: 0 }}>
                      "This configuration is ready for use with Cursor or Windsurf. Start building with this stack in seconds."
                    </p>
                 </div>
               </div>
 
-              <div className="flex gap-4">
-                <Link href="/wizard" className="btn btn-primary px-8">
+              <div style={{ display: "flex", gap: "1rem" }}>
+                <Link href="/wizard" className="btn btn-primary" style={{ padding: "0.75rem 2rem" }}>
                   🪄 Use This Stack
                 </Link>
-                <Link href="/community" className="btn btn-secondary px-8">
+                <Link href="/community" className="btn btn-secondary" style={{ padding: "0.75rem 2rem" }}>
                   🌍 Explore More
                 </Link>
               </div>
             </div>
 
             <div className="review-sidebar">
-               <div className="card-glass p-6">
-                 <h3 className="text-sm font-bold uppercase tracking-wider text-muted mb-4">Stack Details</h3>
-                 <div className="space-y-4">
+               <div className="card p-6" style={{ background: "var(--bg-secondary)", borderColor: "var(--border-medium)" }}>
+                 <h3 style={{ fontSize: "0.75rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--text-muted)", marginBottom: "1.5rem" }}>Stack Details</h3>
+                 <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
                     {Object.entries(shared.config.stackConfig).map(([key, value]) => (
-                      <div key={key} className="flex justify-between items-center text-sm">
-                        <span className="text-muted capitalize">{key.replace(/([A-Z])/g, ' $1')}</span>
-                        <span className="font-mono text-cyan-400">{String(value)}</span>
+                      <div key={key} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "0.85rem", borderBottom: "1px solid var(--border-subtle)", paddingBottom: "0.5rem" }}>
+                        <span style={{ color: "var(--text-muted)", textTransform: "capitalize" }}>{key.replace(/([A-Z])/g, ' $1')}</span>
+                        <span style={{ fontWeight: 600, color: "var(--accent-cyan-light)", fontFamily: "var(--font-mono)" }}>{String(value)}</span>
                       </div>
                     ))}
                  </div>

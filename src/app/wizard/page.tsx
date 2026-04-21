@@ -401,9 +401,8 @@ export default function WizardPage() {
 
         // Pre-populate a default IDE (Universal) to enable generation and fix the empty "Back" state
         const universalIDE = IDE_TARGETS.find(i => i.slug === 'universal');
-        if (universalIDE) {
-          setSelectedIDEs([universalIDE]);
-        }
+        const selectedIDEs = config.selectedIDEs || (universalIDE ? [universalIDE] : []);
+        setSelectedIDEs(selectedIDEs);
         
         setToast("✅ Repository detected! Reviewing configuration...");
         setTimeout(() => setStep(6), 1500);
@@ -1149,7 +1148,7 @@ export default function WizardPage() {
                             : "Single monolithic rule file for simpler projects."}
                         </p>
                       </div>
-                      <div style={{ display: "flex", background: "rgba(255,255,255,0.05)", borderRadius: "8px", padding: "4px" }}>
+                      <div style={{ display: "flex", background: "var(--bg-glass)", borderRadius: "8px", padding: "4px" }}>
                         <button 
                           className={`btn btn-sm ${orchestrationMode === 'single-agent' ? 'btn-primary' : 'btn-ghost'}`}
                           onClick={() => setOrchestrationMode('single-agent')}
@@ -1227,52 +1226,60 @@ export default function WizardPage() {
                   </div>
                 )}
 
-                <div className="glass-panel" style={{ padding: "2.5rem", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4rem" }}>
-                  <div style={{ borderRight: "1px solid rgba(255,255,255,0.05)", paddingRight: "2rem" }}>
-                    <h3 style={{ fontSize: "1.1rem", marginBottom: "1.5rem", color: "var(--primary-light)" }}>Core Stack</h3>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                      <div className="review-item">
-                        <span className="label">Template:</span>
-                        <span className="value">{selectedTemplate.name}</span>
+                <div className="glass-panel" style={{ padding: "2.5rem", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4rem", border: "1px solid var(--border-medium)" }}>
+                  <div style={{ borderRight: "1px solid var(--border-subtle)", paddingRight: "2rem" }}>
+                    <h3 style={{ fontSize: "1.1rem", marginBottom: "1.5rem", color: "var(--accent-violet-light)" }}>Core Stack</h3>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "0.85rem" }}>
+                      <div className="review-item" style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid var(--border-subtle)", paddingBottom: "0.5rem" }}>
+                        <span className="label" style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>Template:</span>
+                        <span className="value" style={{ fontWeight: 600 }}>{selectedTemplate.name}</span>
                       </div>
-                      <div className="review-item">
-                        <span className="label">Project Name:</span>
-                        <span className="value">{projectName || "My Project"}</span>
+                      <div className="review-item" style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid var(--border-subtle)", paddingBottom: "0.5rem" }}>
+                        <span className="label" style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>Project:</span>
+                        <span className="value" style={{ fontWeight: 600 }}>{projectName || "My Project"}</span>
                       </div>
                       {Object.entries(stackConfig).map(([key, val]) => (
-                        <div key={key} className="review-item">
-                          <span className="label">{key}:</span>
-                          <span className="value">{String(val)}</span>
+                        <div key={key} className="review-item" style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid var(--border-subtle)", paddingBottom: "0.5rem" }}>
+                          <span className="label" style={{ color: "var(--text-muted)", fontSize: "0.9rem", textTransform: "capitalize" }}>{key.replace(/([A-Z])/g, ' $1')}:</span>
+                          <span className="value" style={{ fontWeight: 600 }}>{String(val)}</span>
                         </div>
                       ))}
                     </div>
                   </div>
                   <div>
-                    <h3 style={{ fontSize: "1.1rem", marginBottom: "1.5rem", color: "var(--secondary-light)" }}>Add-ons & Agent Modes</h3>
-                    <p style={{ fontWeight: 600, fontSize: "0.9rem", marginBottom: "0.5rem" }}>Packages:</p>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem", marginBottom: "1rem" }}>
-                      {selectedPackages.map(p => (
-                        <span key={p} className="badge-outline">{p}</span>
-                      ))}
-                      {selectedPackages.length === 0 && <span className="text-muted">None</span>}
+                    <h3 style={{ fontSize: "1.1rem", marginBottom: "1.5rem", color: "var(--accent-cyan-light)" }}>Add-ons & Agent Modes</h3>
+                    <div style={{ marginBottom: "1.5rem" }}>
+                      <p style={{ fontWeight: 600, fontSize: "0.85rem", marginBottom: "0.75rem", color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Packages</p>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
+                        {selectedPackages.map(p => (
+                          <span key={p} className="badge-outline" style={{ background: "var(--bg-glass)", borderColor: "var(--border-medium)", padding: "0.25rem 0.75rem", borderRadius: "99px", fontSize: "0.75rem" }}>{p}</span>
+                        ))}
+                        {selectedPackages.length === 0 && <span style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>None selected</span>}
+                      </div>
                     </div>
-                    <p style={{ fontWeight: 600, fontSize: "0.9rem", marginBottom: "0.5rem" }}>Services:</p>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem", marginBottom: "1rem" }}>
-                      {selectedServices.map(s => (
-                        <span key={s} className="badge-outline">{s}</span>
-                      ))}
-                      {selectedServices.length === 0 && <span className="text-muted">None</span>}
+                    
+                    <div style={{ marginBottom: "1.5rem" }}>
+                      <p style={{ fontWeight: 600, fontSize: "0.85rem", marginBottom: "0.75rem", color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Services</p>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
+                        {selectedServices.map(s => (
+                          <span key={s} className="badge-outline" style={{ background: "var(--bg-glass)", borderColor: "var(--border-medium)", padding: "0.25rem 0.75rem", borderRadius: "99px", fontSize: "0.75rem" }}>{s}</span>
+                        ))}
+                        {selectedServices.length === 0 && <span style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>None selected</span>}
+                      </div>
                     </div>
-                    <p style={{ fontWeight: 600, fontSize: "0.9rem", marginBottom: "0.5rem" }}>Architect Mode:</p>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem" }}>
-                      <span className="badge-outline" style={{ borderColor: 'var(--primary)' }}>
-                        {orchestrationMode === 'multi-agent' ? '🚀 Hierarchical Multi-Agent' : '📄 Single Agent'}
-                      </span>
-                      {selectedOverlays.map(slug => (
-                        <span key={slug} className="badge-outline" style={{ borderColor: 'var(--success)' }}>
-                          {WORKFLOW_OVERLAYS.find(o => o.slug === slug)?.name}
+
+                    <div>
+                      <p style={{ fontWeight: 600, fontSize: "0.85rem", marginBottom: "0.75rem", color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Architect Modes</p>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
+                        <span className="badge-outline" style={{ borderColor: 'var(--accent-violet)', background: "rgba(124, 58, 237, 0.1)", padding: "0.25rem 0.75rem", borderRadius: "99px", fontSize: "0.75rem", color: "var(--accent-violet-light)" }}>
+                          {orchestrationMode === 'multi-agent' ? '🚀 Hierarchical Multi-Agent' : '📄 Single Agent'}
                         </span>
-                      ))}
+                        {selectedOverlays.map(slug => (
+                          <span key={slug} className="badge-outline" style={{ borderColor: 'var(--accent-emerald)', background: "rgba(16, 185, 129, 0.1)", padding: "0.25rem 0.75rem", borderRadius: "99px", fontSize: "0.75rem", color: "var(--accent-emerald-light)" }}>
+                            {WORKFLOW_OVERLAYS.find(o => o.slug === slug)?.name}
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1371,7 +1378,7 @@ export default function WizardPage() {
                            <div style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
                               {selectedServices.flatMap(s => 
                                 SERVICE_LIBRARY.find(sl => sl.slug === s)?.envVars.map(e => (
-                                   <code key={e.key} style={{ fontSize: "0.6rem", background: "rgba(255,255,255,0.05)", padding: "2px 4px", borderRadius: "3px" }}>{e.key}</code>
+                                   <code key={e.key} style={{ fontSize: "0.6rem", background: "var(--bg-glass)", padding: "2px 4px", borderRadius: "3px" }}>{e.key}</code>
                                 )) || []
                               )}
                            </div>
