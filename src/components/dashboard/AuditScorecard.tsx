@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { AuditCheck, AuditResult } from "@/lib/engine/types";
 
 interface AuditScorecardProps {
@@ -217,10 +218,6 @@ export default function AuditScorecard({ audit, onRepair }: AuditScorecardProps)
           background: var(--accent-violet) !important;
           color: white !important;
         }
-      `}</style>
-    </div>
-  );
-}
       `}</style>
     </div>
   );
