@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import SegmentCard from "./SegmentCard";
 import AuditScorecard from "./AuditScorecard";
 import { AuditResult } from "@/lib/engine/types";
+import { disconnectRepo } from "@/lib/actions/projects";
 
 interface Repo {
   id: string;
@@ -135,34 +136,76 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
 
       {!activeRepo ? (
         <div className="sync-interface">
-          <p>Import your GitHub repository to start building with AI.</p>
-          <div className="input-group" style={{ display: 'flex', gap: '10px', marginTop: '1rem' }}>
-            <input 
-              type="text" 
-              className="form-input" 
-              placeholder="https://github.com/user/repo"
-              value={repoUrl}
-              onChange={(e) => setRepoUrl(e.target.value)}
-              style={{ flex: 1 }}
-            />
-            <button 
-              className="btn btn-primary" 
-              onClick={handleSync}
-              disabled={isLoading}
-            >
-              {isLoading ? "Analyzing..." : "Sync & Analyze"}
-            </button>
+          {initialRepos && initialRepos.length > 0 && (
+            <div className="repo-selector" style={{ marginBottom: '2rem' }}>
+              <h4 style={{ fontSize: '0.85rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '1rem' }}>Active Ventures</h4>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem' }}>
+                {initialRepos.map(repo => (
+                  <div 
+                    key={repo.id} 
+                    className="project-type-card" 
+                    style={{ padding: '1rem', cursor: 'pointer', textAlign: 'left' }}
+                    onClick={() => setActiveRepo(repo)}
+                  >
+                    <div style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>⚡</div>
+                    <div style={{ fontWeight: 600, fontSize: '0.9rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {repo.repo_name}
+                    </div>
+                    <div style={{ fontSize: '0.75rem', opacity: 0.6 }}>{repo.framework}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div style={{ background: 'rgba(255,255,255,0.02)', padding: '1.5rem', borderRadius: '12px', border: '1px dashed var(--border-medium)' }}>
+            <p>Import a new GitHub repository to start building with AI.</p>
+            <div className="input-group" style={{ display: 'flex', gap: '10px', marginTop: '1rem' }}>
+              <input 
+                type="text" 
+                className="form-input" 
+                placeholder="https://github.com/user/repo"
+                value={repoUrl}
+                onChange={(e) => setRepoUrl(e.target.value)}
+                style={{ flex: 1 }}
+              />
+              <button 
+                className="btn btn-primary" 
+                onClick={handleSync}
+                disabled={isLoading}
+              >
+                {isLoading ? "Analyzing..." : "Sync & Analyze"}
+              </button>
+            </div>
           </div>
           {error && <p className="error-msg" style={{ marginTop: '10px', color: 'var(--accent-rose)' }}>{error}</p>}
+        </div>
         </div>
       ) : (
         <div className="builder-view animate-fade-in">
           <div className="repo-status" style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <span className="dot pulse"></span>
-              <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>{activeRepo.owner}/{activeRepo.repo_name}</span>
+              <div>
+                <div style={{ fontSize: '0.9rem', fontWeight: 600 }}>{activeRepo.owner}/{activeRepo.repo_name}</div>
+                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Synced {new Date(activeRepo.last_synced_at).toLocaleString()}</div>
+              </div>
             </div>
-            <button className="btn btn-ghost btn-sm" onClick={() => setActiveRepo(null)}>Change Repo</button>
+            <div style={{ display: 'flex', gap: '0.75rem' }}>
+              <button 
+                className="btn btn-ghost btn-sm" 
+                style={{ color: 'var(--accent-rose)' }}
+                onClick={async () => {
+                  if (confirm("Disconnect this repository? Your code stays on GitHub, but you won't be able to manage it from Initra.")) {
+                    await disconnectRepo(activeRepo.id);
+                    setActiveRepo(null);
+                  }
+                }}
+              >
+                Disconnect
+              </button>
+              <button className="btn btn-secondary btn-sm" onClick={() => setActiveRepo(null)}>Switch Venture</button>
+            </div>
           </div>
           
           {audit && <AuditScorecard audit={audit} />}

@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import CreditPurchase from "@/components/wizard/CreditPurchase";
 import RepoBuilder from "@/components/dashboard/RepoBuilder";
+import ProjectItem from "@/components/dashboard/ProjectItem";
+import Navbar from "@/components/Navbar";
 import "./dashboard.css";
 
 export default async function DashboardPage() {
@@ -49,13 +51,20 @@ export default async function DashboardPage() {
     .limit(5);
 
   return (
-    <div className="dashboard-container">
-      <div className="dashboard-header">
-        <h1>User Dashboard</h1>
-        <p className="subtitle">Manage your credits and review past exports.</p>
-      </div>
+    <>
+      <Navbar />
+      <div className="dashboard-container" style={{ paddingTop: '8rem' }}>
+        <div className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '3rem' }}>
+          <div>
+            <h1 className="gradient-text" style={{ fontSize: 'var(--text-4xl)', marginBottom: '0.5rem' }}>Command Center</h1>
+            <p className="subtitle" style={{ fontSize: 'var(--text-lg)', opacity: 0.8 }}>Manage your sovereign infrastructure and active ventures.</p>
+          </div>
+          <Link href="/wizard" className="btn btn-primary">
+            🚀 Hatch New Venture
+          </Link>
+        </div>
 
-      <div className="dashboard-grid">
+        <div className="dashboard-grid">
         <RepoBuilder initialRepos={syncedRepos} />
 
         {/* Credits & Subscription Section */}
@@ -91,22 +100,7 @@ export default async function DashboardPage() {
           <div className="project-list">
             {sessions && sessions.length > 0 ? (
               sessions.map(session => (
-                <div key={session.id} className="project-item">
-                  <div className="project-info">
-                    <span className="icon">
-                      {(Array.isArray(session.project_templates) ? session.project_templates[0] : session.project_templates)?.icon_emoji || '📁'}
-                    </span>
-                    <div>
-                      <h4>{session.project_name || 'Untitled Project'}</h4>
-                      <span className="template">
-                        {(Array.isArray(session.project_templates) ? session.project_templates[0] : session.project_templates)?.name} • {new Date(session.created_at).toLocaleDateString()}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="project-actions">
-                    <Link href={`/shared/${session.share_slug}`} className="btn-link">View Files</Link>
-                  </div>
-                </div>
+                <ProjectItem key={session.id} session={session} />
               ))
             ) : (
               <div className="empty-state">
