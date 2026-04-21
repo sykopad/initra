@@ -14,12 +14,13 @@
     "@supabase/ssr": "^0.10.2",
     "@supabase/supabase-js": "^2.103.3",
     "jszip": "^3.10.1",
+    "libsodium-wrappers": "^0.8.4",
     "next": "16.2.4",
     "octokit": "^5.0.5",
+    "pg": "^8.20.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "shiki": "^4.0.2",
-    "pg": "^8.20.0"
+    "shiki": "^4.0.2"
   },
   "devDependencies": {
     "@types/node": "^20.19.39",

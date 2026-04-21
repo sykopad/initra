@@ -10,6 +10,7 @@ import { WizardConfig } from '@/lib/engine/types';
 
 import { Client } from 'pg';
 import { callOpenRouter } from '@/lib/ai/openrouter';
+import { injectRepoSecret } from '@/lib/utils/github-secrets';
 
 const VERCEL_TOKEN = process.env.VERCEL_TOKEN;
 const VERCEL_TEAM_ID = process.env.VERCEL_TEAM_ID;
@@ -129,6 +130,15 @@ export async function hatchVenture(projectId: string) {
         'NEXT_PUBLIC_SUPABASE_URL': supabaseUrl,
         'NEXT_PUBLIC_SUPABASE_ANON_KEY': supabaseAnonKey,
       });
+
+      // 6.1 Inject GitHub Secrets (Hatching 3.0)
+      console.log(`[Hatch] Provisioning GitHub Secrets for CI...`);
+      try {
+        await injectRepoSecret(octokit, repo.owner.login, repo.name, 'NEXT_PUBLIC_SUPABASE_URL', supabaseUrl);
+        await injectRepoSecret(octokit, repo.owner.login, repo.name, 'NEXT_PUBLIC_SUPABASE_ANON_KEY', supabaseAnonKey);
+      } catch (secErr) {
+        console.warn("[Hatch] Failed to inject GitHub secrets:", secErr);
+      }
     }
 
     // 7. Generate & Push Content
