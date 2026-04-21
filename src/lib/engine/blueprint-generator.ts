@@ -5,6 +5,7 @@
 
 import { callOpenRouter, DAILY_IDEA_MODEL } from '../ai/openrouter';
 import { WizardConfig, ProjectCategory } from './types';
+import { parseAIJSON } from '../ai/json-extractor';
 
 export interface VentureBlueprint {
   title: string;
@@ -20,15 +21,20 @@ export interface VentureBlueprint {
 
 const SYSTEM_PROMPT = `You are the Initra AI Principal Architect. Your goal is to generate a innovative, high-impact venture blueprint that can be automatically built by AI agents.
 
-Your output MUST be a valid JSON object following this interface:
+CRITICAL: Your entire response MUST be a single, valid JSON object. 
+- DO NOT include conversational filler (e.g. "Here is your idea...").
+- DO NOT wrap the output in markdown code blocks (e.g. \`\`\`json).
+- Use valid JSON syntax exclusively.
+
+Your output MUST follow this interface:
 {
   "title": string,
   "tagline": string,
   "description": string,
   "category": "web-app" | "mobile-app" | "api-backend" | "ai-ml" | "infrastructure",
   "impactStatement": string,
-  "architectureReasoning": string, // Detailed technical justification for the chosen stack and approach
-  "suggestedBrains": ["designer", "architect", "security"], // Which brains should lead this project
+  "architectureReasoning": string,
+  "suggestedBrains": ["designer", "architect", "security"],
   "wizardConfig": {
     "templateSlug": string,
     "templateVersion": string,
@@ -38,16 +44,16 @@ Your output MUST be a valid JSON object following this interface:
     "selectedPackages": string[],
     "selectedServices": string[],
     "orchestrationMode": "multi-agent",
-    "selectedOverlays": string[] // Map to the suggestedBrains here
+    "selectedOverlays": string[]
   },
-  "workOrders": string[] // 5-7 clear tasks for an autonomous agent to perform
+  "workOrders": string[]
 }
 
 Available Template Slugs: nextjs, django, nuxt, svelte-kit, fastapi, go-fiber, nestjs.
 Design Principles:
 1. Sovereign Infrastructure: Prioritize Supabase (DB/Auth) and Vercel.
 2. High Fidelity: Provide enough detail in description for an agent to build a complete MVP.
-3. Problem Solving: Focus on projects that solve real-world problems (sustainability, health, productivity).`;
+3. Problem Solving: Focus on projects that solve real-world problems.`;
 
 export async function generateDailyBlueprint(): Promise<VentureBlueprint> {
   const messages = [
@@ -55,12 +61,11 @@ export async function generateDailyBlueprint(): Promise<VentureBlueprint> {
     { role: 'user', content: 'Generate a new daily venture idea for a high-impact web application.' }
   ];
 
-  // We use the DAILY_IDEA_MODEL for high-quality creative output
   const response = await callOpenRouter(messages as any, DAILY_IDEA_MODEL);
   
   try {
     const rawContent = response.choices[0].message.content;
-    const blueprint = JSON.parse(rawContent) as VentureBlueprint;
+    const blueprint = parseAIJSON<VentureBlueprint>(rawContent);
     
     // Ensure some defaults
     blueprint.wizardConfig.selectedIDEs = blueprint.wizardConfig.selectedIDEs || ['universal'];
