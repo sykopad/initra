@@ -193,9 +193,9 @@ export default function HomePage() {
                   <h3 style={{ fontSize: '1.25rem', marginBottom: '1rem' }}>Peer-to-Peer AI Energy Grid</h3>
                   <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>An autonomous billing and distribution network for localized renewable energy clusters.</p>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                     <div style={{ display: 'flex', -webkit-mask-image: 'linear-gradient(to right, black 50%, transparent 100%)' }}>
+                   <div style={{ display: 'flex', WebkitMaskImage: 'linear-gradient(to right, black 50%, transparent 100%)' }}>
                         {[1,2,3,4].map(i => <div key={i} style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'var(--bg-tertiary)', border: '2px solid var(--bg-primary)', marginLeft: i === 1 ? 0 : '-8px' }}></div>)}
-                     </div>
+                   </div>
                      <span style={{ fontSize: '0.8rem', color: 'var(--accent-amber)', fontWeight: 700 }}>2,841 UPVOTES</span>
                   </div>
                </div>
