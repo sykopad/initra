@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import CreditPurchase from "@/components/wizard/CreditPurchase";
+import RepoBuilder from "@/components/dashboard/RepoBuilder";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -10,6 +11,12 @@ export default async function DashboardPage() {
   if (!user) {
     redirect("/login");
   }
+
+  // Fetch Synced Repositories
+  const { data: syncedRepos } = await supabase
+    .from('synced_repositories')
+    .select('*')
+    .eq('user_id', user.id);
 
   // Fetch Profile (Credits)
   const { data: profile } = await supabase
@@ -48,6 +55,8 @@ export default async function DashboardPage() {
       </div>
 
       <div className="dashboard-grid">
+        <RepoBuilder initialRepos={syncedRepos} />
+
         {/* Credits Section */}
         <section className="dashboard-card credit-card">
           <div className="card-header">
