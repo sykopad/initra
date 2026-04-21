@@ -35,6 +35,8 @@ export async function analyzeRepository(
     framework = "django";
   } else if (files.includes("go.mod") || files.includes("main.go")) {
     framework = "go";
+  } else if (files.includes("pubspec.yaml") || files.includes("lib/main.dart")) {
+    framework = "flutter";
   }
 
   const segments: RepoSegment[] = [];
@@ -296,6 +298,68 @@ export async function analyzeRepository(
         });
       }
     }
+  } else if (framework === "flutter") {
+    // 3. Deep Heuristics for Flutter 4 (Dart)
+    
+    for (const file of files) {
+      if (!file.startsWith("lib/")) continue; // Focus on source code
+      
+      const lowerFile = file.toLowerCase();
+      
+      // A. Screens & Pages
+      if (file.includes("pages/") || file.includes("screens/") || file.endsWith("_screen.dart") || file.endsWith("_page.dart")) {
+        const pageName = file.split('/').pop()?.split('.')[0] || "Page";
+        segments.push({
+          name: formatComponentName(file),
+          type: "page",
+          domain: detectDomain(file),
+          filePath: file,
+          description: "Mobile screen/page widget representation.",
+          confidence: 1.0
+        });
+      }
+
+      // B. State Management & Models (Logic)
+      else if (
+        file.includes("models/") || 
+        file.includes("providers/") || 
+        file.includes("bloc/") || 
+        file.includes("riverpod/") || 
+        file.includes("services/") ||
+        file.endsWith("_service.dart") ||
+        file.endsWith("_model.dart") ||
+        file === "lib/main.dart"
+      ) {
+        let logicType = "Business Logic";
+        if (file.includes("model")) logicType = "Data Model";
+        if (file.includes("provider") || file.includes("bloc") || file.includes("riverpod")) logicType = "State Logic";
+        if (file === "lib/main.dart") logicType = "App Entrance";
+        
+        segments.push({
+          name: logicType,
+          type: "logic",
+          isLogic: true,
+          domain: detectDomain(file),
+          filePath: file,
+          description: "Dart business logic and state orchestration.",
+          confidence: 1.0
+        });
+      }
+
+      // C. Widgets & Components
+      else if (file.includes("widgets/") || file.includes("components/")) {
+        const landmark = detectLandmark(file);
+        segments.push({
+          name: formatComponentName(file),
+          type: "component",
+          landmarkType: landmark,
+          domain: detectDomain(file),
+          filePath: file,
+          description: `Flutter ${landmark !== 'unknown' ? landmark : 'UI'} widget.`,
+          confidence: landmark !== 'unknown' ? 0.8 : 0.6
+        });
+      }
+    }
   }
 
   // Final filtering: Sort by confidence and domain
@@ -327,10 +391,10 @@ function detectLandmark(path: string): RepoSegment['landmarkType'] {
   const p = path.toLowerCase();
   // Support for both React (.tsx) and Vue (.vue) nomenclature
   if (p.includes("hero") || p.includes("banner") || p.includes("cta") || p.includes("landing")) return "hero";
-  if (p.includes("footer") || p.includes("copyright") || p.includes("bottom")) return "footer";
+  if (p.includes("footer") || p.includes("copyright") || p.includes("bottom") || p.includes("appbar")) return "footer";
   if (p.includes("sidebar") || p.includes("navrail") || p.includes("aside") || p.includes("drawer")) return "sidebar";
-  if (p.includes("form") || p.includes("input") || p.includes("login") || p.includes("signup") || p.includes("auth")) return "form";
-  if (p.includes("feed") || p.includes("list") || p.includes("grid") || p.includes("collection")) return "feed";
+  if (p.includes("form") || p.includes("input") || p.includes("login") || p.includes("signup") || p.includes("auth") || p.includes("fab")) return "form";
+  if (p.includes("feed") || p.includes("list") || p.includes("grid") || p.includes("collection") || p.includes("sliver")) return "feed";
   return "unknown";
 }
 

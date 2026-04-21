@@ -214,7 +214,7 @@ We implement frameworks **one at a time** to ensure maximum accuracy and deep he
 | Framework | Status | Methodology |
 |-----------|--------|-------------|
 | **Next.js 16 (App Router)** | ✅ Deep | Full layout/page/component segmentation & targeted editing. |
-| **Nuxt 4 (Vue.js)** | ⏳ Planned (May) | Composition API heuristics and directory-based segmentation. |
+| **Nuxt 4 (Vue.js)** | ✅ Deep | Composition API heuristics and directory-based segmentation. |
 ### 🟢 Phase 13: Django 6 (Python) (Complete)
 
 46. **Django 6 Heuristic Archetypes**: Detection of `models.py`, `views.py`, and `templates/`. (Done 2026-04-21)
@@ -227,11 +227,11 @@ We implement frameworks **one at a time** to ensure maximum accuracy and deep he
 50. **Domain Clustering**: Mapping Go packages to feature domains. (Done 2026-04-21)
 51. **Template Parsing**: Heuristic detection of Go templates (`.gohtml`, `.tmpl`). (Done 2026-04-21)
 
-### 📱 Phase 15: Flutter 4 (Active)
+### 📱 Phase 15: Flutter 4 (Complete)
 
-52. **Flutter Widget Tree Analysis**: Heuristic detection of Screen vs Component vs Model in Dart.
-53. **State Management Heuristics**: Detect Bloc, Provider, or Riverpod patterns.
-54. **Mobile Navigation Mapping**: Identification of Router and NavRail landmarks.
+52. **Flutter Widget Tree Analysis**: Heuristic detection of Screen vs Component vs Model in Dart. (Done 2026-04-21)
+53. **State Management Heuristics**: Detect Bloc, Provider, or Riverpod patterns. (Done 2026-04-21)
+54. **Mobile Navigation Mapping**: Identification of Router and NavRail landmarks. (Done 2026-04-21)
 
 ## Conventions
 
