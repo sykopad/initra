@@ -17,39 +17,22 @@ interface SegmentCardProps {
 }
 
 export default function SegmentCard({ segment, repoId, onEditSuccess }: SegmentCardProps) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [prompt, setPrompt] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
-  const handleEdit = async () => {
-    if (!prompt) return;
-    setIsLoading(true);
-    setError(null);
-
+  const handleFinalize = async (files: any[], branch: string) => {
     try {
-      const res = await fetch("/api/builder/edit", {
+      const res = await fetch("/api/builder/merge", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          repoId,
-          segmentId: segment.id,
-          userPrompt: prompt
-        })
+        body: JSON.stringify({ repoId, branchName: branch })
       });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to generate edit");
+      if (!res.ok) throw new Error("Merge failed");
 
-      if (onEditSuccess) {
-        onEditSuccess(data.updatedCode, data.filePath);
-      }
-      setIsEditing(false);
-      setPrompt("");
+      setIsPreviewOpen(false);
+      // Optional: Trigger a refresh of segments
     } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setIsLoading(false);
+      alert("Error finalizing: " + err.message);
     }
   };
 
@@ -75,46 +58,21 @@ export default function SegmentCard({ segment, repoId, onEditSuccess }: SegmentC
       
       <p className="segment-desc">{segment.description}</p>
 
-      {!isEditing ? (
-        <button 
-          className="btn btn-ghost btn-sm" 
-          onClick={() => setIsEditing(true)}
-          style={{ width: '100%', marginTop: '1rem' }}
-        >
-          Customize with AI
-        </button>
-      ) : (
-        <div className="edit-interface animate-fade-in" style={{ marginTop: '1rem' }}>
-          <textarea 
-            className="form-input" 
-            placeholder="What change do you want to make? (e.g. 'Make the background semi-transparent blur')"
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            style={{ fontSize: '0.85rem', minHeight: '80px' }}
-          />
-          {error && <p className="error-msg">{error}</p>}
-          <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
-            <button 
-              className="btn btn-primary btn-sm" 
-              style={{ flex: 1 }}
-              onClick={handleEdit}
-              disabled={isLoading || !prompt}
-            >
-              {isLoading ? "Generating..." : "Generate Change"}
-            </button>
-            <button 
-              className="btn btn-ghost btn-sm" 
-              onClick={() => {
-                setIsEditing(false);
-                setError(null);
-              }}
-              disabled={isLoading}
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
+      <button 
+        className="btn btn-ghost btn-sm" 
+        onClick={() => setIsPreviewOpen(true)}
+        style={{ width: '100%', marginTop: '1rem' }}
+      >
+        Customize with AI
+      </button>
+
+      <LivePreviewModal 
+        isOpen={isPreviewOpen}
+        onClose={() => setIsPreviewOpen(false)}
+        segment={segment}
+        repoId={repoId}
+        onFinalize={handleFinalize}
+      />
 
       <style jsx>{`
         .segment-card {

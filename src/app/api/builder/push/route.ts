@@ -5,10 +5,10 @@ import { cookies } from "next/headers";
 
 export async function POST(req: Request) {
   try {
-    const { repoId, filePath, content, commitMessage } = await req.json();
+    const { repoId, files, commitMessage, targetBranch } = await req.json();
 
-    if (!repoId || !filePath || !content) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    if (!repoId || !files || !Array.isArray(files)) {
+      return NextResponse.json({ error: "Missing required fields or files array" }, { status: 400 });
     }
 
     const supabase = await createClient();
@@ -31,36 +31,78 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Repository record not found" }, { status: 404 });
     }
 
-    // 2. Commit Change to GitHub
+    // 2. Orchestrate GitHub Multi-file Commit
     const octokit = new Octokit({ auth: providerToken });
-    
-    // Get current file to get the SHA (needed for update)
-    const { data: currentFile }: any = await octokit.rest.repos.getContent({
-      owner: repo.owner,
-      repo: repo.repo_name,
-      path: filePath,
-      ref: repo.default_branch
-    });
+    const branchName = targetBranch || repo.default_branch;
 
-    const sha = Array.isArray(currentFile) ? null : currentFile.sha;
-    if (!sha) {
-      throw new Error("Could not find file SHA for commit.");
+    // Check if branch exists, create if not
+    try {
+      await octokit.rest.repos.getBranch({
+        owner: repo.owner,
+        repo: repo.repo_name,
+        branch: branchName
+      });
+    } catch (e) {
+      // Branch doesn't exist, create it from default branch
+      console.log(`[Push] Creating branch: ${branchName} from ${repo.default_branch}`);
+      const { data: defaultBranchRef } = await octokit.rest.git.getRef({
+        owner: repo.owner,
+        repo: repo.repo_name,
+        ref: `heads/${repo.default_branch}`
+      });
+      await octokit.rest.git.createRef({
+        owner: repo.owner,
+        repo: repo.repo_name,
+        ref: `refs/heads/${branchName}`,
+        sha: defaultBranchRef.object.sha
+      });
     }
 
-    const { data: commit } = await octokit.rest.repos.createOrUpdateFileContents({
+    // A. Get current commit SHA
+    const { data: refData } = await octokit.rest.git.getRef({
       owner: repo.owner,
       repo: repo.repo_name,
-      path: filePath,
-      message: commitMessage || `🚀 Initra AI Builder: Updated ${filePath}`,
-      content: Buffer.from(content).toString('base64'),
-      sha,
-      branch: repo.default_branch
+      ref: `heads/${branchName}`
+    });
+    const latestCommitSha = refData.object.sha;
+
+    // B. Create tree with multiple files
+    const tree = files.map((f: any) => ({
+      path: f.path,
+      mode: '100644' as const,
+      type: 'blob' as const,
+      content: f.content
+    }));
+
+    const { data: newTree } = await octokit.rest.git.createTree({
+      owner: repo.owner,
+      repo: repo.repo_name,
+      base_tree: latestCommitSha,
+      tree
+    });
+
+    // C. Create commit
+    const { data: newCommit } = await octokit.rest.git.createCommit({
+      owner: repo.owner,
+      repo: repo.repo_name,
+      message: commitMessage || `🚀 Initra AI Builder: Multi-file sync to ${branchName}`,
+      tree: newTree.sha,
+      parents: [latestCommitSha]
+    });
+
+    // D. Update reference
+    await octokit.rest.git.updateRef({
+      owner: repo.owner,
+      repo: repo.repo_name,
+      ref: `heads/${branchName}`,
+      sha: newCommit.sha,
+      force: true
     });
 
     return NextResponse.json({
       success: true,
-      commitSha: commit.commit.sha,
-      htmlUrl: commit.commit.html_url
+      commitSha: newCommit.sha,
+      branch: branchName
     });
 
   } catch (err: any) {
