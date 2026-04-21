@@ -95,7 +95,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       ...result,
       metadata: {
-        model,
+        model: modelToUse,
         tier
       }
     }, { status: 200 });

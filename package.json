@@ -24,6 +24,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.19.39",
+    "@types/pg": "^8.20.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "dotenv": "^17.4.2",

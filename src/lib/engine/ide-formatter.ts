@@ -937,7 +937,7 @@ function formatUniversal(vars: TemplateVariables, _base: string): GeneratedFile[
  * Trae AI specialized format (.trae/rules/project_rules.md)
  */
 function formatTrae(vars: TemplateVariables, _base: string): GeneratedFile[] {
-  let content = compose(\`# Project Rules — {{projectName}}\n\nAdaptive instructions for the Trae AI IDE.\n\n\`, vars);
+  let content = compose(`# Project Rules — {{projectName}}\n\nAdaptive instructions for the Trae AI IDE.\n\n`, vars);
   content = injectIntelligence(content, vars);
   content = injectOverlays(content, vars);
   content = injectPackageKnowledge(content, vars);
@@ -954,10 +954,10 @@ function formatTrae(vars: TemplateVariables, _base: string): GeneratedFile[] {
  * Aider specialized format (.aider.instructions.md)
  */
 function formatAider(vars: TemplateVariables, _base: string): GeneratedFile[] {
-  let content = compose(\`# Aider Instructions — {{projectName}}\n\nCompact directives for Aider autonomous sessions.\n\n\`, vars);
+  let content = compose(`# Aider Instructions — {{projectName}}\n\nCompact directives for Aider autonomous sessions.\n\n`, vars);
   content = injectIntelligence(content, vars);
   content = injectPackageKnowledge(content, vars);
-  content += \`\n\n## Aider Mode\n- Use --auto-test whenever possible.\n- Use --architect mode for structural changes.\n\`;
+  content += `\n\n## Aider Mode\n- Use --auto-test whenever possible.\n- Use --architect mode for structural changes.\n`;
 
   return [{
     ideTarget: 'aider',
@@ -971,7 +971,7 @@ function formatAider(vars: TemplateVariables, _base: string): GeneratedFile[] {
  * Devin specialized format (.devin/instructions.md)
  */
 function formatDevin(vars: TemplateVariables, _base: string): GeneratedFile[] {
-  let content = compose(\`# Devin Project Instructions — {{projectName}}\n\n\`, vars);
+  let content = compose(`# Devin Project Instructions — {{projectName}}\n\n`, vars);
   content = injectIntelligence(content, vars);
   content = injectOverlays(content, vars);
   content = injectServiceKnowledge(content, vars);
@@ -988,7 +988,7 @@ function formatDevin(vars: TemplateVariables, _base: string): GeneratedFile[] {
  * Replit Agent specialized format (.replit-instructions.md)
  */
 function formatReplit(vars: TemplateVariables, _base: string): GeneratedFile[] {
-  let content = compose(\`# Replit Workspace Instructions — {{projectName}}\n\n\`, vars);
+  let content = compose(`# Replit Workspace Instructions — {{projectName}}\n\n`, vars);
   content = injectIntelligence(content, vars);
   
   return [{

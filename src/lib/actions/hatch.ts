@@ -1,3 +1,5 @@
+"use server";
+
 /**
  * Initra — Hatch Engine
  * Orchestrates the autonomous birth of a venture.
@@ -8,9 +10,9 @@ import { createClient } from '@/lib/supabase/server';
 import { generateAgentFiles } from '@/lib/engine';
 import { WizardConfig } from '@/lib/engine/types';
 
-import { Client } from 'pg';
 import { callOpenRouter } from '@/lib/ai/openrouter';
 import { injectRepoSecret, injectEnvSecret } from '@/lib/utils/github-secrets';
+import { applyInitialSchema } from '@/lib/db/db-server';
 
 const VERCEL_TOKEN = process.env.VERCEL_TOKEN;
 const VERCEL_TEAM_ID = process.env.VERCEL_TEAM_ID;
@@ -274,30 +276,6 @@ async function generateInitialSchema(config: WizardConfig, description: string) 
   return sql;
 }
 
-/**
- * PG Migration Runner: Executes SQL against the sovereign database
- */
-async function applyInitialSchema(dbId: string, sql: string, password: string) {
-  const client = new Client({
-    host: `db.${dbId}.supabase.co`,
-    port: 5432,
-    user: 'postgres',
-    password: password,
-    database: 'postgres',
-    ssl: { rejectUnauthorized: false }
-  });
-
-  try {
-    await client.connect();
-    await client.query(sql);
-    console.log(`[PG] Schema applied successfully to ${dbId}`);
-  } catch (err: any) {
-    console.error(`[PG] Schema application failed for ${dbId}:`, err);
-    throw err;
-  } finally {
-    await client.end();
-  }
-}
 
 /**
  * Injects environment variables into a Vercel project

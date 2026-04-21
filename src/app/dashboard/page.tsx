@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import CreditPurchase from "@/components/wizard/CreditPurchase";
 import RepoBuilder from "@/components/dashboard/RepoBuilder";
+import "./dashboard.css";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -92,10 +93,14 @@ export default async function DashboardPage() {
               sessions.map(session => (
                 <div key={session.id} className="project-item">
                   <div className="project-info">
-                    <span className="icon">{session.project_templates?.icon_emoji || '📁'}</span>
+                    <span className="icon">
+                      {(Array.isArray(session.project_templates) ? session.project_templates[0] : session.project_templates)?.icon_emoji || '📁'}
+                    </span>
                     <div>
                       <h4>{session.project_name || 'Untitled Project'}</h4>
-                      <span className="template">{session.project_templates?.name} • {new Date(session.created_at).toLocaleDateString()}</span>
+                      <span className="template">
+                        {(Array.isArray(session.project_templates) ? session.project_templates[0] : session.project_templates)?.name} • {new Date(session.created_at).toLocaleDateString()}
+                      </span>
                     </div>
                   </div>
                   <div className="project-actions">
@@ -137,145 +142,7 @@ export default async function DashboardPage() {
         </section>
       </div>
 
-      <style jsx>{`
-        .dashboard-container {
-          max-width: 1200px;
-          margin: 0 auto;
-          padding: 80px 20px;
-          color: white;
-        }
-        .dashboard-header {
-          margin-bottom: 40px;
-        }
-        h1 {
-          font-family: var(--font-primary);
-          font-size: 2.5rem;
-          margin-bottom: 8px;
-          background: linear-gradient(135deg, #fff 0%, #aaa 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-        }
-        .subtitle {
-          color: var(--text-muted);
-          font-size: 1.1rem;
-        }
-        .dashboard-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-          gap: 24px;
-        }
-        .dashboard-card {
-          background: rgba(255, 255, 255, 0.03);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 16px;
-          padding: 24px;
-          backdrop-filter: blur(10px);
-          transition: transform 0.2s;
-        }
-        .card-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 20px;
-        }
-        h3 {
-          font-size: 1.2rem;
-          margin: 0;
-        }
-        .balance-badge, .count-badge {
-          background: var(--accent-gradient);
-          padding: 4px 12px;
-          border-radius: 20px;
-          font-size: 0.9rem;
-          font-weight: 600;
-        }
-        .tier-pill {
-          display: inline-block;
-          font-size: 0.7rem;
-          text-transform: uppercase;
-          letter-spacing: 0.1em;
-          color: #fbbf24;
-          font-weight: 800;
-          margin-top: 4px;
-        }
-        .promo-text, .refill-text {
-          font-size: 0.85rem;
-          color: var(--text-muted);
-          padding: 12px;
-          background: rgba(255, 255, 255, 0.03);
-          border-radius: 8px;
-          border-left: 3px solid #6366f1;
-        }
-        .promo-text strong { color: #fcd34d; }
-        .purchase-buttons {
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-          margin-top: 20px;
-        }
-        .project-list, .transaction-list {
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
-        }
-        .project-item, .transaction-item {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding-bottom: 12px;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
-        .project-info {
-          display: flex;
-          gap: 12px;
-          align-items: center;
-        }
-        .icon {
-          font-size: 1.5rem;
-        }
-        h4 {
-          margin: 0;
-          font-size: 1rem;
-        }
-        .template {
-          font-size: 0.8rem;
-          color: var(--text-muted);
-        }
-        .btn-link {
-          color: var(--color-primary);
-          text-decoration: none;
-          font-size: 0.9rem;
-          font-weight: 500;
-        }
-        .tx-desc {
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-        }
-        .tx-type {
-          font-size: 0.7rem;
-          text-transform: uppercase;
-          font-weight: bold;
-          letter-spacing: 0.05em;
-        }
-        .tx-type.usage { color: #ff9d9d; }
-        .tx-type.purchase { color: #9dff9d; }
-        .tx-desc p {
-          margin: 0;
-          font-size: 0.85rem;
-          color: var(--text-muted);
-        }
-        .tx-amount {
-          font-weight: 600;
-        }
-        .tx-amount.pos { color: #4ade80; }
-        .tx-amount.neg { color: #f87171; }
-        .empty-state {
-          text-align: center;
-          padding: 40px 0;
-          color: var(--text-muted);
-        }
-      `}</style>
+
     </div>
   );
 }

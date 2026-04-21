@@ -17,7 +17,7 @@ export async function analyzeRepository(
   branch: string = 'main'
 ): Promise<AnalysisResult> {
   // 1. Get entire file tree
-  const { data: tree } = await octokit.rest.repos.getTree({
+  const { data: tree } = await octokit.rest.git.getTree({
     owner,
     repo,
     tree_sha: branch,

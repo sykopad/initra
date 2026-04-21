@@ -1,5 +1,7 @@
 "use client";
 
+import { useState, useEffect } from "react";
+
 import SegmentCard from "./SegmentCard";
 import AuditScorecard from "./AuditScorecard";
 import { AuditResult } from "@/lib/engine/types";

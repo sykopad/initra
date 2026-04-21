@@ -76,7 +76,8 @@ export async function injectEnvSecret(
 
     // 2. Get the public key for the environment
     const { data: publicKey } = await octokit.rest.actions.getEnvironmentPublicKey({
-      repository_id: repository.id,
+      owner,
+      repo,
       environment_name: environment,
     });
 
@@ -85,7 +86,8 @@ export async function injectEnvSecret(
 
     // 4. Create or update the environment secret
     await octokit.rest.actions.createOrUpdateEnvironmentSecret({
-      repository_id: repository.id,
+      owner,
+      repo,
       environment_name: environment,
       secret_name: secretName,
       encrypted_value: encryptedValue,

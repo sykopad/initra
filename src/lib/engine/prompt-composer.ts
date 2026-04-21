@@ -81,6 +81,7 @@ export function extractVariables(
   orchestrationMode: 'single-agent' | 'multi-agent' = 'single-agent',
   selectedOverlays: string[] = []
 ): TemplateVariables {
+  const template = getTemplate(templateSlug);
   const vars: TemplateVariables = {
     projectName: projectName || 'My Project',
     experienceLevel,

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import LivePreviewModal from "./LivePreviewModal";
 
 interface Segment {
   id: string;
