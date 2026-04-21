@@ -222,6 +222,33 @@ function injectTemplateInstructions(content: string, vars: TemplateVariables): s
 }
 
 /**
+ * Injects Phase 18 Agent Intelligence (Brains, ADRs, Landmarks)
+ */
+function injectIntelligence(content: string, vars: TemplateVariables): string {
+  let result = content;
+
+  // 1. Inject Brain Modules & ADRs
+  if (vars.agentIntelligence) {
+    result += `\n\n# 🧠 Agent Intelligence Overlays\n\n${vars.agentIntelligence}`;
+  }
+
+  // 2. Inject Spatial Awareness (Landmarks)
+  const segments = vars.segments as any[];
+  if (segments && segments.length > 0) {
+    let landmarkSection = `\n\n## 📍 Project Landmarks (Spatial Awareness)\n`;
+    landmarkSection += `The following key segments have been identified. Refer to these paths for structural changes:\n\n`;
+    
+    segments.forEach(seg => {
+      landmarkSection += `- **${seg.name}** (${seg.type}): \`${seg.filePath}\` — ${seg.description}\n`;
+    });
+    
+    result += landmarkSection;
+  }
+
+  return result;
+}
+
+/**
  * Injects selected workflow overlays
  */
 function injectOverlays(content: string, vars: TemplateVariables): string {
@@ -309,6 +336,7 @@ function formatClaudeCode(vars: TemplateVariables, _base: string): GeneratedFile
   content = injectExperienceKnowledge(content, vars);
   content = injectTemplateInstructions(content, vars);
   content = injectOverlays(content, vars);
+  content = injectIntelligence(content, vars);
 
   // Always include guardrails
   content += `\n\n## Guardrails
@@ -485,6 +513,7 @@ alwaysApply: true
   contextContent = injectExperienceKnowledge(contextContent, vars);
   contextContent = injectTemplateInstructions(contextContent, vars);
   contextContent = injectOverlays(contextContent, vars);
+  contextContent = injectIntelligence(contextContent, vars);
 
   contextContent += `\n\n## Boundaries
 - Never modify migration files without asking.
@@ -661,6 +690,7 @@ This is a {{framework}} project using {{languageLabel}}.
   content = injectPackageKnowledge(content, vars);
   content = injectServiceKnowledge(content, vars);
   content = injectOverlays(content, vars);
+  content = injectIntelligence(content, vars);
 
   content += `\n\n## Guardrails
 - Do not modify migration files without explicit confirmation
@@ -733,6 +763,7 @@ Write clean, production-ready code following established project patterns.
   content = injectPackageKnowledge(content, vars);
   content = injectServiceKnowledge(content, vars);
   content = injectOverlays(content, vars);
+  content = injectIntelligence(content, vars);
 
   content += `\n\n## Boundaries
 - Never modify migration files without asking
@@ -797,6 +828,7 @@ This is a {{framework}} application using {{languageLabel}}.
   content = injectPackageKnowledge(content, vars);
   content = injectServiceKnowledge(content, vars);
   content = injectOverlays(content, vars);
+  content = injectIntelligence(content, vars);
 
   content += `\n\n## Do Not
 - Modify migration files without confirmation
@@ -879,6 +911,7 @@ function formatUniversal(vars: TemplateVariables, _base: string): GeneratedFile[
   content = injectPackageKnowledge(content, vars);
   content = injectServiceKnowledge(content, vars);
   content = injectOverlays(content, vars);
+  content = injectIntelligence(content, vars);
 
   content += `\n\n## Guardrails
 - ❌ Never modify migration files without asking

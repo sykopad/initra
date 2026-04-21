@@ -245,6 +245,12 @@ We implement frameworks **one at a time** to ensure maximum accuracy and deep he
 59. **Pro Infrastructure**: Support for Vercel Teams and advanced deployment orchestration. (Done 2026-04-21)
 60. **GitHub Secrets Orchestration**: Automated injection of Supabase keys into GitHub Repository Secrets. (Done 2026-04-21)
 
+### 🟣 Phase 18: Expert Brain Overlays (Active)
+
+61. **Behavioral Module Registry**: Specialized instructions for Designer, Reasoning, and Security profiles.
+62. **Framework-Specific ADRs**: Automated injection of architectural decision records for Next.js 16/Nuxt 4.
+63. **Spatial Awareness Injection**: Mapping heuristic "Landmarks" directly into agent instructions.
+
 ## Conventions
 
 - Use TypeScript strict mode. Avoid `any`.

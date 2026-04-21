@@ -5,6 +5,7 @@
 
 import { TemplateVariables } from './types';
 import { getTemplate } from './templates';
+import { BRAIN_MODULES, FRAMEWORK_ADRS } from './intelligence-overlays';
 
 /** Check if a template variable is considered "empty" / falsy */
 function isEmpty(value: string | boolean | string[] | undefined): boolean {
@@ -160,11 +161,38 @@ Your primary goal is to implement: "${goal}"
     vars.language === 'rust' ? 'Rust' :
     vars.language as string;
 
-  // 2. Add Template-level Agent Instructions
-  const template = getTemplate(templateSlug);
   if (template?.agentInstructions) {
     vars.agentInstructions = interpolateVars(template.agentInstructions, vars);
   }
+
+  // 3. Synthesize Agent Intelligence (Phase 18)
+  let intelligenceBlock = '';
+  
+  // Add Framework ADR
+  const frameworkADR = FRAMEWORK_ADRS[templateSlug];
+  if (frameworkADR) {
+    intelligenceBlock += frameworkADR + '\n';
+  }
+
+  // Add Selected Overlays
+  for (const overlaySlug of selectedOverlays) {
+    const module = BRAIN_MODULES[overlaySlug];
+    if (module) {
+      intelligenceBlock += module.instructions + '\n';
+    }
+  }
+
+  // Add Experience-level refinements
+  if (experienceLevel === 'beginner') {
+    intelligenceBlock += `
+## Educational Directives (Beginner Mode)
+- **Explain Why**: For every major architectural change, add a brief comment explaining the rationale.
+- **Reference Docs**: Provide links to official documentation for any new libraries introduced.
+- **Verbose Comments**: Use meaningful JSDoc for functions to help the user understand the data flow.
+`;
+  }
+
+  vars.agentIntelligence = intelligenceBlock.trim();
 
   return vars;
 }
