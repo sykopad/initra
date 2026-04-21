@@ -1422,47 +1422,47 @@ export const PROJECT_CATEGORIES = [
 export const WORKFLOW_OVERLAYS: import('./types').WorkflowOverlay[] = [
   {
     slug: 'security-hardening',
-    name: 'Security Sentinel',
-    description: 'Advanced protocols for secret prevention, input sanitization, and dependency auditing.',
+    name: 'Security Audit Protocol',
+    description: 'Injects explicit guardrails for secret prevention, input sanitization, and dependency auditing.',
     icon: '🛡️',
-    content: `## 🛡️ Security Sentinel Protocols
-1. **Secret Prevention**: NEVER hardcode API keys or secrets. Check for .env usage in every tool call.
-2. **Input Sanitization**: Assume all user inputs are hostile. Use Zod/equivalents for all entry points.
-3. **Database Guard**: Use parameterized queries exclusively. Avoid string concatenation in SQL/NoSQL.
-4. **Least Privilege**: Always choose the most restrictive permission set for session roles.`,
+    content: `## 🔍 Tactical Workflow: Security Audit
+1. **Secret Scanning**: Check every tool call for potential hardcoded API keys or secrets.
+2. **Input Validation**: Use Zod/equivalents for all entry points. Ensure all data is coerced and validated.
+3. **Parametric Queries**: Never use string concatenation for SQL/NoSQL. Use typed builders.
+4. **Auth Guards**: Verify that the current route/action has an explicit metadata-driven check.`,
   },
   {
     slug: 'v0-designer',
-    name: 'V0 UI/UX Specialist',
+    name: 'Tailwind UI Protocol',
     icon: '🎨',
-    description: 'Rules for high-fidelity Tailwind components, ARIA accessibility, and modern motion patterns.',
-    content: `## 🎨 UI/UX Excellence (v0-spec)
-1. **Tailwind Mastery**: Use semantic utility classes. Favor "modern, clean, and spacious" layouts.
-2. **Accessibility**: Every interactive element MUST have proper ARIA attributes and focus states.
-3. **Motion**: Use Framer Motion for meaningful transitions. Avoid excessive or distracting animations.
-4. **Aesthetics**: Use curated color palettes (HWB/HSL) and glass-morphism where appropriate.`,
+    description: 'Protocol for generating high-fidelity Tailwind components with ARIA accessibility tags.',
+    content: `## 🎨 Tactical Workflow: Tailwind UI/UX
+1. **Semantic Classes**: Use industry-standard Tailwind patterns. Favor 12-column grids for layouts.
+2. **ARIA Injection**: Every interactive element MUST have proper ARIA attributes (roles, labels).
+3. **Motion Blocks**: Implement Framer Motion transitions for all page entry/exit points.
+4. **Style tokens**: Strictly adhere to the \`globals.css\` token registry for colors and spacing.`,
   },
   {
     slug: 'deep-reasoning',
-    name: 'Deep Logic Architect',
+    name: 'Logic Planning Protocol',
     icon: '🧠',
-    description: 'Focuses on architectural planning, tool-minimization, and strict chain-of-thought.',
-    content: `## 🧠 Deep Reasoning Framework
-1. **Planning Mode**: Before any edit, perform a thorough search and indexing of the codebase.
-2. **Minimalism**: Achieve tasks with the fewest possible steps and code changes.
-3. **Correctness**: Prioritize type safety and edge-case handling over speed.
-4. **Self-Correction**: Review generated code for logic errors or anti-patterns BEFORE presenting to the user.`,
+    description: 'Enforces a strict plan-first architecture for complex structural changes.',
+    content: `## 🧠 Tactical Workflow: Logic Planning
+1. **Codebase Indexing**: Search for all file references before suggesting a structural change.
+2. **Dependency Mapping**: Map out the impact of your change across the component tree.
+3. **Chain-of-Thought**: Write a brief technical justification in a log file/comment before execution.
+4. **Incremental testing**: Verify each logic block independently before final assembly.`,
   },
   {
     slug: 'performance-opt',
-    name: 'Performance Optimization',
-    description: 'Enforces strict bundling, caching, and runtime efficiency rules',
+    name: 'Runtime Optimization Protocol',
     icon: '⚡',
-    content: `## ⚡ Performance Standards
-1. **Dynamic Imports**: Use lazy loading for all heavy components.
-2. **Memoization**: Favor React.memo and useMemo for complex derived state.
-3. **Optimistic Updates**: Implement immediate UI feedback for all network-bound actions.
-4. **Bundle Size**: Monitor and report any dependencies larger than 50kb.`,
+    description: 'Strict rules for code splitting, bundle size monitoring, and memoization tactics.',
+    content: `## ⚡ Tactical Workflow: Runtime Optimization
+1. **Lazy Loading**: Use dynamic imports (\`next/dynamic\`) for all heavy third-party libs.
+2. **State Memoization**: Apply \`useMemo\` and \`useCallback\` to prevent unnecessary re-renders in leaf components.
+3. **Asset Optimization**: Ensure all local images use responsive sizes and modern formats (WebP).
+4. **Bundle Audit**: Analyze the impact of new dependencies on the final JS payload size.`,
   }
 ];
 

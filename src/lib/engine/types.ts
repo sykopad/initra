@@ -162,7 +162,9 @@ export interface WizardConfig {
   includeBoilerplate?: boolean;
   experienceLevel?: 'beginner' | 'experienced';
   orchestrationMode?: 'single-agent' | 'multi-agent';
-  selectedOverlays?: string[];
+  selectedBrains?: string[];
+  selectedWorkflows?: string[];
+  selectedOverlays?: string[]; // Deprecated, keep for compatibility
   ventureType?: 'ai-generated' | 'user-suggested';
   agentInstructions?: string;
   // Layman / Branding fields
@@ -218,6 +220,8 @@ export interface TemplateVariables {
   packageManager: string;
   selectedPackages: string[];
   selectedServices: string[];
+  selectedBrains?: string[];
+  selectedWorkflows?: string[];
   [key: string]: string | boolean | string[] | undefined;
 }
 

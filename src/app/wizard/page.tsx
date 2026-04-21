@@ -72,7 +72,8 @@ export default function WizardPage() {
   const [isImporting, setIsImporting] = useState(false);
   const [selectionMethod, setSelectionMethod] = useState<'browse' | 'import'>('browse');
   const [orchestrationMode, setOrchestrationMode] = useState<'single-agent' | 'multi-agent'>('single-agent');
-  const [selectedOverlays, setSelectedOverlays] = useState<string[]>([]);
+  const [selectedBrains, setSelectedBrains] = useState<string[]>([]);
+  const [selectedWorkflows, setSelectedWorkflows] = useState<string[]>([]);
   const [isSharing, setIsSharing] = useState(false);
   const [showRepoModal, setShowRepoModal] = useState(false);
   const [syncResult, setSyncResult] = useState<{ url: string; repoFullName: string } | null>(null);
@@ -328,7 +329,8 @@ export default function WizardPage() {
       includeBoilerplate,
       experienceLevel,
       orchestrationMode,
-      selectedOverlays,
+      selectedBrains,
+      selectedWorkflows,
       modelSlug,
     };
 
@@ -343,7 +345,7 @@ export default function WizardPage() {
     }).catch(err => {
       console.warn("Failed to persist wizard session:", err);
     });
-  }, [selectedTemplate, projectName, stackConfig, selectedIDEs, selectedPackages, selectedServices, templateVersion]);
+  }, [selectedTemplate, projectName, stackConfig, selectedIDEs, selectedPackages, selectedServices, templateVersion, includeBoilerplate, experienceLevel, orchestrationMode, selectedBrains, selectedWorkflows, modelSlug]);
 
   // Handle saving from the editor
   const handleEditorSave = useCallback(async (newContent: string) => {
@@ -417,7 +419,8 @@ export default function WizardPage() {
         includeBoilerplate,
         experienceLevel,
         orchestrationMode,
-        selectedOverlays,
+        selectedBrains,
+        selectedWorkflows,
         modelSlug,
       };
 
@@ -437,7 +440,7 @@ export default function WizardPage() {
       setToast(`❌ Error: ${err.message}`);
       setIsPushing(false);
     }
-  }, [projectName, generatedFiles, selectedTemplate, stackConfig, selectedIDEs, selectedPackages, selectedServices, templateVersion, includeBoilerplate, experienceLevel, orchestrationMode, selectedOverlays, modelSlug]);
+  }, [projectName, generatedFiles, selectedTemplate, stackConfig, selectedIDEs, selectedPackages, selectedServices, templateVersion, includeBoilerplate, experienceLevel, orchestrationMode, selectedBrains, selectedWorkflows, modelSlug]);
 
   // Handle GitHub Import
   const handleRepoImport = useCallback(async () => {
@@ -1243,14 +1246,12 @@ export default function WizardPage() {
                 </p>
 
                 <div className="project-type-grid" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", marginTop: "2rem" }}>
-                  {Object.values(BRAIN_MODULES).map((module) => {
-                    const isSelected = selectedOverlays.includes(module.id);
-                    return (
+                  {Object.values(BRAIN_MODULES).map((module) => (
                       <div
                         key={module.id}
-                        className={`project-type-card ${isSelected ? "selected" : ""}`}
-                        onClick={() => setSelectedOverlays(prev => 
-                          isSelected ? prev.filter(id => id !== module.id) : [...prev, module.id]
+                        className={`project-type-card ${selectedBrains.includes(module.id) ? "selected" : ""}`}
+                        onClick={() => setSelectedBrains(prev => 
+                          prev.includes(module.id) ? prev.filter(id => id !== module.id) : [...prev, module.id]
                         )}
                         style={{ textAlign: "left", padding: "1.75rem", display: "flex", flexDirection: "column", minHeight: "220px" }}
                       >
@@ -1266,7 +1267,7 @@ export default function WizardPage() {
                            Preview Directives ✨
                         </div>
 
-                        {isSelected && <div className="checkmark" style={{ background: "var(--primary)" }}>✓</div>}
+                        {selectedBrains.includes(module.id) && <div className="checkmark" style={{ background: "var(--primary)" }}>✓</div>}
                       </div>
                     );
                   })}
@@ -1389,21 +1390,21 @@ export default function WizardPage() {
                     <div>
                       <h4 style={{ fontSize: "0.95rem", marginBottom: "0.75rem" }}>Applied Workflows</h4>
                       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
-                        {WORKFLOW_OVERLAYS.map(overlay => {
-                          const isSelected = selectedOverlays.includes(overlay.slug);
-                          return (
-                            <div 
+                        {WORKFLOW_OVERLAYS.map(overlay => (
+                            <div
                               key={overlay.slug}
-                              className={`project-type-card ${isSelected ? "selected" : ""}`}
-                              onClick={() => setSelectedOverlays(prev => 
-                                isSelected ? prev.filter(s => s !== overlay.slug) : [...prev, overlay.slug]
+                              className={`project-type-card ${selectedWorkflows.includes(overlay.slug) ? "selected" : ""}`}
+                              onClick={() => setSelectedWorkflows(prev => 
+                                prev.includes(overlay.slug) ? prev.filter(s => s !== overlay.slug) : [...prev, overlay.slug]
                               )}
                               style={{ padding: "1rem", textAlign: "left", cursor: "pointer" }}
                             >
                               <div style={{ fontSize: "1.2rem", marginBottom: "0.5rem" }}>{overlay.icon}</div>
                               <h5 style={{ fontSize: "0.85rem", margin: "0 0 0.25rem" }}>{overlay.name}</h5>
                               <p style={{ fontSize: "0.7rem", color: "var(--text-secondary)", margin: 0 }}>{overlay.description}</p>
-                              {isSelected && <div className="checkmark" style={{ background: "var(--primary)", bottom: "10px", right: "10px" }}>✓</div>}
+                                {selectedWorkflows.includes(overlay.slug) && (
+                                  <div className="checkmark" style={{ background: "var(--primary)", width: "16px", height: "16px", fontSize: "10px" }}>✓</div>
+                                )}
                             </div>
                           );
                         })}
@@ -1493,9 +1494,14 @@ export default function WizardPage() {
                         <span className="badge-outline" style={{ borderColor: 'var(--accent-violet)', background: "rgba(124, 58, 237, 0.1)", padding: "0.25rem 0.75rem", borderRadius: "99px", fontSize: "0.75rem", color: "var(--accent-violet-light)" }}>
                           {orchestrationMode === 'multi-agent' ? '🚀 Hierarchical Multi-Agent' : '📄 Single Agent'}
                         </span>
-                        {selectedOverlays.map(slug => (
+                        {selectedBrains.map(id => (
+                          <span key={id} className="badge-outline" style={{ borderColor: 'var(--accent-cyan)', background: "rgba(6, 182, 212, 0.1)", padding: "0.25rem 0.75rem", borderRadius: "99px", fontSize: "0.75rem", color: "var(--accent-cyan-light)" }}>
+                            🧠 {BRAIN_MODULES[id]?.name || id}
+                          </span>
+                        ))}
+                        {selectedWorkflows.map(slug => (
                           <span key={slug} className="badge-outline" style={{ borderColor: 'var(--accent-emerald)', background: "rgba(16, 185, 129, 0.1)", padding: "0.25rem 0.75rem", borderRadius: "99px", fontSize: "0.75rem", color: "var(--accent-emerald-light)" }}>
-                            {WORKFLOW_OVERLAYS.find(o => o.slug === slug)?.name}
+                            🛠️ {WORKFLOW_OVERLAYS.find(o => o.slug === slug)?.name}
                           </span>
                         ))}
                       </div>

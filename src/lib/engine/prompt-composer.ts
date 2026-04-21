@@ -79,7 +79,8 @@ export function extractVariables(
   selectedServices: string[] = [],
   experienceLevel: 'beginner' | 'experienced' = 'experienced',
   orchestrationMode: 'single-agent' | 'multi-agent' = 'single-agent',
-  selectedOverlays: string[] = []
+  selectedBrains: string[] = [],
+  selectedWorkflows: string[] = []
 ): TemplateVariables {
   const template = getTemplate(templateSlug);
   const vars: TemplateVariables = {
@@ -89,7 +90,8 @@ export function extractVariables(
     isBeginner: experienceLevel === 'beginner',
     isExpert: experienceLevel === 'experienced',
     isMultiAgent: orchestrationMode === 'multi-agent',
-    selectedOverlays,
+    selectedBrains,
+    selectedWorkflows,
     templateSlug,
     templateVersion,
     framework: templateSlug,
@@ -175,9 +177,9 @@ Your primary goal is to implement: "${goal}"
     intelligenceBlock += frameworkADR + '\n';
   }
 
-  // Add Selected Overlays
-  for (const overlaySlug of selectedOverlays) {
-    const module = BRAIN_MODULES[overlaySlug];
+  // Add Selected Brain Overlays (Personas)
+  for (const brainId of selectedBrains) {
+    const module = BRAIN_MODULES[brainId];
     if (module) {
       intelligenceBlock += module.instructions + '\n';
     }

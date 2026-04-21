@@ -34,7 +34,8 @@ export function generateAgentFiles(config: WizardConfig): GenerationResult {
     config.selectedServices ?? [],
     config.experienceLevel ?? 'experienced',
     config.orchestrationMode ?? 'single-agent',
-    config.selectedOverlays ?? []
+    config.selectedBrains ?? [],
+    config.selectedWorkflows ?? []
   );
 
   // 3. Generate files for each selected IDE

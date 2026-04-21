@@ -253,21 +253,24 @@ function injectIntelligence(content: string, vars: TemplateVariables): string {
 }
 
 /**
- * Injects selected workflow overlays
+ * Injects selected workflow overlays as tactical protocols
  */
 function injectOverlays(content: string, vars: TemplateVariables): string {
-  const overlaySlugs = vars.selectedOverlays as string[] ?? [];
-  if (!overlaySlugs.length) return content;
+  const workflowSlugs = vars.selectedWorkflows as string[] ?? [];
+  if (!workflowSlugs.length) return content;
 
-  let overlayContent = '';
-  for (const slug of overlaySlugs) {
+  let overlayContent = '\n\n# 🛠️ Tactical Workflows (Protocols)\n';
+  let hasOverlays = false;
+
+  for (const slug of workflowSlugs) {
     const overlay = getOverlay(slug);
     if (overlay) {
-      overlayContent += `\n\n${overlay.content}`;
+      overlayContent += `\n${overlay.content}\n\n---\n`;
+      hasOverlays = true;
     }
   }
 
-  return content + overlayContent;
+  return hasOverlays ? content + overlayContent : content;
 }
 
 // ── Claude Code ─────────────────────────────────
