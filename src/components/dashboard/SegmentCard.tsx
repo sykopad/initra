@@ -6,6 +6,9 @@ interface Segment {
   id: string;
   name: string;
   type: string;
+  landmarkType?: string;
+  domain?: string;
+  isLogic?: boolean;
   file_path: string;
   description: string;
 }
@@ -51,7 +54,13 @@ export default function SegmentCard({ segment, repoId, onEditSuccess }: SegmentC
       <div className="segment-header">
         <span className="segment-icon">{getIcon(segment.type)}</span>
         <div className="segment-info">
-          <h3>{segment.name}</h3>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <h3>{segment.name}</h3>
+            {segment.isLogic && <span className="logic-badge">LOGIC</span>}
+            {segment.landmarkType && segment.landmarkType !== 'unknown' && (
+              <span className="landmark-badge">⚡ {segment.landmarkType.toUpperCase()}</span>
+            )}
+          </div>
           <p className="file-path">{segment.file_path}</p>
         </div>
       </div>
@@ -98,6 +107,26 @@ export default function SegmentCard({ segment, repoId, onEditSuccess }: SegmentC
           margin: 0;
           font-size: 1rem;
           font-weight: 600;
+        }
+        .logic-badge {
+          font-size: 0.6rem;
+          background: rgba(244, 63, 94, 0.1);
+          color: #fb7185;
+          border: 1px solid rgba(244, 63, 94, 0.2);
+          padding: 1px 6px;
+          border-radius: 4px;
+          font-weight: 900;
+          letter-spacing: 0.05em;
+        }
+        .landmark-badge {
+          font-size: 0.6rem;
+          background: rgba(251, 191, 36, 0.1);
+          color: #fbbf24;
+          border: 1px solid rgba(251, 191, 36, 0.2);
+          padding: 1px 6px;
+          border-radius: 4px;
+          font-weight: 900;
+          letter-spacing: 0.05em;
         }
         .file-path {
           font-family: monospace;

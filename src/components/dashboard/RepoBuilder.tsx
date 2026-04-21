@@ -15,6 +15,9 @@ interface Segment {
   id: string;
   name: string;
   type: string;
+  landmarkType?: string;
+  domain?: string;
+  isLogic?: boolean;
   file_path: string;
   description: string;
 }
@@ -156,14 +159,29 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
             <button className="btn btn-ghost btn-sm" onClick={() => setActiveRepo(null)}>Change Repo</button>
           </div>
 
-          <div className="segments-grid">
-            {segments.map(seg => (
-              <SegmentCard 
-                key={seg.id || seg.file_path} 
-                segment={seg} 
-                repoId={activeRepo.id} 
-                onEditSuccess={handleEditSuccess}
-              />
+          {/* Grouped Segments View */}
+          <div className="domains-container">
+            {Object.entries(
+              segments.reduce((acc, seg) => {
+                const domain = seg.domain || "Core Application";
+                if (!acc[domain]) acc[domain] = [];
+                acc[domain].push(seg);
+                return acc;
+              }, {} as Record<string, Segment[]>)
+            ).sort().map(([domain, domainSegments]) => (
+              <div key={domain} className="domain-section">
+                <h4 className="domain-title">{domain}</h4>
+                <div className="segments-grid">
+                  {domainSegments.map(seg => (
+                    <SegmentCard 
+                      key={seg.id || seg.file_path} 
+                      segment={seg} 
+                      repoId={activeRepo.id} 
+                      onEditSuccess={handleEditSuccess}
+                    />
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
 
@@ -204,10 +222,38 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
           text-transform: uppercase;
           letter-spacing: 0.05em;
         }
+        .domains-container {
+          display: flex;
+          flex-direction: column;
+          gap: 2.5rem;
+        }
+        .domain-section {
+          background: rgba(255, 255, 255, 0.02);
+          padding: 1.5rem;
+          border-radius: 16px;
+          border-left: 4px solid var(--accent-violet);
+        }
+        .domain-title {
+          font-size: 0.9rem;
+          color: var(--accent-violet);
+          text-transform: uppercase;
+          letter-spacing: 0.1em;
+          font-weight: 800;
+          margin-bottom: 1.25rem;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+        .domain-title::after {
+          content: '';
+          height: 1px;
+          flex: 1;
+          background: linear-gradient(to right, rgba(139, 92, 246, 0.3), transparent);
+        }
         .segments-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-          gap: 1rem;
+          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+          gap: 1.25rem;
         }
         .dot {
           width: 8px;

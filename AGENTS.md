@@ -194,12 +194,18 @@ const supabase = createBrowserClient(url, key, {
 37. **Edge Function Autopilot**: Automated deployment of Supabase Edge Functions during birth. (Done 2026-04-21)
 38. **Fine-Grained Feedback**: Real-time provisioning logs for the "Hatch" lifecycle. (Done 2026-04-21)
 
-### 🧩 Phase 11: Deep Heuristic Optimization (Active)
+### 🧩 Phase 11: Deep Heuristic Optimization (Complete)
 
-39. **Next.js 16 Landmark Detection**: Granular extraction of Hero, Footer, Sidebar, and Metadata segments.
-40. **Feature-Based Grouping**: Auto-clustering of segments by domain (e.g., Auth, Dashboard, Billing).
-41. **Logic Segmentation**: Identify Edge Functions, API Routes, and Middleware as editable logic blocks.
-42. **Config Heuristics**: Targeted editing of Tailwind configs and framework settings.
+39. **Next.js 16 Landmark Detection**: Granular extraction of Hero, Footer, Sidebar, and Metadata segments. (Done 2026-04-21)
+40. **Feature-Based Grouping**: Auto-clustering of segments by domain (e.g., Auth, Dashboard, Billing). (Done 2026-04-21)
+41. **Logic Segmentation**: Identify Edge Functions, API Routes, and Middleware as editable logic blocks. (Done 2026-04-21)
+42. **Config Heuristics**: Targeted editing of Tailwind configs and framework settings. (Done 2026-04-21)
+
+### 🟢 Phase 12: Nuxt 4 (Vue.js) (Active)
+
+43. **Nuxt 4 Heuristic Archetypes**: Detection of `layouts/`, `pages/`, and `composables/`.
+44. **Nitro Segmentation**: Identify Nitro API routes and server middleware.
+45. **Nuxt-specific Landmarks**: Recognize `NuxtLayout` and `NuxtPage` entry points.
 
 ## Framework Roadmap
 

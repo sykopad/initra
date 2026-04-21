@@ -107,6 +107,78 @@ export async function analyzeRepository(
         });
       }
     }
+  } else if (framework === "nuxt") {
+    // 3. Deep Heuristics for Nuxt 4
+    
+    for (const file of files) {
+      const lowerFile = file.toLowerCase();
+      
+      // A. Layouts & Entry
+      if (file.endsWith("layout.vue") || file === "app.vue") {
+        segments.push({
+          name: file === "app.vue" ? "Main Entrance" : "Global Layout",
+          type: "layout",
+          domain: detectDomain(file),
+          filePath: file,
+          description: "Structural layout wrapper for this Nuxt feature area.",
+          confidence: 1.0
+        });
+      }
+
+      // B. Pages
+      else if (file.includes("pages/") && file.endsWith(".vue")) {
+        const pageName = file.split('/').pop()?.split('.')[0] || "Page";
+        segments.push({
+          name: `${capitalize(pageName)} Page`,
+          type: "page",
+          domain: detectDomain(file),
+          filePath: file,
+          description: `Main route content for ${pageName}.`,
+          confidence: 1.0
+        });
+      }
+
+      // C. Logic (Nitro API & Middleware)
+      else if (file.startsWith("server/") && (file.endsWith(".ts") || file.endsWith(".js"))) {
+        segments.push({
+          name: file.includes("middleware") ? "Server Middleware" : "Nitro API Endpoint",
+          type: "logic",
+          isLogic: true,
+          domain: detectDomain(file),
+          filePath: file,
+          description: "Backend Nitro business logic and API orchestration.",
+          confidence: 0.9
+        });
+      }
+
+      // D. UI Components & Landmarks
+      else if (file.includes("components/") && file.endsWith(".vue")) {
+        const landmark = detectLandmark(file);
+        if (landmark !== 'unknown' || file.includes("base/") || file.includes("shared/")) {
+          segments.push({
+            name: formatComponentName(file),
+            type: "component",
+            landmarkType: landmark,
+            domain: detectDomain(file),
+            filePath: file,
+            description: `Identified ${landmark !== 'unknown' ? landmark : 'UI'} Vue component.`,
+            confidence: landmark !== 'unknown' ? 0.8 : 0.6
+          });
+        }
+      }
+
+      // E. Config & Assets
+      else if (lowerFile.includes("assets/css") || lowerFile.includes("nuxt.config") || lowerFile.includes("tailwind.config")) {
+        segments.push({
+          name: lowerFile.includes("config") ? "Nuxt Config" : "Global Styles",
+          type: "style",
+          domain: "Design System",
+          filePath: file,
+          description: "Framework configuration and global design tokens.",
+          confidence: 1.0
+        });
+      }
+    }
   }
 
   // Final filtering: Sort by confidence and domain
@@ -137,11 +209,12 @@ function detectDomain(path: string): string {
 /** Helper: Detect Landmark Type */
 function detectLandmark(path: string): RepoSegment['landmarkType'] {
   const p = path.toLowerCase();
-  if (p.includes("hero") || p.includes("banner") || p.includes("cta")) return "hero";
-  if (p.includes("footer") || p.includes("copyright")) return "footer";
-  if (p.includes("sidebar") || p.includes("navrail") || p.includes("aside")) return "sidebar";
-  if (p.includes("form") || p.includes("input") || p.includes("login") || p.includes("signup")) return "form";
-  if (p.includes("feed") || p.includes("list") || p.includes("grid")) return "feed";
+  // Support for both React (.tsx) and Vue (.vue) nomenclature
+  if (p.includes("hero") || p.includes("banner") || p.includes("cta") || p.includes("landing")) return "hero";
+  if (p.includes("footer") || p.includes("copyright") || p.includes("bottom")) return "footer";
+  if (p.includes("sidebar") || p.includes("navrail") || p.includes("aside") || p.includes("drawer")) return "sidebar";
+  if (p.includes("form") || p.includes("input") || p.includes("login") || p.includes("signup") || p.includes("auth")) return "form";
+  if (p.includes("feed") || p.includes("list") || p.includes("grid") || p.includes("collection")) return "feed";
   return "unknown";
 }
 
