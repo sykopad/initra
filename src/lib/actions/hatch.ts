@@ -134,6 +134,7 @@ export async function hatchVenture(projectId: string) {
     // 7. Generate & Push Content
     console.log(`[Hatch] Generating agent files...`);
     config.includeBoilerplate = true; 
+    config.includeTests = true; // Hatching 3.0
     const result = await generateAgentFiles(config);
 
     // Push files to GitHub

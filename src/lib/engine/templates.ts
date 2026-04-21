@@ -297,6 +297,76 @@ export default nextConfig;`
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
   "exclude": ["node_modules"]
 }`
+      },
+      {
+        path: 'vitest.config.ts',
+        condition: { field: 'testing', value: 'vitest' },
+        content: `import { defineConfig } from 'vitest/config'
+import react from '@vitejs/plugin-react'
+import { join } from 'path'
+
+export default defineConfig({
+  plugins: [react()],
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: './src/__tests__/setup.ts',
+  },
+  resolve: {
+    alias: {
+      '@': join(__dirname, './src'),
+    },
+  },
+})`
+      },
+      {
+        path: 'src/__tests__/smoke.test.ts',
+        condition: { field: 'testing', value: 'vitest' },
+        content: `import { expect, test } from 'vitest'
+
+test('The universe is functioning correctly', () => {
+  expect(1 + 1).toBe(2)
+})
+
+test('Project name is correct', () => {
+  expect("{{projectName}}").toBeDefined()
+})`
+      },
+      {
+        path: 'playwright.config.ts',
+        condition: { field: 'testing', value: 'playwright' },
+        content: `import { defineConfig, devices } from '@playwright/test';
+
+export default defineConfig({
+  testDir: './e2e',
+  fullyParallel: true,
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 2 : 0,
+  workers: process.env.CI ? 1 : undefined,
+  reporter: 'html',
+  use: {
+    baseURL: 'http://localhost:3000',
+    trace: 'on-first-retry',
+  },
+  projects: [
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+  ],
+  webServer: {
+    command: 'npm run dev',
+    url: 'http://localhost:3000',
+    reuseExistingServer: !process.env.CI,
+  },
+});`
+      },
+      {
+        path: 'e2e/smoke.spec.ts',
+        condition: { field: 'testing', value: 'playwright' },
+        content: `import { test, expect } from '@playwright/test';
+
+test('has title', async ({ page }) => {
+  await page.goto('/');
+  await expect(page).toHaveTitle(/{{projectName}}/);
+});`
       }
     ]
   },

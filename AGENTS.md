@@ -233,6 +233,17 @@ We implement frameworks **one at a time** to ensure maximum accuracy and deep he
 53. **State Management Heuristics**: Detect Bloc, Provider, or Riverpod patterns. (Done 2026-04-21)
 54. **Mobile Navigation Mapping**: Identification of Router and NavRail landmarks. (Done 2026-04-21)
 
+### 📊 Phase 16: Autonomous Quality Audits (Active)
+
+55. **Heuristic Scorecard**: Implementation of SEO, Security, and Performance audit rules.
+56. **UI Integration**: Dynamic "Health Gauge" and check-list in the repo builder.
+57. **Framework-Specific Audits**: Specialized rules for Next.js Metadata and Django settings.
+
+### ⚡ Phase 17: Hatching 3.0 (Planned)
+
+58. **Automated Testing Injection**: Programmatic addition of Vitest/Playwright suites to new projects.
+59. **Pro Infrastructure**: Support for Vercel Teams and advanced deployment orchestration.
+
 ## Conventions
 
 - Use TypeScript strict mode. Avoid `any`.

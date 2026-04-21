@@ -170,6 +170,7 @@ export interface WizardConfig {
   brandColors?: string[];
   logoUrl?: string;
   modelSlug?: string;
+  includeTests?: boolean;
 }
 
 /** Boilerplate file definition */
@@ -274,4 +275,20 @@ export interface RepoSegment {
 export interface AnalysisResult {
   framework: string;
   segments: RepoSegment[];
+  audit?: AuditResult;
+}
+
+/** Quality Audit Result */
+export interface AuditResult {
+  score: number; // 0-100
+  checks: AuditCheck[];
+}
+
+/** Single Audit Check */
+export interface AuditCheck {
+  id: string;
+  title: string;
+  status: 'pass' | 'fail' | 'warning';
+  message: string;
+  category: 'SEO' | 'Security' | 'Performance';
 }

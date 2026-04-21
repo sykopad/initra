@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import SegmentCard from "./SegmentCard";
+import AuditScorecard from "./AuditScorecard";
+import { AuditResult } from "@/lib/engine/types";
 
 interface Repo {
   id: string;
@@ -30,6 +31,7 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
   const [repoUrl, setRepoUrl] = useState("");
   const [activeRepo, setActiveRepo] = useState<Repo | null>(initialRepos?.[0] || null);
   const [segments, setSegments] = useState<Segment[]>([]);
+  const [audit, setAudit] = useState<AuditResult | null>(null);
   
   // Load segments for the first repo automatically if available
   useEffect(() => {
@@ -50,6 +52,7 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
       });
       const data = await res.json();
       setSegments(data.segments);
+      if (data.audit) setAudit(data.audit);
     } catch (e) {
       console.error(e);
     } finally {
@@ -83,6 +86,7 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
         last_synced_at: new Date().toISOString()
       });
       setSegments(data.segments);
+      if (data.audit) setAudit(data.audit);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -158,6 +162,8 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
             </div>
             <button className="btn btn-ghost btn-sm" onClick={() => setActiveRepo(null)}>Change Repo</button>
           </div>
+          
+          {audit && <AuditScorecard audit={audit} />}
 
           {/* Grouped Segments View */}
           <div className="domains-container">

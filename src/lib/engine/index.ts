@@ -60,7 +60,13 @@ export function generateAgentFiles(config: WizardConfig): GenerationResult {
     if (agentWorkflow) files.push(agentWorkflow);
   }
 
-  // 7. Return the complete result
+  // 7. Inject CI Workflow (Hatching 3.0)
+  if (config.includeTests || config.stackConfig.testing !== 'none') {
+    const ciWorkflow = generateCIWorkflow(config);
+    if (ciWorkflow) files.push(ciWorkflow);
+  }
+
+  // 8. Return the complete result
   return {
     files,
     templateUsed: template.slug,
@@ -154,6 +160,67 @@ function generateEnvExample(selectedServices: string[]): GeneratedFile | null {
     ideTarget: 'universal',
     filename: '.env.example',
     filePath: '.env.example',
+    content,
+  };
+}
+
+/**
+ * Generates a GitHub Action workflow for CI/CD and Testing
+ */
+function generateCIWorkflow(config: WizardConfig): GeneratedFile | null {
+  const testing = config.stackConfig.testing;
+  
+  let steps = `
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+`;
+
+  if (testing === 'vitest' || testing === 'jest') {
+    steps += `
+      - name: Run Unit Tests
+        run: npm run test
+`;
+  }
+
+  if (testing === 'playwright') {
+    steps += `
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+
+      - name: Run E2E Tests
+        run: npx playwright test
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: \${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: \${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+`;
+  }
+
+  const content = `name: 🧪 Unit & E2E Testing
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:${steps}
+`;
+
+  return {
+    ideTarget: 'universal',
+    filename: 'initra-ci.yml',
+    filePath: '.github/workflows/initra-ci.yml',
     content,
   };
 }

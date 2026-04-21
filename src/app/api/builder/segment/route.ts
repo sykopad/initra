@@ -79,7 +79,8 @@ export async function POST(req: Request) {
       success: true,
       repoId: syncedRepo.id,
       framework: analysis.framework,
-      segments: analysis.segments
+      segments: analysis.segments,
+      audit: analysis.audit
     });
 
   } catch (err: any) {

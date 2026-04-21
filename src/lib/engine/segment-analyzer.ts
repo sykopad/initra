@@ -5,6 +5,7 @@
 
 import { Octokit } from "octokit";
 import { RepoSegment, AnalysisResult } from "./types";
+import { performQualityAudit } from "./quality-auditor";
 
 /**
  * Scans a GitHub repository and identifies key UI segments.
@@ -367,7 +368,10 @@ export async function analyzeRepository(
     .sort((a, b) => b.confidence - a.confidence)
     .slice(0, 25); // Limit for performance/UI
 
-  return { framework, segments: finalSegments };
+  // 4. Perform Quality Audit
+  const audit = await performQualityAudit(files, framework);
+
+  return { framework, segments: finalSegments, audit };
 }
 
 /** Helper: Capatlize strings */
