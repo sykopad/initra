@@ -783,9 +783,21 @@ h1, h2, h3, h4, h5, h6 {
 /* Review step */
 .review-layout {
   display: grid;
-  grid-template-columns: 1fr 340px;
+  grid-template-columns: minmax(0, 1fr) 340px;
   gap: var(--space-xl);
   align-items: start;
+}
+
+/* Comprehensive Review Grid for Step 6 */
+.review-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  padding: 2.5rem;
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-xl);
 }
 
 .file-tabs {
@@ -1433,6 +1445,12 @@ h1, h2, h3, h4, h5, h6 {
     display: flex;
     flex-direction: column;
     gap: 2rem;
+  }
+
+  .review-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    padding: var(--space-lg);
   }
 
   .review-sidebar {

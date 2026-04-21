@@ -1331,7 +1331,7 @@ export default function WizardPage() {
                   </div>
                 )}
 
-                <div className="glass-panel" style={{ padding: "2.5rem", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4rem", border: "1px solid var(--border-medium)" }}>
+                <div className="review-grid">
                   <div style={{ borderRight: "1px solid var(--border-subtle)", paddingRight: "2rem" }}>
                     <h3 style={{ fontSize: "1.1rem", marginBottom: "1.5rem", color: "var(--accent-violet-light)" }}>Core Stack</h3>
                     <div style={{ display: "flex", flexDirection: "column", gap: "0.85rem" }}>
@@ -1502,15 +1502,12 @@ export default function WizardPage() {
                     ← Back
                   </button>
                   <button className="btn btn-primary" onClick={() => setStep(7)}>
-                    📦 Export Files →
+                    📦 Export & Finish →
                   </button>
                 </div>
-              </>
-            )}
 
-            {/* ── Step 7: Export & Setup ─────────────── */}
-            {step === 7 && (
-              <>
+                <hr style={{ margin: "4rem 0", borderColor: "var(--border-subtle)", opacity: 0.3 }} />
+
                 <h2 className="wizard-step-title">Export Your Files</h2>
                 <p className="wizard-step-subtitle">
                   Download your agent configuration and <code>.env.example</code> setup.
