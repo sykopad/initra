@@ -114,7 +114,78 @@ export async function suggestProject(formData: {
   return data;
 }
 
+export async function generateVentureBlueprintAction() {
+  const { generateDailyBlueprint } = await import("@/lib/engine/blueprint-generator");
+  const supabase = await createClient();
+  
+  try {
+    const blueprint = await generateDailyBlueprint();
+    
+    const { data, error } = await supabase
+      .from("community_projects")
+      .insert({
+        title: blueprint.title,
+        description: blueprint.description,
+        category: blueprint.category,
+        impact_statement: blueprint.impactStatement,
+        tags: blueprint.suggestedBrains,
+        venture_type: 'ai-generated',
+        status: 'proposed',
+        blueprint_config: blueprint.wizardConfig,
+        vote_score: 1 // Baseline score
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+    
+    revalidatePath("/community");
+    return data;
+  } catch (err: any) {
+    console.error("Failed to generate venture:", err);
+    throw new Error(err.message || "Failed to generate AI venture");
+  }
+}
+
+export async function forkVentureAction(projectId: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) throw new Error("Unauthorized");
+
+  // Get project blueprint
+  const { data: project, error: fetchError } = await supabase
+    .from("community_projects")
+    .select("*")
+    .eq("id", projectId)
+    .single();
+
+  if (fetchError || !project) throw new Error("Venture not found");
+
+  const config = project.blueprint_config || project.config;
+  if (!config) throw new Error("No configuration found to fork");
+
+  // Create new wizard session
+  const { data: session, error: sessionError } = await supabase
+    .from("wizard_sessions")
+    .insert({
+      user_id: user.id,
+      project_name: `${project.title} (Fork)`,
+      template_id: config.templateSlug,
+      current_step: 6, // Skip to confirmation/IDE step
+      config: config
+    })
+    .select()
+    .single();
+
+  if (sessionError) throw sessionError;
+
+  revalidatePath("/dashboard");
+  return { sessionId: session.id };
+}
+
 export async function getUserVotes() {
+// ...
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 

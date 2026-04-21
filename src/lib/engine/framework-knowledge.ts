@@ -81,6 +81,16 @@ export const FRAMEWORK_KNOWLEDGE: Record<string, VersionedKnowledge[]> = {
           title: "Async Data Fetching",
           description: "Fetching data on the server with full hydration support.",
           code: "<script setup>\nconst { data, pending, error } = await useFetch('/api/data')\n</script>"
+        },
+        {
+          title: "Pinia Store Pattern",
+          description: "Sovereign state management using the defineStore composition pattern.",
+          code: "export const useVentureStore = defineStore('venture', () => {\n  const status = ref('idle');\n  const hatch = async () => {\n    status.value = 'hatching';\n    // logic...\n  };\n  return { status, hatch };\n})"
+        },
+        {
+          title: "Composable Utility",
+          description: "Reusable reactive logic for cross-component feature domains.",
+          code: "export const useSovereignty = () => {\n  const isSovereign = useState('isSovereign', () => true);\n  const toggler = () => isSovereign.value = !isSovereign.value;\n  return { isSovereign, toggler };\n}"
         }
       ]
     }

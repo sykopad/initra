@@ -7,9 +7,11 @@ import {
   suggestProject, 
   getUserVotes,
   getCommunityProjects,
-  hatchVentureAction
+  hatchVentureAction,
+  forkVentureAction,
+  generateVentureBlueprintAction
 } from "@/lib/actions/community";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface SharedProject {
   id: string;
@@ -51,12 +53,14 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 export default function CommunityPage() {
+  const router = useRouter();
   const [projects, setProjects] = useState<CommunityProject[]>([]);
   const [sharedConfigs, setSharedConfigs] = useState<SharedProject[]>([]);
   const [userVotes, setUserVotes] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [isPending, startTransition] = useTransition();
   const [hatchingId, setHatchingId] = useState<string | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   // New project form state
   const [showSuggestModal, setShowSuggestModal] = useState(false);
@@ -77,6 +81,27 @@ export default function CommunityPage() {
       setLoading(false);
     }
   }, []);
+
+  const handleGenerate = async () => {
+    setIsGenerating(true);
+    try {
+      await generateVentureBlueprintAction();
+      await loadData();
+    } catch (err: any) {
+      alert("Architect failed: " + err.message);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleFork = async (projectId: string) => {
+    try {
+      const { sessionId } = await forkVentureAction(projectId);
+      router.push(`/wizard?sessionId=${sessionId}`);
+    } catch (err: any) {
+      alert("Fork failed: " + err.message);
+    }
+  };
 
   useEffect(() => {
     loadData();
@@ -129,67 +154,82 @@ export default function CommunityPage() {
         <div className="container" style={{ maxWidth: '1200px' }}>
           {/* Header */}
           <div className="community-header" style={{ textAlign: 'center', marginBottom: '4rem' }}>
-            <h1 style={{ fontSize: '3.5rem', marginBottom: '1rem', background: 'linear-gradient(135deg, #fff 0%, #7c3aed 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              🚀 Venture Studio
+            <h1 className="gradient-text" style={{ fontSize: '3.5rem', marginBottom: '1rem', letterSpacing: '-0.02em', background: 'linear-gradient(135deg, #fff 0%, #7c3aed 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+              Discovery Hub
             </h1>
-            <p style={{ fontSize: '1.2rem', color: 'var(--text-secondary)' }}>
-              AI-architected blueprints and community-voted startups, hatched autonomously.
+            <p style={{ fontSize: '1.25rem', color: 'var(--text-secondary)', maxWidth: '700px', margin: '0 auto' }}>
+              Hatch autonomous ventures or discover community-led blueprints architected by Claude 4.6.
             </p>
           </div>
 
           {/* AI VENTURES SECTION */}
-          <div className="section-title" style={{ marginBottom: '2rem' }}>
-            <h2 style={{ fontSize: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              🧠 AI-Generated Blueprints
-            </h2>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Daily high-impact project ideas from the Initra Architect.</p>
+          <div className="section-title" style={{ marginBottom: '2.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+            <div>
+              <h2 style={{ fontSize: '1.75rem', fontWeight: 800 }}>⚡ AI Architected</h2>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>Daily high-fidelity venture blueprints from the Initra engine.</p>
+            </div>
+            <button 
+              className={`btn ${isGenerating ? 'btn-ghost' : 'btn-primary'}`}
+              onClick={handleGenerate}
+              disabled={isGenerating}
+            >
+              {isGenerating ? "🧠 Architecting..." : "✨ Request New Idea"}
+            </button>
           </div>
 
-          <div className="community-grid" style={{ marginBottom: '5rem' }}>
+          <div className="community-grid" style={{ marginBottom: '6rem' }}>
             {loading ? (
-               [1, 2, 3].map(i => <div key={i} className="card skeleton-card" style={{ height: '300px' }}></div>)
+               [1, 2, 3].map(i => <div key={i} className="card skeleton-card" style={{ height: '400px' }}></div>)
             ) : aiGenerated.map((project) => (
-              <div key={project.id} className={`card community-card ${project.is_hatched ? 'hatched' : ''}`} style={{ position: 'relative' }}>
-                {project.is_hatched && <div className="hatched-ribbon">LIVE</div>}
+              <div key={project.id} className={`discovery-card ${project.is_hatched ? 'is-hatched' : ''}`}>
+                <div className="category-row">
+                  <span className="badge-outline">{project.category}</span>
+                  <span className="badge-soft">{project.blueprint_config?.templateSlug}</span>
+                </div>
                 
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.5rem' }}>
-                       <span style={{ fontSize: '0.7rem', padding: '2px 6px', background: 'rgba(124,58,237,0.2)', border: '1px solid var(--primary)', borderRadius: '4px', color: 'var(--primary-light)' }}>
-                         {project.category}
-                       </span>
-                       <span style={{ fontSize: '0.7rem', padding: '2px 6px', background: 'var(--bg-glass)', borderRadius: '4px' }}>
-                         {project.blueprint_config?.templateSlug}
-                       </span>
-                    </div>
-                    <h3 style={{ fontSize: '1.25rem', marginBottom: '0.75rem' }}>{project.title}</h3>
-                    <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.5rem', lineHeight: '1.5' }}>
-                      {project.description}
-                    </p>
+                <h3 className="venture-title">{project.title}</h3>
+                <p className="venture-description">{project.description}</p>
+                
+                {project.impact_statement && (
+                  <div className="impact-box">
+                    <strong>Impact:</strong> {project.impact_statement}
                   </div>
-                  
-                  <div className="vote-controls">
-                    <button className={`vote-btn ${userVotes[project.id] === 1 ? 'active' : ''}`} onClick={() => handleVoteAction(project.id, 1)}>▲</button>
-                    <span className="vote-score">{project.vote_score}</span>
-                    <button className={`vote-btn ${userVotes[project.id] === -1 ? 'active' : ''}`} onClick={() => handleVoteAction(project.id, -1)}>▼</button>
-                  </div>
+                )}
+
+                <div className="architect-reasoning">
+                  <span className="reasoning-label">Architect Reasoning</span>
+                  <p>{project.blueprint_config?.architectureReasoning || "Optimized for sovereign infrastructure and low-latency agent orchestration."}</p>
                 </div>
 
-                <div className="card-footer" style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: '1rem', marginTop: 'auto', display: 'flex', gap: '0.5rem' }}>
-                   {project.is_hatched ? (
-                     <>
-                       <a href={project.live_url} target="_blank" className="btn btn-sm btn-primary">🌐 Visit Site</a>
-                       <a href={project.github_url} target="_blank" className="btn btn-sm btn-ghost">📂 Repo</a>
-                     </>
-                   ) : (
-                     <button 
-                       className="btn btn-sm btn-secondary" 
-                       onClick={() => handleHatch(project.id)}
-                       disabled={hatchingId === project.id}
-                     >
-                       {hatchingId === project.id ? "🍼 Hatching..." : "🐣 Hatch Venture"}
-                     </button>
-                   )}
+                <div className="social-row">
+                  <div className="vote-pill">
+                    <button onClick={() => handleVoteAction(project.id, 1)} className={userVotes[project.id] === 1 ? 'active' : ''}>▲</button>
+                    <span>{project.vote_score}</span>
+                    <button onClick={() => handleVoteAction(project.id, -1)} className={userVotes[project.id] === -1 ? 'active' : ''}>▼</button>
+                  </div>
+                  
+                  <div className="action-group">
+                    {project.is_hatched ? (
+                      <a href={project.live_url} target="_blank" className="btn btn-sm btn-outline">Visit Live</a>
+                    ) : (
+                      <button 
+                        className="btn btn-sm btn-ghost" 
+                        onClick={() => handleFork(project.id)}
+                      >
+                        Fork & Hatch
+                      </button>
+                    )}
+                    
+                    {!project.is_hatched && (
+                      <button 
+                        className="btn btn-sm btn-primary" 
+                        onClick={() => handleHatch(project.id)}
+                        disabled={hatchingId === project.id}
+                      >
+                        {hatchingId === project.id ? "🍼..." : "Hatch"}
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}
@@ -225,27 +265,83 @@ export default function CommunityPage() {
       </div>
 
       <style jsx>{`
-        .community-container { padding: 80px 0; min-height: 100vh; }
-        .community-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 2rem; }
-        .community-card { 
-          padding: 1.5rem; 
-          display: flex; 
-          flex-direction: column; 
-          border: 1px solid var(--border-medium);
-          background: var(--bg-card);
-        }
-        .community-card:hover { border-color: var(--accent-violet); transform: translateY(-2px); }
-        .community-card.hatched { border-color: var(--accent-emerald); }
+        .community-container { padding: 100px 0; min-height: 100vh; }
+        .community-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 2.5rem; }
         
-        .vote-controls { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px; background: var(--bg-tertiary); border-radius: 8px; border: 1px solid var(--border-subtle); }
-        .vote-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.2rem; transition: all 0.2s; }
-        .vote-btn:hover { color: var(--accent-violet-light); }
-        .vote-btn.active { color: var(--accent-violet); transform: scale(1.1); }
-        .vote-score { font-weight: 700; font-size: 1rem; color: var(--text-primary); }
-
-        .hatched-ribbon { position: absolute; top: 12px; right: 12px; background: var(--success); color: #000; font-size: 0.6rem; font-weight: 900; padding: 2px 8px; borderRadius: 4px; letterSpacing: 0.05em; }
-
-        .skeleton-card { background: rgba(255,255,255,0.02); borderRadius: 12px; border: 1px dashed rgba(255,255,255,0.1); }
+        .discovery-card {
+          background: var(--bg-card);
+          border: 1px solid var(--border-medium);
+          border-radius: 16px;
+          padding: 2rem;
+          display: flex;
+          flex-direction: column;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          position: relative;
+          overflow: hidden;
+        }
+        
+        .discovery-card:hover {
+          border-color: var(--primary);
+          transform: translateY(-4px);
+          box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+        
+        .discovery-card.is-hatched {
+          border-color: var(--success);
+        }
+        
+        .category-row { display: flex; gap: 0.75rem; marginBottom: 1.5rem; }
+        .badge-outline { font-size: 0.7rem; padding: 2px 8px; border: 1px solid var(--border-medium); border-radius: 4px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+        .badge-soft { font-size: 0.7rem; padding: 2px 8px; background: rgba(124,58,237,0.1); color: var(--primary-light); border-radius: 4px; }
+        
+        .venture-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 1rem; color: var(--text-primary); }
+        .venture-description { font-size: 0.95rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 1.5rem; }
+        
+        .impact-box {
+          background: rgba(255,255,255,0.03);
+          border-left: 3px solid var(--primary);
+          padding: 1rem;
+          margin-bottom: 1.5rem;
+          font-size: 0.85rem;
+          color: var(--text-secondary);
+        }
+        
+        .architect-reasoning {
+          background: var(--bg-tertiary);
+          border-radius: 12px;
+          padding: 1.25rem;
+          margin-bottom: 2rem;
+        }
+        
+        .reasoning-label { font-size: 0.65rem; font-weight: 900; text-transform: uppercase; color: var(--text-muted); display: block; margin-bottom: 0.5rem; letter-spacing: 0.1em; }
+        .architect-reasoning p { font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; margin: 0; }
+        
+        .social-row {
+          margin-top: auto;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding-top: 1.5rem;
+          border-top: 1px solid var(--border-subtle);
+        }
+        
+        .vote-pill {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          background: var(--bg-glass);
+          padding: 6px 12px;
+          border-radius: 20px;
+          border: 1px solid var(--border-subtle);
+        }
+        
+        .vote-pill button { background: none; border: none; color: var(--text-muted); cursor: pointer; transition: 0.2s; }
+        .vote-pill button.active { color: var(--primary); }
+        .vote-pill span { font-weight: 700; font-size: 0.9rem; }
+        
+        .action-group { display: flex; gap: 0.75rem; }
+        
+        .skeleton-card { background: rgba(255,255,255,0.02); borderRadius: 16px; border: 1px dashed rgba(255,255,255,0.1); }
       `}</style>
     </>
   );

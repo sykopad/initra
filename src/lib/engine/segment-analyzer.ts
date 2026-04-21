@@ -120,14 +120,14 @@ export async function analyzeRepository(
     for (const file of files) {
       const lowerFile = file.toLowerCase();
       
-      // A. Layouts & Entry
-      if (file.endsWith("layout.vue") || file === "app.vue") {
+      // A. Layouts, Entry & Config
+      if (file.endsWith("layout.vue") || file === "app.vue" || file.includes("layouts/")) {
         segments.push({
-          name: file === "app.vue" ? "Main Entrance" : "Global Layout",
+          name: file === "app.vue" ? "Main Entrance" : formatComponentName(file),
           type: "layout",
           domain: detectDomain(file),
           filePath: file,
-          description: "Structural layout wrapper for this Nuxt feature area.",
+          description: "Structural layout wrapper or application entry point.",
           confidence: 1.0
         });
       }
@@ -145,23 +145,47 @@ export async function analyzeRepository(
         });
       }
 
-      // C. Logic (Nitro API & Middleware)
-      else if (file.startsWith("server/") && (file.endsWith(".ts") || file.endsWith(".js"))) {
+      // C. Logic (Nitro API, Composables, Plugins, Middleware)
+      else if (
+        (file.startsWith("server/") && (file.endsWith(".ts") || file.endsWith(".js"))) ||
+        (file.includes("composables/") && (file.endsWith(".ts") || file.endsWith(".js"))) ||
+        (file.includes("plugins/") && (file.endsWith(".ts") || file.endsWith(".js"))) ||
+        (file.includes("middleware/") && (file.endsWith(".ts") || file.endsWith(".js")))
+      ) {
+        let logicType = "Nitro API Endpoint";
+        if (file.includes("composables/")) logicType = "Vue Composable";
+        if (file.includes("plugins/")) logicType = "Nuxt Plugin";
+        if (file.includes("middleware/")) logicType = "Nuxt Middleware";
+        if (file.includes("server/middleware")) logicType = "Server Middleware";
+
         segments.push({
-          name: file.includes("middleware") ? "Server Middleware" : "Nitro API Endpoint",
+          name: logicType,
           type: "logic",
           isLogic: true,
           domain: detectDomain(file),
           filePath: file,
-          description: "Backend Nitro business logic and API orchestration.",
+          description: "Nuxt/Nitro business logic and reactive orchestration.",
+          confidence: 0.95
+        });
+      }
+
+      // D. State Management (Pinia Stores)
+      else if ((file.includes("stores/") || file.includes("store/")) && (file.endsWith(".ts") || file.endsWith(".js"))) {
+        segments.push({
+          name: `${formatComponentName(file)} Store`,
+          type: "logic",
+          isLogic: true,
+          domain: detectDomain(file),
+          filePath: file,
+          description: "Pinia global state management and persistence logic.",
           confidence: 0.9
         });
       }
 
-      // D. UI Components & Landmarks
+      // E. UI Components & Landmarks
       else if (file.includes("components/") && file.endsWith(".vue")) {
         const landmark = detectLandmark(file);
-        if (landmark !== 'unknown' || file.includes("base/") || file.includes("shared/")) {
+        if (landmark !== 'unknown' || file.includes("base/") || file.includes("shared/") || file.includes("ui/")) {
           segments.push({
             name: formatComponentName(file),
             type: "component",
@@ -174,10 +198,10 @@ export async function analyzeRepository(
         }
       }
 
-      // E. Config & Assets
-      else if (lowerFile.includes("assets/css") || lowerFile.includes("nuxt.config") || lowerFile.includes("tailwind.config")) {
+      // F. Config & Assets
+      else if (lowerFile.includes("nuxt.config") || lowerFile.includes("app.config") || lowerFile.includes("tailwind.config") || lowerFile.includes("assets/css")) {
         segments.push({
-          name: lowerFile.includes("config") ? "Nuxt Config" : "Global Styles",
+          name: lowerFile.includes("nuxt.config") ? "Nuxt Config" : (lowerFile.includes("app.config") ? "App Config" : "Global Styles"),
           type: "style",
           domain: "Design System",
           filePath: file,

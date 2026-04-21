@@ -281,6 +281,24 @@ We implement frameworks **one at a time** to ensure maximum accuracy and deep he
 77. **Live Preview Orchestration**: Side-by-side workspace with embedded Vercel deployment iframe. (Done 2026-04-21)
 78. **Deployment Monitoring Hook**: Automated status polling to detect when the venture is "READY". (Done 2026-04-21)
 
+### 🛸 Phase 24: Command Center & Intelligence Layering (Complete)
+
+79. **Intelligence Dual-Layering**: Decoupled Agent Brains (Behavioral Personas) from Tactical Workflows (Actionable Protocols) in the prompt engine. (Done 2026-04-21)
+80. **Command Center Dashboard**: Unified "My Ventures" management hub with project deletion and repo disconnection tools. (Done 2026-04-21)
+81. **Global Header Integration**: Standardized navigation and theme orchestration across the user dashboard. (Done 2026-04-21)
+
+### 🌐 Phase 25: Community Ecosystem & Discovery (Active)
+
+82. **Venture Discovery Feed**: Transform the dashboard into a community hub where users can share and discover public venture blueprints.
+83. **Fork & Hatch Orchestration**: Enable users to fork shared agent configurations and hatch them instantly into their own infrastructure.
+84. **Social Signals**: Implement engagement metrics (votes, views) to surface the highest quality agent workflows.
+
+### 📊 Phase 26: Autonomous Quality Audits (Active)
+
+85. **Pro Heuristic Scorecard**: Implementation of deep SEO, Security, and Accessibility audit rules with actionable improvement feedback.
+86. **AI Auto-Repair Engine**: Specialized prompt sequences that can autonomously fix identified architectural flaws.
+87. **Framework-Specific ADR Injection**: Automated generation of Architectural Decision Records based on audit findings.
+
 ## Conventions
 
 - Use TypeScript strict mode. Avoid `any`.
