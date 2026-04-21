@@ -1540,8 +1540,8 @@ export default function WizardPage() {
                   {/* Left Column: Rules Editor */}
                   <div className="workspace-editor-side" style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
                     <div className="glass-panel" style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", padding: "1.5rem" }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
-                        <div className="file-tabs" style={{ marginBottom: 0 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "1rem", marginBottom: "1rem", minWidth: 0 }}>
+                        <div className="file-tabs" style={{ marginBottom: 0, flex: 1, minWidth: 0 }}>
                           {generatedFiles.map((file, idx) => (
                             <button
                               key={idx}
@@ -1553,7 +1553,7 @@ export default function WizardPage() {
                             </button>
                           ))}
                         </div>
-                        <button className="btn btn-primary btn-sm" onClick={() => setIsEditing(true)}>✍️ Edit</button>
+                        <button className="btn btn-primary btn-sm" style={{ flexShrink: 0 }} onClick={() => setIsEditing(true)}>✍️ Edit</button>
                       </div>
 
                       <div className="code-viewer-container" style={{ flex: 1, position: "relative", borderRadius: "12px", background: "rgba(0,0,0,0.2)", overflow: "auto" }}>

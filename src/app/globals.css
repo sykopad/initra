@@ -889,11 +889,24 @@ h1, h2, h3, h4, h5, h6 {
 
 .file-tabs {
   display: flex;
-  gap: 2px;
-  background: var(--bg-card);
-  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-  padding: 4px;
+  gap: var(--space-xs);
+  background: rgba(0,0,0,0.2);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  padding: 6px;
   overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-medium) transparent;
+  min-width: 0; /* Crucial: Prevent content from expanding the parent */
+  flex: 1;
+}
+
+.file-tabs::-webkit-scrollbar {
+  height: 4px;
+}
+
+.file-tabs::-webkit-scrollbar-thumb {
+  background: var(--border-medium);
+  border-radius: 10px;
 }
 
 .file-tab {
