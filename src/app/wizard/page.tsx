@@ -10,6 +10,7 @@ import { IDE_TARGETS } from "@/lib/engine/ide-targets";
 import { PACKAGE_LIBRARY, PACKAGE_CATEGORIES, getPackagesForTemplate } from "@/lib/engine/package-library";
 import { SERVICE_LIBRARY, SERVICE_CATEGORIES, getRecommendedServices } from "@/lib/engine/service-library";
 import { WizardConfig, GeneratedFile, IDETarget, ProjectTemplate, StackOption, ApiService } from "@/lib/engine/types";
+import { BRAIN_MODULES } from "@/lib/engine/intelligence-overlays";
 import { saveWizardSession, updateWizardFile } from "@/lib/actions/wizard";
 import Navbar from "@/components/Navbar";
 import AgentEditor from "@/components/AgentEditor";
@@ -25,14 +26,15 @@ import { AI_MODELS } from "@/lib/ai/models";
 
 
 const STEPS = [
-  { label: "Start",    number: 0 },
-  { label: "Project",  number: 1 },
-  { label: "Stack",    number: 2 },
-  { label: "Packages", number: 3 },
-  { label: "Services", number: 4 },
-  { label: "IDE",      number: 5 },
-  { label: "Review",   number: 6 },
-  { label: "Export",   number: 7 },
+  { label: "Start",        number: 0 },
+  { label: "Project",      number: 1 },
+  { label: "Stack",        number: 2 },
+  { label: "Packages",     number: 3 },
+  { label: "Services",     number: 4 },
+  { label: "Intelligence", number: 5 },
+  { label: "IDE",          number: 6 },
+  { label: "Review",       number: 7 },
+  { label: "Export",       number: 8 },
 ];
 
 export default function WizardPage() {
@@ -268,7 +270,7 @@ export default function WizardPage() {
         setAiExplanation(data.explanation);
         
         // Skip straight to Review if AI was thorough
-        setStep(6);
+        setStep(7);
       } else {
         setToast("AI suggested a template that doesn't exist yet.");
       }
@@ -304,7 +306,7 @@ export default function WizardPage() {
     const result = generateAgentFiles(config);
     setGeneratedFiles(result.files);
     setActiveFileIndex(0);
-    setStep(7);
+    setStep(8);
 
     // Persist session in background and store ID for potential edits
     saveWizardSession(config, result.files).then(session => {
@@ -1190,14 +1192,63 @@ export default function WizardPage() {
                     ← Back
                   </button>
                   <button className="btn btn-primary" onClick={() => setStep(5)}>
+                    Continue to Intelligence →
+                  </button>
+                </div>
+              </>
+            )}
+
+            {/* ── Step 5: Agent Intelligence ─────────── */}
+            {step === 5 && (
+              <>
+                <h2 className="wizard-step-title">Choose your Agent Brain</h2>
+                <p className="wizard-step-subtitle">
+                  Select specialized behavioral modules to define your agent&apos;s coding style.
+                </p>
+
+                <div className="project-type-grid" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", marginTop: "2rem" }}>
+                  {Object.values(BRAIN_MODULES).map((module) => {
+                    const isSelected = selectedOverlays.includes(module.id);
+                    return (
+                      <div
+                        key={module.id}
+                        className={`project-type-card ${isSelected ? "selected" : ""}`}
+                        onClick={() => setSelectedOverlays(prev => 
+                          isSelected ? prev.filter(id => id !== module.id) : [...prev, module.id]
+                        )}
+                        style={{ textAlign: "left", padding: "1.75rem", display: "flex", flexDirection: "column", minHeight: "220px" }}
+                      >
+                        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1rem" }}>
+                          <span style={{ fontSize: "2.5rem" }}>{module.icon}</span>
+                          <h3 style={{ fontSize: "1.2rem", margin: 0 }}>{module.name}</h3>
+                        </div>
+                        <p style={{ fontSize: "0.9rem", color: "var(--text-secondary)", marginBottom: "1rem", flex: 1 }}>
+                          {module.description}
+                        </p>
+                        
+                        <div style={{ fontSize: "0.8rem", color: "var(--primary-light)", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                           Preview Directives ✨
+                        </div>
+
+                        {isSelected && <div className="checkmark" style={{ background: "var(--primary)" }}>✓</div>}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div className="wizard-nav">
+                  <button className="btn btn-ghost" onClick={() => setStep(4)}>
+                    ← Back
+                  </button>
+                  <button className="btn btn-primary" onClick={() => setStep(6)}>
                     Continue to IDE Selection →
                   </button>
                 </div>
               </>
             )}
 
-            {/* ── Step 5: Select IDE & Agent ───────────── */}
-            {step === 5 && (
+            {/* ── Step 6: Select IDE & Agent ───────────── */}
+            {step === 6 && (
               <>
                 <h2 className="wizard-step-title">Which IDE(s) do you use?</h2>
                 <p className="wizard-step-subtitle">
@@ -1326,13 +1377,13 @@ export default function WizardPage() {
                 </div>
 
                 <div className="wizard-nav">
-                  <button className="btn btn-ghost" onClick={() => setStep(4)}>
-                    ← Back
-                  </button>
-                  <button
-                    className="btn btn-primary"
-                    onClick={() => setStep(6)}
-                    disabled={selectedIDEs.length === 0}
+                    <button className="btn btn-ghost" onClick={() => setStep(5)}>
+                      ← Back
+                    </button>
+                    <button
+                      className="btn btn-primary"
+                      onClick={() => setStep(7)}
+                      disabled={selectedIDEs.length === 0}
                     style={{ opacity: selectedIDEs.length === 0 ? 0.5 : 1 }}
                   >
                     Next: Review Blueprint →
@@ -1341,8 +1392,8 @@ export default function WizardPage() {
               </>
             )}
 
-            {/* ── Step 6: Review Configuration ─────────── */}
-            {step === 6 && selectedTemplate && (
+            {/* ── Step 7: Review Configuration ─────────── */}
+            {step === 7 && selectedTemplate && (
               <>
                 <h2 className="wizard-step-title">Review your architecture</h2>
                 <p className="wizard-step-subtitle">Final check before we generate your agent files.</p>

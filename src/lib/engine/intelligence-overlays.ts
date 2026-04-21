@@ -6,6 +6,7 @@
 export interface IntelligenceModule {
   id: string;
   name: string;
+  icon: string;
   description: string;
   instructions: string;
 }
@@ -14,6 +15,7 @@ export const BRAIN_MODULES: Record<string, IntelligenceModule> = {
   designer: {
     id: 'designer',
     name: 'V0 Designer',
+    icon: '🎨',
     description: 'Specializes in high-fidelity UI/UX, responsive layouts, and CSS variable management.',
     instructions: `
 ## UI/UX & Design Directives (V0 Designer)
@@ -27,6 +29,7 @@ export const BRAIN_MODULES: Record<string, IntelligenceModule> = {
   architect: {
     id: 'architect',
     name: 'Logic Architect',
+    icon: '🏗️',
     description: 'Expert in clean code, algorithmic efficiency, and scalable state management.',
     instructions: `
 ## Architectural Directives (Logic Architect)
@@ -40,6 +43,7 @@ export const BRAIN_MODULES: Record<string, IntelligenceModule> = {
   security: {
     id: 'security',
     name: 'Security Sentinel',
+    icon: '🛡️',
     description: 'Rigorous focus on authentication, RLS, and data sanitization.',
     instructions: `
 ## Security Directives (Security Sentinel)

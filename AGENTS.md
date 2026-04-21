@@ -257,11 +257,17 @@ We implement frameworks **one at a time** to ensure maximum accuracy and deep he
 65. **Branch Protection Orchestration**: Programmatic enforcement of CI passing rules for birthed repositories. (Done 2026-04-21)
 66. **Granular Provisioning Feedback**: Real-time lifecycle status updates for the full "Hatch" sequence. (Done 2026-04-21)
 
-### 🧩 Phase 20: IDE Library Expansion (Active)
+### 🧩 Phase 20: IDE Library Expansion (Complete)
 
-67. **Trae AI Support**: Native `.trae/rules/project_rules.md` generation with adaptive instructions.
-68. **Aider & Devin Support**: Optimized instruction templates for leading AI agents.
-69. **Replit Agent Orchestration**: Specialized root-level instructions for Replit Workspace birth.
+67. **Trae AI Support**: Native `.trae/rules/project_rules.md` generation with adaptive instructions. (Done 2026-04-21)
+68. **Aider & Devin Support**: Optimized instruction templates for leading AI agents. (Done 2026-04-21)
+69. **Replit Agent Orchestration**: Specialized root-level instructions for Replit Workspace birth. (Done 2026-04-21)
+
+### 🟣 Phase 21: Expert Brain Overlays — UI Integration (Active)
+
+70. **Brain Selection Interface**: Dedicated wizard step for visual "Brain Profile" selection.
+71. **Intelligence Preview**: Live preview of behavioral directives during selection.
+72. **Spatial Awareness Dashboard**: Display identified repo landmarks in the project overview.
 
 ## Conventions
 
