@@ -33,6 +33,8 @@ export async function analyzeRepository(
     framework = "nuxt";
   } else if (files.includes("manage.py") || files.some(f => f.includes("settings.py"))) {
     framework = "django";
+  } else if (files.includes("go.mod") || files.includes("main.go")) {
+    framework = "go";
   }
 
   const segments: RepoSegment[] = [];
@@ -230,6 +232,67 @@ export async function analyzeRepository(
           filePath: file,
           description: "Global framework and app-level settings.",
           confidence: 1.0
+        });
+      }
+    }
+  } else if (framework === "go") {
+    // 3. Deep Heuristics for Go (Gin/Axum)
+    
+    for (const file of files) {
+      const lowerFile = file.toLowerCase();
+      
+      // A. Handlers, Controllers, Routes (Logic)
+      if (
+        file.endsWith("_handler.go") || 
+        file.endsWith("_controller.go") || 
+        file.includes("handlers/") || 
+        file.includes("controllers/") || 
+        file.includes("routes.go") || 
+        file.includes("router.go") ||
+        file === "main.go"
+      ) {
+        let logicType = "Backend Logic";
+        if (file.includes("handler") || file.includes("controller")) logicType = "API Handler";
+        if (file.includes("router") || file.includes("routes")) logicType = "URL Router";
+        if (file === "main.go") logicType = "Entry Logic";
+
+        segments.push({
+          name: logicType,
+          type: "logic",
+          isLogic: true,
+          domain: detectDomain(file),
+          filePath: file,
+          description: "High-performance Go business logic and request handling.",
+          confidence: 1.0
+        });
+      }
+
+      // B. Models (Data Logic)
+      else if (file.endsWith("_model.go") || file.includes("models/")) {
+        segments.push({
+          name: "Data Model",
+          type: "logic",
+          isLogic: true,
+          domain: detectDomain(file),
+          filePath: file,
+          description: "Go struct definitions and database orchestration.",
+          confidence: 0.9
+        });
+      }
+
+      // C. Templates (UI)
+      else if (file.endsWith(".gohtml") || file.endsWith(".tmpl") || (file.includes("templates/") && file.endsWith(".html"))) {
+        const isLayout = lowerFile.includes("base") || lowerFile.includes("layout");
+        const landmark = detectLandmark(file);
+        
+        segments.push({
+          name: formatComponentName(file),
+          type: isLayout ? "layout" : (landmark !== 'unknown' ? "component" : "page"),
+          landmarkType: landmark,
+          domain: detectDomain(file),
+          filePath: file,
+          description: isLayout ? "Global Go-template layout." : "Go-template UI fragment.",
+          confidence: isLayout ? 1.0 : 0.8
         });
       }
     }

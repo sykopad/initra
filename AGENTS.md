@@ -221,12 +221,17 @@ We implement frameworks **one at a time** to ensure maximum accuracy and deep he
 47. **MVT Segmentation**: Logic/UI separation for Python and HTML blocks. (Done 2026-04-21)
 48. **Landmark Detection**: Recognition of `base.html` and Django-specific layout files. (Done 2026-04-21)
 
-### 🔵 Phase 14: Go (Gin/Axum) (Active)
+### 🔵 Phase 14: Go (Gin/Axum) (Complete)
 
-49. **Go Route Recognition**: Identification of Gin/Axum route handlers and middleware.
-50. **Domain Clustering**: Mapping Go packages to feature domains.
-51. **Template Parsing**: Heuristic detection of Go templates (`.gohtml`, `.tmpl`).
-| **Flutter 4** | 📅 Planned (Aug) | Mobile widget-tree analysis and segmented UI customization. |
+49. **Go Route Recognition**: Identification of Gin/Axum route handlers and middleware. (Done 2026-04-21)
+50. **Domain Clustering**: Mapping Go packages to feature domains. (Done 2026-04-21)
+51. **Template Parsing**: Heuristic detection of Go templates (`.gohtml`, `.tmpl`). (Done 2026-04-21)
+
+### 📱 Phase 15: Flutter 4 (Active)
+
+52. **Flutter Widget Tree Analysis**: Heuristic detection of Screen vs Component vs Model in Dart.
+53. **State Management Heuristics**: Detect Bloc, Provider, or Riverpod patterns.
+54. **Mobile Navigation Mapping**: Identification of Router and NavRail landmarks.
 
 ## Conventions
 
