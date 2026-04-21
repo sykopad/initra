@@ -153,7 +153,7 @@ export default function AuditScorecard({ audit, onRepair }: AuditScorecardProps)
         }
         .category-label {
           font-size: 0.7rem;
-          color: var(--accent-violet);
+          color: var(--accent-primary);
           text-transform: uppercase;
           letter-spacing: 0.15em;
           margin-bottom: 1.25rem;
@@ -211,11 +211,11 @@ export default function AuditScorecard({ audit, onRepair }: AuditScorecardProps)
           padding: 4px 10px !important;
           background: rgba(139, 92, 246, 0.1) !important;
           border: 1px solid rgba(139, 92, 246, 0.2) !important;
-          color: var(--accent-violet) !important;
+          color: var(--accent-primary) !important;
           border-radius: 20px !important;
         }
         .repair-btn:hover {
-          background: var(--accent-violet) !important;
+          background: var(--accent-primary) !important;
           color: white !important;
         }
       `}</style>

@@ -54,7 +54,7 @@
   border-radius: 99px;
   font-size: 0.85rem;
   font-weight: 600;
-  color: var(--accent-violet-light);
+  color: var(--accent-primary-light);
 }
 .tier-pill {
   display: inline-block;
@@ -103,7 +103,7 @@
   color: var(--text-muted);
 }
 .btn-link {
-  color: var(--accent-cyan-light);
+  color: var(--accent-secondary-light);
   text-decoration: none;
   font-size: 0.85rem;
   font-weight: 600;
@@ -135,6 +135,6 @@
   color: var(--text-muted);
 }
 .repo-selector .project-type-card:hover {
-  border-color: var(--accent-violet);
+  border-color: var(--accent-primary);
   background: rgba(124, 58, 237, 0.1);
 }

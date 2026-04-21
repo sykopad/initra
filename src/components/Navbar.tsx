@@ -60,8 +60,8 @@ export default function Navbar() {
     <nav className="navbar">
       <div className="navbar-inner">
         <Link href="/" className="navbar-brand">
-          <span className="logo-icon">⚡</span>
-          <span className="brand-text">Initra</span>
+          <img src="/initra-dark.svg" alt="Initra Logo" className="brand-logo logo-dark" height="32" />
+          <img src="/initra-light.svg" alt="Initra Logo" className="brand-logo logo-light" height="32" />
         </Link>
         
         <ul className="navbar-links">
@@ -219,7 +219,7 @@ export default function Navbar() {
         }
 
         .user-profile:hover .avatar {
-          border-color: var(--accent-violet);
+          border-color: var(--accent-primary);
         }
 
         .user-dropdown {

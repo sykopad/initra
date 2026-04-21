@@ -296,11 +296,11 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
           background: rgba(255, 255, 255, 0.02);
           padding: 1.5rem;
           border-radius: 16px;
-          border-left: 4px solid var(--accent-violet);
+          border-left: 4px solid var(--accent-primary);
         }
         .domain-title {
           font-size: 0.9rem;
-          color: var(--accent-violet);
+          color: var(--accent-primary);
           text-transform: uppercase;
           letter-spacing: 0.1em;
           font-weight: 800;
@@ -345,7 +345,7 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
         }
         .bar-inner {
           background: var(--bg-secondary);
-          border: 1px solid var(--accent-violet);
+          border: 1px solid var(--accent-primary);
           padding: 1rem 1.5rem;
           border-radius: 99px;
           display: flex;

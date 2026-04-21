@@ -83,11 +83,11 @@ export default function HomePage() {
               <span className="terminal-output">initra hatch --blueprint "SaaS Analytics Dashboard"</span>
             </div>
             <div className="terminal-line">
-              <span className="terminal-output" style={{ color: 'var(--accent-cyan-light)' }}>[SYSTEM]</span>
+              <span className="terminal-output" style={{ color: 'var(--accent-secondary-light)' }}>[SYSTEM]</span>
               <span className="terminal-output">Allocating GitHub Repository... Done.</span>
             </div>
             <div className="terminal-line">
-              <span className="terminal-output" style={{ color: 'var(--accent-violet-light)' }}>[SYSTEM]</span>
+              <span className="terminal-output" style={{ color: 'var(--accent-primary-light)' }}>[SYSTEM]</span>
               <span className="terminal-output">Provisioning Vercel Cloud & Supabase DB...</span>
             </div>
             <div className="terminal-line">
@@ -133,7 +133,7 @@ export default function HomePage() {
               </p>
             </div>
             <div className="card feature-card">
-              <div className="feature-icon" style={{ borderColor: 'var(--accent-cyan)' }}>🔍</div>
+              <div className="feature-icon" style={{ borderColor: 'var(--accent-secondary)' }}>🔍</div>
               <h3>Deep Heuristic Analysis</h3>
               <p>
                 Scan existing repositories to automatically identify UI landmarks, logic blocks, and 
@@ -149,7 +149,7 @@ export default function HomePage() {
               </div>
             </div>
             <div className="card feature-card">
-              <div className="feature-icon" style={{ borderColor: 'var(--accent-violet)' }}>🧠</div>
+              <div className="feature-icon" style={{ borderColor: 'var(--accent-primary)' }}>🧠</div>
               <h3>Multi-Agent Orchestration</h3>
               <p>
                 Synthesis of complex business objectives into high-fidelity IDE rules. 
@@ -199,7 +199,7 @@ export default function HomePage() {
                      <span style={{ fontSize: '0.8rem', color: 'var(--accent-amber)', fontWeight: 700 }}>2,841 UPVOTES</span>
                   </div>
                </div>
-               <div style={{ position: 'absolute', top: '10%', left: '10%', right: '-5%', bottom: '-5%', background: 'var(--accent-violet)', opacity: 0.1, filter: 'blur(100px)', borderRadius: '50%', zIndex: 1 }}></div>
+               <div style={{ position: 'absolute', top: '10%', left: '10%', right: '-5%', bottom: '-5%', background: 'var(--accent-primary)', opacity: 0.1, filter: 'blur(100px)', borderRadius: '50%', zIndex: 1 }}></div>
             </div>
           </div>
         </div>

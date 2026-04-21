@@ -1448,7 +1448,7 @@ export default function WizardPage() {
 
                 <div className="review-grid">
                   <div style={{ borderRight: "1px solid var(--border-subtle)", paddingRight: "2rem" }}>
-                    <h3 style={{ fontSize: "1.1rem", marginBottom: "1.5rem", color: "var(--accent-violet-light)" }}>Core Stack</h3>
+                    <h3 style={{ fontSize: "1.1rem", marginBottom: "1.5rem", color: "var(--accent-primary-light)" }}>Core Stack</h3>
                     <div style={{ display: "flex", flexDirection: "column", gap: "0.85rem" }}>
                       <div className="review-item" style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid var(--border-subtle)", paddingBottom: "0.5rem" }}>
                         <span className="label" style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>Template:</span>
@@ -1467,7 +1467,7 @@ export default function WizardPage() {
                     </div>
                   </div>
                   <div>
-                    <h3 style={{ fontSize: "1.1rem", marginBottom: "1.5rem", color: "var(--accent-cyan-light)" }}>Add-ons & Agent Modes</h3>
+                    <h3 style={{ fontSize: "1.1rem", marginBottom: "1.5rem", color: "var(--accent-secondary-light)" }}>Add-ons & Agent Modes</h3>
                     <div style={{ marginBottom: "1.5rem" }}>
                       <p style={{ fontWeight: 600, fontSize: "0.85rem", marginBottom: "0.75rem", color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Packages</p>
                       <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
@@ -1491,11 +1491,11 @@ export default function WizardPage() {
                     <div>
                       <p style={{ fontWeight: 600, fontSize: "0.85rem", marginBottom: "0.75rem", color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Architect Modes</p>
                       <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
-                        <span className="badge-outline" style={{ borderColor: 'var(--accent-violet)', background: "rgba(124, 58, 237, 0.1)", padding: "0.25rem 0.75rem", borderRadius: "99px", fontSize: "0.75rem", color: "var(--accent-violet-light)" }}>
+                        <span className="badge-outline" style={{ borderColor: 'var(--accent-primary)', background: "rgba(124, 58, 237, 0.1)", padding: "0.25rem 0.75rem", borderRadius: "99px", fontSize: "0.75rem", color: "var(--accent-primary-light)" }}>
                           {orchestrationMode === 'multi-agent' ? '🚀 Hierarchical Multi-Agent' : '📄 Single Agent'}
                         </span>
                         {selectedBrains.map(id => (
-                          <span key={id} className="badge-outline" style={{ borderColor: 'var(--accent-cyan)', background: "rgba(6, 182, 212, 0.1)", padding: "0.25rem 0.75rem", borderRadius: "99px", fontSize: "0.75rem", color: "var(--accent-cyan-light)" }}>
+                          <span key={id} className="badge-outline" style={{ borderColor: 'var(--accent-secondary)', background: "rgba(6, 182, 212, 0.1)", padding: "0.25rem 0.75rem", borderRadius: "99px", fontSize: "0.75rem", color: "var(--accent-secondary-light)" }}>
                             🧠 {BRAIN_MODULES[id]?.name || id}
                           </span>
                         ))}

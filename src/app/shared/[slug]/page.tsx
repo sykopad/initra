@@ -108,7 +108,7 @@ export default async function SharedConfigPage({ params }: Props) {
                     {Object.entries(shared.config.stackConfig).map(([key, value]) => (
                       <div key={key} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "0.85rem", borderBottom: "1px solid var(--border-subtle)", paddingBottom: "0.5rem" }}>
                         <span style={{ color: "var(--text-muted)", textTransform: "capitalize" }}>{key.replace(/([A-Z])/g, ' $1')}</span>
-                        <span style={{ fontWeight: 600, color: "var(--accent-cyan-light)", fontFamily: "var(--font-mono)" }}>{String(value)}</span>
+                        <span style={{ fontWeight: 600, color: "var(--accent-secondary-light)", fontFamily: "var(--font-mono)" }}>{String(value)}</span>
                       </div>
                     ))}
                  </div>

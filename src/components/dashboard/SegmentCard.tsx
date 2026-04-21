@@ -92,7 +92,7 @@ export default function SegmentCard({ segment, repoId, onEditSuccess }: SegmentC
           transition: transform 0.2s, border-color 0.2s;
         }
         .segment-card:hover {
-          border-color: var(--accent-violet);
+          border-color: var(--accent-primary);
           transform: translateY(-2px);
         }
         .segment-header {
