@@ -5,6 +5,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { generateAgentFiles } from "@/lib/engine";
 import { PROJECT_TEMPLATES, PROJECT_CATEGORIES, WORKFLOW_OVERLAYS } from "@/lib/engine/templates";
+import { LAYMAN_PROJECTS, getLaymanProject } from "@/lib/engine/layman-projects";
 import { IDE_TARGETS } from "@/lib/engine/ide-targets";
 import { PACKAGE_LIBRARY, PACKAGE_CATEGORIES, getPackagesForTemplate } from "@/lib/engine/package-library";
 import { SERVICE_LIBRARY, SERVICE_CATEGORIES, getRecommendedServices } from "@/lib/engine/service-library";
@@ -13,6 +14,7 @@ import { saveWizardSession, updateWizardFile } from "@/lib/actions/wizard";
 import Navbar from "@/components/Navbar";
 import AgentEditor from "@/components/AgentEditor";
 import DonationButton from "@/components/wizard/DonationButton";
+import ColorPicker from "@/components/wizard/ColorPicker";
 import CodeViewer from "@/components/wizard/CodeViewer";
 import { saveSharedConfig } from "@/lib/actions/shared";
 import RepoSyncModal, { RepoSettings } from "@/components/wizard/RepoSyncModal";
@@ -105,6 +107,26 @@ export default function WizardPage() {
       version: defaultVersion 
     });
     setStep(2);
+  }, []);
+
+  const selectLaymanProject = useCallback((project: any) => {
+    const template = PROJECT_TEMPLATES.find(t => t.slug === project.recommendedTemplate);
+    if (!template) return;
+
+    setSelectedTemplate(template);
+    const defaultVersion = template.availableVersions[0]?.id || "";
+    setTemplateVersion(defaultVersion);
+    
+    setStackConfig({ 
+      ...template.defaultStack,
+      version: defaultVersion,
+      projectTypeSlug: project.slug,
+      aiGoal: project.description // Use project description as the initial goal
+    });
+    
+    setSelectedPackages(project.recommendedPackages);
+    setSelectedServices(project.recommendedServices);
+    setStep(2); // Go to config step, but we might skip some options for layman
   }, []);
 
   // Toggle IDE selection
@@ -228,7 +250,10 @@ export default function WizardPage() {
       if (template) {
         setSelectedTemplate(template);
         setProjectName(data.projectName || "");
-        setStackConfig(data.stackConfig || {});
+        setStackConfig({ 
+          ...(data.stackConfig || {}), 
+          aiGoal // Store the goal for variable extraction
+        });
         setSelectedPackages(data.selectedPackages || []);
         setSelectedServices(data.selectedServices || []);
         setAiExplanation(data.explanation);
@@ -514,54 +539,56 @@ export default function WizardPage() {
             {/* ── Step 0: Initial Setup ────────────────── */}
             {step === 0 && (
               <div style={{ maxWidth: "600px", margin: "0 auto", textAlign: "center" }}>
-                <h2 className="wizard-step-title">How would you like to build?</h2>
+                <h2 className="wizard-step-title">Tell us about yourself</h2>
                 <p className="wizard-step-subtitle" style={{ marginBottom: "2rem" }}>
-                  Select your path and experience level to customize your journey.
+                  We'll tailor the wizard experience based on your expertise.
                 </p>
 
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem", marginBottom: "3rem" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem", marginBottom: "2rem" }}>
                   <div 
-                    className={`project-type-card ${wizardMode === 'manual' ? 'selected' : ''}`}
-                    onClick={() => setWizardMode('manual')}
+                    className={`project-type-card ${experienceLevel === 'experienced' ? 'selected' : ''}`}
+                    onClick={() => setExperienceLevel('experienced')}
                     style={{ padding: "2rem" }}
                   >
-                    <span style={{ fontSize: "2.5rem", marginBottom: "1rem", display: "block" }}>🛠️</span>
-                    <h3>Manual Selection</h3>
-                    <p style={{ fontSize: "0.85rem" }}>Hand-pick your framework, database, and packages.</p>
+                    <span style={{ fontSize: "2.5rem", marginBottom: "1rem", display: "block" }}>💻</span>
+                    <h3>I'm a Developer</h3>
+                    <p style={{ fontSize: "0.85rem" }}>I want full control over the tech stack and architecture.</p>
                   </div>
                   <div 
-                    className={`project-type-card ${wizardMode === 'ai' ? 'selected' : ''}`}
-                    onClick={() => setWizardMode('ai')}
+                    className={`project-type-card ${experienceLevel === 'beginner' ? 'selected' : ''}`}
+                    onClick={() => setExperienceLevel('beginner')}
                     style={{ padding: "2rem" }}
                   >
-                    <span style={{ fontSize: "2.5rem", marginBottom: "1rem", display: "block" }}>✨</span>
-                    <h3>AI Assistant</h3>
-                    <p style={{ fontSize: "0.85rem" }}>Describe your goal and let AI suggest the perfect architecture.</p>
+                    <span style={{ fontSize: "2.5rem", marginBottom: "1rem", display: "block" }}>👔</span>
+                    <h3>I'm a Layman</h3>
+                    <p style={{ fontSize: "0.85rem" }}>I want to build a project without worrying about the code.</p>
                   </div>
                 </div>
 
                 <div className="glass-panel" style={{ padding: "2rem", textAlign: "left" }}>
-                  <h3 style={{ marginBottom: "1rem", fontSize: "1.1rem" }}>Your Experience Level</h3>
+                  <h3 style={{ marginBottom: "1rem", fontSize: "1.1rem" }}>Building Mode</h3>
                   <div style={{ display: "flex", gap: "1rem" }}>
                     <button 
-                      className={`btn ${experienceLevel === 'experienced' ? 'btn-primary' : 'btn-ghost'}`}
-                      onClick={() => setExperienceLevel('experienced')}
+                      className={`btn ${wizardMode === 'manual' ? 'btn-primary' : 'btn-ghost'}`}
+                      onClick={() => setWizardMode('manual')}
                       style={{ flex: 1 }}
                     >
-                      Experienced Developer
+                      {experienceLevel === 'experienced' ? 'Manual Selection' : 'Guided Selection'}
                     </button>
                     <button 
-                      className={`btn ${experienceLevel === 'beginner' ? 'btn-primary' : 'btn-ghost'}`}
-                      onClick={() => setExperienceLevel('beginner')}
+                      className={`btn ${wizardMode === 'ai' ? 'btn-primary' : 'btn-ghost'}`}
+                      onClick={() => setWizardMode('ai')}
                       style={{ flex: 1 }}
                     >
-                      Business / New Dev
+                      AI Assistant Mode
                     </button>
                   </div>
                   <p style={{ marginTop: "1rem", fontSize: "0.85rem", color: "var(--text-secondary)" }}>
-                    {experienceLevel === 'beginner' 
-                      ? "✨ We'll provide extra guidance on setting up infrastructure like Vercel and Supabase for free." 
-                      : "💻 We'll focus on architecture, patterns, and agent orchestration."}
+                    {wizardMode === 'ai' 
+                      ? "✨ Describe your goal and we'll handle the rest." 
+                      : (experienceLevel === 'experienced' 
+                          ? "🛠️ Hand-pick frameworks and packages." 
+                          : "📂 Choose from common project types.")}
                   </p>
                 </div>
 
@@ -611,113 +638,163 @@ export default function WizardPage() {
                   </div>
                 </div>
               ) : (
-                 <>
-                  <h2 className="wizard-step-title">Start Your Project</h2>
-                <p className="wizard-step-subtitle">Select a framework manually or import from an existing repository.</p>
+                <>
+                  <h2 className="wizard-step-title">
+                    {experienceLevel === 'experienced' ? "Start Your Project" : "What are you building?"}
+                  </h2>
+                  <p className="wizard-step-subtitle">
+                    {experienceLevel === 'experienced' 
+                      ? "Select a framework manually or import from an existing repository."
+                      : "Choose a project type and we'll suggest the best tech stack for you."}
+                  </p>
 
-                <div className="filter-tabs" style={{ justifyContent: "center", marginBottom: "2rem" }}>
-                   <button 
-                    className={`filter-tab ${selectionMethod === 'browse' ? 'active' : ''}`}
-                    onClick={() => setSelectionMethod('browse')}
-                   >
-                     📂 Browse Templates
-                   </button>
-                   <button 
-                    className={`filter-tab ${selectionMethod === 'import' ? 'active' : ''}`}
-                    onClick={() => setSelectionMethod('import')}
-                   >
-                     🔗 Import from GitHub
-                   </button>
-                </div>
-
-                {selectionMethod === 'import' ? (
-                  <div className="glass-panel" style={{ maxWidth: '600px', margin: '0 auto', padding: '2.5rem' }}>
-                    <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-                      <span style={{ fontSize: '3rem', display: 'block', marginBottom: '1rem' }}>🐙</span>
-                      <h3>Connect Repository</h3>
-                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-                        Paste a GitHub URL to detect its framework and generate agent rules automatically.
-                      </p>
+                  {experienceLevel === 'experienced' && (
+                    <div className="filter-tabs" style={{ justifyContent: "center", marginBottom: "2rem" }}>
+                      <button 
+                        className={`filter-tab ${selectionMethod === 'browse' ? 'active' : ''}`}
+                        onClick={() => setSelectionMethod('browse')}
+                      >
+                        📂 Browse Templates
+                      </button>
+                      <button 
+                        className={`filter-tab ${selectionMethod === 'import' ? 'active' : ''}`}
+                        onClick={() => setSelectionMethod('import')}
+                      >
+                        🔗 Import from GitHub
+                      </button>
                     </div>
-                    
-                    <div className="form-group">
-                      <input 
-                        type="text" 
-                        className="form-input" 
-                        placeholder="https://github.com/user/repo"
-                        value={importRepoUrl}
-                        onChange={(e) => setImportRepoUrl(e.target.value)}
-                        style={{ textAlign: 'center', fontSize: '1.1rem' }}
-                      />
+                  )}
+
+                  {experienceLevel === 'experienced' && selectionMethod === 'import' ? (
+                    <div className="glass-panel" style={{ maxWidth: '600px', margin: '0 auto', padding: '2.5rem' }}>
+                      <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+                        <span style={{ fontSize: '3rem', display: 'block', marginBottom: '1rem' }}>🐙</span>
+                        <h3>Connect Repository</h3>
+                        <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+                          Paste a GitHub URL to detect its framework and generate agent rules automatically.
+                        </p>
+                      </div>
+                      
+                      <div className="form-group">
+                        <input 
+                          type="text" 
+                          className="form-input" 
+                          placeholder="https://github.com/user/repo"
+                          value={importRepoUrl}
+                          onChange={(e) => setImportRepoUrl(e.target.value)}
+                          style={{ textAlign: 'center', fontSize: '1.1rem' }}
+                        />
+                      </div>
+
+                      <button 
+                        className="btn btn-primary" 
+                        style={{ width: '100%', padding: '1rem', marginTop: '1rem' }}
+                        onClick={handleRepoImport}
+                        disabled={isImporting || !importRepoUrl}
+                      >
+                        {isImporting ? "🔍 Analyzing..." : "Detect Stack & Generate →"}
+                      </button>
                     </div>
+                  ) : (
+                    <>
+                      {experienceLevel === 'experienced' ? (
+                        <>
+                          {/* Category filters */}
+                          <div className="filter-tabs" style={{ justifyContent: "center", marginBottom: "1.5rem", flexWrap: "wrap" }}>
+                            <button
+                              className={`filter-tab ${!selectedCategory ? "active" : ""}`}
+                              onClick={() => setSelectedCategory(null)}
+                            >
+                              All
+                            </button>
+                            {PROJECT_CATEGORIES.map((cat) => (
+                              <button
+                                key={cat.slug}
+                                className={`filter-tab ${selectedCategory === cat.slug ? "active" : ""}`}
+                                onClick={() => setSelectedCategory(cat.slug)}
+                              >
+                                {cat.icon} {cat.name}
+                              </button>
+                            ))}
+                          </div>
 
-                    <button 
-                      className="btn btn-primary" 
-                      style={{ width: '100%', padding: '1rem', marginTop: '1rem' }}
-                      onClick={handleRepoImport}
-                      disabled={isImporting || !importRepoUrl}
-                    >
-                      {isImporting ? "🔍 Analyzing..." : "Detect Stack & Generate →"}
-                    </button>
-                  </div>
-                ) : (
-                  <>
-                {/* Category filters */}
-                <div className="filter-tabs" style={{ justifyContent: "center", marginBottom: "1.5rem", flexWrap: "wrap" }}>
-                  <button
-                    className={`filter-tab ${!selectedCategory ? "active" : ""}`}
-                    onClick={() => setSelectedCategory(null)}
-                  >
-                    All
-                  </button>
-                  {PROJECT_CATEGORIES.map((cat) => (
-                    <button
-                      key={cat.slug}
-                      className={`filter-tab ${selectedCategory === cat.slug ? "active" : ""}`}
-                      onClick={() => setSelectedCategory(cat.slug)}
-                    >
-                      {cat.icon} {cat.name}
-                    </button>
-                  ))}
-                </div>
+                          {/* Search */}
+                          <div className="search-input-wrapper">
+                            <span className="search-icon">🔍</span>
+                            <input
+                              type="text"
+                              className="search-input"
+                              placeholder="Search frameworks..."
+                              value={searchQuery}
+                              onChange={(e) => setSearchQuery(e.target.value)}
+                            />
+                          </div>
 
-                {/* Search */}
-                <div className="search-input-wrapper">
-                  <span className="search-icon">🔍</span>
-                  <input
-                    type="text"
-                    className="search-input"
-                    placeholder="Search frameworks..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
-                </div>
+                          {/* Template Grid */}
+                          <div className="project-type-grid">
+                            {filteredTemplates.map((template) => (
+                              <div
+                                key={template.slug}
+                                className={`project-type-card ${selectedTemplate?.slug === template.slug ? "selected" : ""}`}
+                                onClick={() => selectTemplate(template)}
+                              >
+                                <span className="project-type-icon">{template.icon}</span>
+                                <h3>{template.name}</h3>
+                                <p>{template.description}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </>
+                      ) : (
+                        /* Layman Project Grid */
+                        <div className="project-type-grid" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))" }}>
+                          {LAYMAN_PROJECTS.map((project) => (
+                            <div
+                              key={project.slug}
+                              className={`project-type-card ${stackConfig.projectTypeSlug === project.slug ? "selected" : ""}`}
+                              onClick={() => selectLaymanProject(project)}
+                              style={{ textAlign: "left", padding: "1.5rem" }}
+                            >
+                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1rem" }}>
+                                <span style={{ fontSize: "2rem" }}>{project.icon}</span>
+                                <span 
+                                  className={`badge badge-${project.difficulty}`}
+                                  style={{ 
+                                    fontSize: "0.7rem", 
+                                    padding: "0.2rem 0.5rem", 
+                                    borderRadius: "1rem",
+                                    textTransform: "capitalize",
+                                    backgroundColor: project.difficulty === 'easy' ? 'rgba(0, 255, 100, 0.1)' : project.difficulty === 'medium' ? 'rgba(255, 200, 0, 0.1)' : 'rgba(255, 50, 50, 0.1)',
+                                    color: project.difficulty === 'easy' ? '#00FF64' : project.difficulty === 'medium' ? '#FFC800' : '#FF3232',
+                                    border: project.difficulty === 'easy' ? '1px solid #00FF6444' : project.difficulty === 'medium' ? '1px solid #FFC80044' : '1px solid #FF323244'
+                                  }}
+                                >
+                                  {project.difficulty}
+                                </span>
+                              </div>
+                              <h3 style={{ marginBottom: "0.5rem" }}>{project.name}</h3>
+                              <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", marginBottom: "1rem" }}>
+                                {project.description}
+                              </p>
+                              <div style={{ fontSize: "0.75rem", display: "flex", gap: "0.5rem" }}>
+                                <strong>Recommended:</strong>
+                                <span style={{ color: "var(--primary-color)" }}>{project.recommendedTemplate}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
 
-                {/* Template Grid */}
-                <div className="project-type-grid">
-                  {filteredTemplates.map((template) => (
-                    <div
-                      key={template.slug}
-                      className={`project-type-card ${selectedTemplate?.slug === template.slug ? "selected" : ""}`}
-                      onClick={() => selectTemplate(template)}
-                    >
-                      <span className="project-type-icon">{template.icon}</span>
-                      <h3>{template.name}</h3>
-                      <p>{template.description}</p>
-                    </div>
-                  ))}
-                </div>
-
-                {filteredTemplates.length === 0 && (
-                  <div style={{ textAlign: "center", padding: "3rem", color: "var(--text-muted)" }}>
-                    <p style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>🔍</p>
-                    <p>No templates found. Try a different search or category.</p>
-                  </div>
-                )}
-              </>
-            )}
-          </>
-        )
+                      {experienceLevel === 'experienced' && filteredTemplates.length === 0 && (
+                        <div style={{ textAlign: "center", padding: "3rem", color: "var(--text-muted)" }}>
+                          <p style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>🔍</p>
+                          <p>No templates found. Try a different search or category.</p>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </>
+              )
       )}
 
             {/* ── Step 2: Configure Stack ──────────────── */}
@@ -741,6 +818,15 @@ export default function WizardPage() {
                     />
                   </div>
                 </div>
+
+                {experienceLevel === 'beginner' && (
+                  <div style={{ maxWidth: "800px", margin: "0 auto 3rem" }}>
+                    <ColorPicker 
+                      initialColors={stackConfig.brandColors as string[] || []}
+                      onColorsChange={(colors) => setStackConfig(prev => ({ ...prev, brandColors: colors }))} 
+                    />
+                  </div>
+                )}
 
                 {/* Core options */}
                 <div className="stack-config-form">
@@ -1027,7 +1113,7 @@ export default function WizardPage() {
                         key={svc.slug}
                         className={`project-type-card ${isSelected ? "selected" : ""}`}
                         onClick={() => toggleService(svc.slug)}
-                        style={{ textAlign: "left", gap: "0.5rem", position: "relative" }}
+                        style={{ textAlign: "left", gap: "0.5rem", position: "relative", padding: "1.25rem" }}
                       >
                         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.25rem" }}>
                           <span style={{ fontSize: "1.5rem" }}>{svc.icon}</span>
@@ -1036,10 +1122,29 @@ export default function WizardPage() {
                             <span style={{ fontSize: "0.6rem", background: "var(--primary)", color: "white", padding: "1px 4px", borderRadius: "3px" }}>RECOMMENDED</span>
                           )}
                         </div>
-                        <p style={{ fontSize: "var(--text-xs)", color: "var(--text-secondary)", margin: 0, lineHeight: 1.4 }}>
+                        <p style={{ fontSize: "var(--text-xs)", color: "var(--text-secondary)", margin: "0 0 0.5rem 0", lineHeight: 1.4 }}>
                           {svc.description}
                         </p>
-                        <div style={{ display: "flex", flexWrap: "wrap", gap: "3px", marginTop: "0.5rem" }}>
+                        
+                        {/* Layman Reasoning */}
+                        {experienceLevel === 'beginner' && isRecommended && (
+                          <div style={{ 
+                            fontSize: "0.75rem", 
+                            color: "var(--primary-light)", 
+                            background: "rgba(124,58,237,0.05)", 
+                            padding: "0.5rem", 
+                            borderRadius: "0.5rem",
+                            border: "1px solid rgba(124,58,237,0.1)",
+                            marginBottom: "0.5rem"
+                          }}>
+                            <strong>💡 Why?</strong> {
+                              (stackConfig.projectTypeSlug && getLaymanProject(stackConfig.projectTypeSlug as string)?.reasoning[svc.slug]) 
+                              || "Recommended based on your stack."
+                            }
+                          </div>
+                        )}
+
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: "3px" }}>
                           {svc.envVars.slice(0, 2).map(e => (
                              <code key={e.key} style={{ fontSize: "0.55rem", opacity: 0.7 }}>{e.key}</code>
                           ))}

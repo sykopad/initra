@@ -283,6 +283,11 @@ function formatClaudeCode(vars: TemplateVariables, _base: string): GeneratedFile
 
   let content = compose(template, vars);
 
+  // Inject project-specific context if available
+  if (vars.projectContextInstructions) {
+    content = vars.projectContextInstructions + "\n\n---\n\n" + content;
+  }
+
   // Inject framework-specific knowledge
   if (kb) {
     content += `\n\n## Anti-Patterns — DO NOT\n\n`;
@@ -455,6 +460,11 @@ alwaysApply: true
 {{/if}}`;
 
   let contextContent = compose(contextTemplate, vars);
+
+  // Inject project-specific context if available
+  if (vars.projectContextInstructions) {
+    contextContent = vars.projectContextInstructions + "\n\n---\n\n" + contextContent;
+  }
 
   if (kb) {
     contextContent += `\n\n## Anti-Patterns — NEVER Do This\n\n`;

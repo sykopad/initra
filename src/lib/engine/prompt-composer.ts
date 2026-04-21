@@ -101,7 +101,26 @@ export function extractVariables(
     packageManager: String(stackConfig.packageManager || 'npm'),
     selectedPackages,
     selectedServices,
+    brandColors: stackConfig.brandColors as string[] || [],
   };
+
+  // 1. Synthesize Specialized Instructions from AI Goal
+  if (stackConfig.aiGoal) {
+    const goal = String(stackConfig.aiGoal);
+    vars.aiGoal = goal;
+    
+    // Simple synthesis: In a real app this might be another LLM call or complex regex
+    // For now, we inject the goal as the primary objective.
+    vars.projectContextInstructions = `
+## Specialized Project Objective
+Your primary goal is to implement: "${goal}"
+
+### Priority Directives
+- Focus on the core user story described in the objective.
+- Ensure all selected packages are integrated specifically to solve this problem.
+- Prioritize architectural decisions that support this specific use case.
+`;
+  }
 
   // 1. Version Intelligence Flags
   // Next.js logic

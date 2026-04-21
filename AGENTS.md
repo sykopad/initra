@@ -41,6 +41,7 @@ A **pure, deterministic TypeScript pipeline** — no LLM calls:
 |------|---------|
 | `types.ts` | All TypeScript interfaces and type definitions |
 | `templates.ts` | 6 project templates (Next.js, React Native, FastAPI, Flutter, Express, Python ML) |
+| `layman-projects.ts` | Goals-to-stack registry for non-technical users (Project Types) |
 | `package-library.ts` | Registry of 50+ common packages with setup/usage knowledge |
 | `service-library.ts` | Hub for 15+ external APIs (Stripe, OpenAI, Clerk, etc.) with registration URLs |
 | `ide-targets.ts` | 6 IDE target configurations |
@@ -175,7 +176,14 @@ const supabase = createBrowserClient(url, key, {
 23. **The "Hatch" Engine (Complete)** — End-to-end orchestration of GitHub Repo creation, Vercel project provisioning, and custom domain assignment. Support for `VERCEL_TEAM_ID` and `GITHUB_TOKEN` integrated.
 24. **Venture Marketplace (Complete)** — UI upgraded to support autonomous project discovery, community voting, and real-time hatching status.
 25. **Donation Integration (Complete)** — Homepage updated with a support rationale for scaling the Venture Studio infrastructure beyond Vercel Hobby limits.
-26. **Autonomous Worker Injection (Complete)** — Automated delivery of GitHub Action workflows that spin up coding agents (Aider) upon project birth.
+26. **Autonomous Worker Injection (Complete)** — Automated delivery of GitHub Action workflows that spin up coding agents (Aider) upon project birth. (Done 2026-04-20)
+
+### 🌈 Phase 8: Experience Personalization (Complete 2026-04-21)
+
+27. **Dual Wizard Flow**: Branched journey for "Developers" (Manual) vs "Laymen" (Goal-oriented).
+28. **Brand Identity Extraction**: Automatic sampling of uploaded logos to derive CSS variables and theme tokens.
+29. **Project-Specific Agent Context**: Automated synthesis of high-fidelity objectives (e.g., "Build an E-commerce store for specialized coffee") injected into agent rules.
+30. **Guided Service Reasoning**: Business-friendly explanations for suggested infrastructure (e.g., "Why Supabase?").
 
 ## Conventions
 

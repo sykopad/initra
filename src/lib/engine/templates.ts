@@ -242,6 +242,10 @@ export default function RootLayout({
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
   --background-end-rgb: 255, 255, 255;
+  {{#if brandColors}}
+  /* Brand Palette */
+  --primary-brand: {{brandColors}};
+  {{/if}}
 }
 
 body {

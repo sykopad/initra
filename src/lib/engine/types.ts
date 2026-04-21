@@ -165,6 +165,10 @@ export interface WizardConfig {
   selectedOverlays?: string[];
   ventureType?: 'ai-generated' | 'user-suggested';
   agentInstructions?: string;
+  // Layman / Branding fields
+  projectTypeSlug?: string;
+  brandColors?: string[];
+  logoUrl?: string;
 }
 
 /** Boilerplate file definition */
