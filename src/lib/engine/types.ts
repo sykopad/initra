@@ -256,3 +256,22 @@ export interface WorkflowOverlay {
   /** Optional: only allow for these templates */
   compatibleTemplates?: string[];
 }
+
+/** Repository segment identified by heuristics */
+export interface RepoSegment {
+  id?: string;
+  name: string;
+  type: 'navigation' | 'layout' | 'page' | 'style' | 'component' | 'logic' | 'config';
+  landmarkType?: 'hero' | 'footer' | 'sidebar' | 'feed' | 'form' | 'unknown';
+  domain?: string;
+  filePath: string;
+  description: string;
+  confidence: number;
+  isLogic?: boolean;
+}
+
+/** Result of repository analysis */
+export interface AnalysisResult {
+  framework: string;
+  segments: RepoSegment[];
+}

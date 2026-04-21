@@ -1,21 +1,10 @@
 /**
- * Initra — Segment Analyzer
- * Heuristic engine to identify UI segments in a repository.
+ * Initra — Segment Analyzer (Deep Heuristics v2)
+ * Heuristic engine to identify UI landmarks and feature domains in a repository.
  */
 
 import { Octokit } from "octokit";
-
-export interface RepoSegment {
-  name: string;
-  type: 'navigation' | 'layout' | 'page' | 'style' | 'component';
-  filePath: string;
-  description: string;
-}
-
-export interface AnalysisResult {
-  framework: string;
-  segments: RepoSegment[];
-}
+import { RepoSegment, AnalysisResult } from "./types";
 
 /**
  * Scans a GitHub repository and identifies key UI segments.
@@ -26,7 +15,7 @@ export async function analyzeRepository(
   repo: string,
   branch: string = 'main'
 ): Promise<AnalysisResult> {
-  // 1. Get entire file tree (limited to first 1000 files for performance)
+  // 1. Get entire file tree
   const { data: tree } = await octokit.rest.repos.getTree({
     owner,
     repo,
@@ -47,67 +36,117 @@ export async function analyzeRepository(
   const segments: RepoSegment[] = [];
 
   if (framework === "nextjs") {
-    // 3. Next.js Specific Heuristics
+    // 3. Deep Heuristics for Next.js
     
-    // Find Navigation (Header/Navbar)
-    const navFile = files.find(f => 
-      f.toLowerCase().includes("navbar") || 
-      f.toLowerCase().includes("header") || 
-      (f.includes("components/") && f.toLowerCase().includes("nav"))
-    );
-    if (navFile) {
-      segments.push({
-        name: "Navigation Header",
-        type: "navigation",
-        filePath: navFile,
-        description: "The main navigation and header component of the application."
-      });
-    }
-
-    // Find Layout
-    const layoutFile = files.find(f => f.includes("app/layout.tsx") || f.includes("pages/_app.tsx"));
-    if (layoutFile) {
-      segments.push({
-        name: "Global Layout",
-        type: "layout",
-        filePath: layoutFile,
-        description: "The core layout structure that wraps all pages."
-      });
-    }
-
-    // Find Styles
-    const styleFile = files.find(f => f.includes("globals.css") || f.includes("theme.css") || f.includes("tailwind.config"));
-    if (styleFile) {
-      segments.push({
-        name: "Design System",
-        type: "style",
-        filePath: styleFile,
-        description: "CSS variables, themes, and global design tokens."
-      });
-    }
-
-    // Find Pages
-    const pages = files.filter(f => 
-      (f.startsWith("app/") && f.endsWith("page.tsx")) || 
-      (f.startsWith("pages/") && !f.startsWith("pages/_") && (f.endsWith(".tsx") || f.endsWith(".js")))
-    );
-    
-    for (const page of pages.slice(0, 5)) { // Limit to top 5 pages
-      const pageName = page === "app/page.tsx" || page === "pages/index.tsx" 
-        ? "Home Page" 
-        : page.split('/').slice(-2, -1)[0] || "Page";
+    for (const file of files) {
+      const lowerFile = file.toLowerCase();
       
-      segments.push({
-        name: `${pageName.charAt(0).toUpperCase() + pageName.slice(1)} Page`,
-        type: "page",
-        filePath: page,
-        description: `Main route content for ${pageName}.`
-      });
+      // A. Layouts & Metadata
+      if (file.endsWith("layout.tsx") || file.endsWith("layout.js")) {
+        segments.push({
+          name: file.includes("app/") ? "Global Layout" : "Nested Layout",
+          type: "layout",
+          domain: detectDomain(file),
+          filePath: file,
+          description: "Structural layout wrapper for this feature area.",
+          confidence: 1.0
+        });
+      }
+
+      // B. Pages
+      else if (file.endsWith("page.tsx") || file.endsWith("page.js")) {
+        const pageName = file === "app/page.tsx" ? "Home" : file.split('/').slice(-2, -1)[0] || "Page";
+        segments.push({
+          name: `${capitalize(pageName)} Page`,
+          type: "page",
+          domain: detectDomain(file),
+          filePath: file,
+          description: `Main route content for ${pageName}.`,
+          confidence: 1.0
+        });
+      }
+
+      // C. Logic (API Routes & Server Actions)
+      else if (file.endsWith("route.ts") || file.endsWith("route.js") || lowerFile.includes("actions.ts") || lowerFile.includes("actions.js")) {
+        segments.push({
+          name: lowerFile.includes("actions") ? "Server Actions" : "API Endpoint",
+          type: "logic",
+          isLogic: true,
+          domain: detectDomain(file),
+          filePath: file,
+          description: "Backend business logic and data orchestration.",
+          confidence: 0.9
+        });
+      }
+
+      // D. UI Components & Landmarks
+      else if (file.includes("components/") && (file.endsWith(".tsx") || file.endsWith(".jsx"))) {
+        const landmark = detectLandmark(file);
+        if (landmark !== 'unknown' || file.includes("ui/")) {
+          segments.push({
+            name: formatComponentName(file),
+            type: "component",
+            landmarkType: landmark,
+            domain: detectDomain(file),
+            filePath: file,
+            description: `Identified ${landmark !== 'unknown' ? landmark : 'UI'} component.`,
+            confidence: landmark !== 'unknown' ? 0.8 : 0.6
+          });
+        }
+      }
+
+      // E. Config & Styles
+      else if (lowerFile.includes("globals.css") || lowerFile.includes("tailwind.config") || lowerFile.includes("theme.ts")) {
+        segments.push({
+          name: lowerFile.includes("tailwind") ? "Tailwind Config" : "Global Styles",
+          type: "style",
+          domain: "Design System",
+          filePath: file,
+          description: "Global design tokens and styling configurations.",
+          confidence: 1.0
+        });
+      }
     }
   }
 
-  return {
-    framework,
-    segments
-  };
+  // Final filtering: Sort by confidence and domain
+  const finalSegments = segments
+    .sort((a, b) => b.confidence - a.confidence)
+    .slice(0, 25); // Limit for performance/UI
+
+  return { framework, segments: finalSegments };
+}
+
+/** Helper: Capatlize strings */
+function capitalize(s: string) {
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+/** Helper: Detect Feature Domain */
+function detectDomain(path: string): string {
+  const p = path.toLowerCase();
+  if (p.includes("auth")) return "Auth & Security";
+  if (p.includes("billing") || p.includes("subscription") || p.includes("pricing")) return "Billing";
+  if (p.includes("dashboard") || p.includes("admin")) return "Dashboard";
+  if (p.includes("settings") || p.includes("profile")) return "Account Settings";
+  if (p.includes("api/")) return "Backend Logic";
+  if (p.includes("marketing") || p.includes("landing")) return "Marketing";
+  return "Core Application";
+}
+
+/** Helper: Detect Landmark Type */
+function detectLandmark(path: string): RepoSegment['landmarkType'] {
+  const p = path.toLowerCase();
+  if (p.includes("hero") || p.includes("banner") || p.includes("cta")) return "hero";
+  if (p.includes("footer") || p.includes("copyright")) return "footer";
+  if (p.includes("sidebar") || p.includes("navrail") || p.includes("aside")) return "sidebar";
+  if (p.includes("form") || p.includes("input") || p.includes("login") || p.includes("signup")) return "form";
+  if (p.includes("feed") || p.includes("list") || p.includes("grid")) return "feed";
+  return "unknown";
+}
+
+/** Helper: Format file path into a human-readable component name */
+function formatComponentName(path: string): string {
+  const base = path.split('/').pop()?.split('.')[0] || "Component";
+  return base.split(/[-_]/).map(capitalize).join(" ");
 }
