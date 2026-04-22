@@ -101,7 +101,7 @@ When explaining code, always include:
 
         <div className="guide-section">
           <h4>🔄 Dynamic Substitutions</h4>
-          <p>Skills support dynamic values like <code>$ARGUMENTS</code> (all inputs), <code>$0</code>, <code>$1</code> (indexed arguments), and <code>\${CLAUDE_SESSION_ID}</code> for session-specific logging.</p>
+          <p>Skills support dynamic values like <code>$ARGUMENTS</code> (all inputs), <code>$0</code>, <code>$1</code> (indexed arguments), and <code>{"${CLAUDE_SESSION_ID}"}</code> for session-specific logging.</p>
         </div>
 
         <div className="guide-section">
