@@ -958,12 +958,50 @@ export default function WizardPage() {
             {/* ── Step 3: Select Packages ────────────────── */}
             {step === 3 && selectedTemplate && (
               <>
-                <h2 className="wizard-step-title">Add packages &amp; libraries</h2>
+                <h2 className="wizard-step-title">
+                  {experienceLevel === 'beginner' ? 'Pre-configured Architecture' : 'Add packages & libraries'}
+                </h2>
                 <p className="wizard-step-subtitle">
-                  Select common packages for your {selectedTemplate.name} project. Skip to use defaults.
+                  {experienceLevel === 'beginner' 
+                    ? `We have automatically selected these essential packages based on your project type.`
+                    : `Select common packages for your ${selectedTemplate.name} project. Skip to use defaults.`}
                 </p>
 
-                {/* Selected package tags */}
+                {experienceLevel === 'beginner' ? (
+                  <div className="glass-panel" style={{ padding: "2rem", display: "flex", flexDirection: "column", gap: "1.5rem", textAlign: "left", marginBottom: "2rem" }}>
+                    {selectedPackages.length === 0 ? (
+                      <p style={{ color: "var(--text-secondary)", textAlign: "center" }}>No specific packages required for this stack.</p>
+                    ) : (
+                      selectedPackages.map(slug => {
+                        const pkg = PACKAGE_LIBRARY.find((p) => p.slug === slug);
+                        const laymanReasoning = (stackConfig.projectTypeSlug && getLaymanProject(stackConfig.projectTypeSlug as string)?.reasoning[slug]) || "Essential dependency for this template.";
+                        if (!pkg) return null;
+                        
+                        return (
+                          <div key={slug} style={{ display: "flex", gap: "1rem", alignItems: "flex-start", paddingBottom: "1.5rem", borderBottom: "1px solid var(--border-subtle)", margin: 0 }}>
+                            <span style={{ fontSize: "2rem" }}>{pkg.icon}</span>
+                            <div>
+                              <h3 style={{ fontSize: "1.1rem", marginBottom: "0.25rem", color: "var(--text-primary)" }}>{pkg.name}</h3>
+                              <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", marginBottom: "0.5rem" }}>{pkg.description}</p>
+                              <div style={{ 
+                                fontSize: "0.8rem", 
+                                color: "var(--accent-primary-light)", 
+                                background: "rgba(124,58,237,0.05)", 
+                                padding: "0.5rem 0.75rem", 
+                                borderRadius: "0.5rem",
+                                border: "1px solid rgba(124,58,237,0.1)",
+                              }}>
+                                <strong>💡 Why?</strong> {laymanReasoning}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                ) : (
+                  <>
+                    {/* Selected package tags */}
                 {selectedPackages.length > 0 && (
                   <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginBottom: "1.5rem", justifyContent: "center" }}>
                     {selectedPackages.map((slug) => {
@@ -1077,6 +1115,8 @@ export default function WizardPage() {
                     </div>
                   )}
                 </div>
+                </>
+                )}
 
                 <div className="wizard-nav">
                   <button className="btn btn-ghost" onClick={() => setStep(2)}>

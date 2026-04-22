@@ -234,6 +234,56 @@ export const SERVICE_LIBRARY: ApiService[] = [
       { key: 'VERCEL_PROJECT_ID', description: 'Vercel Project ID', required: false },
     ],
   },
+
+  // ── SaaS Platforms ────────────────────────────
+  {
+    slug: 'freshdesk',
+    name: 'Freshdesk',
+    registrationUrl: 'https://freshdesk.com/signup',
+    description: 'Customer Support Helpdesk and Ticketing',
+    icon: '🎧',
+    category: 'saas',
+    envVars: [
+      { key: 'FRESHDESK_API_KEY', description: 'Freshdesk API Key', required: true },
+      { key: 'FRESHDESK_DOMAIN', description: 'Freshdesk Domain', required: true, placeholder: 'yourcompany.freshdesk.com' }
+    ],
+  },
+  {
+    slug: 'google-workspace',
+    name: 'Google Workspace',
+    registrationUrl: 'https://workspace.google.com/',
+    description: 'Professional Email and Collaboration (G Suite)',
+    icon: '📧',
+    category: 'saas',
+    envVars: [
+      { key: 'GOOGLE_CLIENT_ID', description: 'Google OAuth Client ID', required: false },
+      { key: 'GOOGLE_CLIENT_SECRET', description: 'Google OAuth Client Secret', required: false }
+    ],
+  },
+  {
+    slug: 'zoho',
+    name: 'Zoho',
+    registrationUrl: 'https://www.zoho.com/',
+    description: 'Suite for Transactions, Invoicing, and Business Apps',
+    icon: '💼',
+    category: 'saas',
+    envVars: [
+      { key: 'ZOHO_CLIENT_ID', description: 'Zoho API Client ID', required: true },
+      { key: 'ZOHO_CLIENT_SECRET', description: 'Zoho API Client Secret', required: true }
+    ],
+  },
+  {
+    slug: 'salesforce',
+    name: 'Salesforce',
+    registrationUrl: 'https://developer.salesforce.com/signup',
+    description: 'Enterprise Customer Relationship Management (CRM)',
+    icon: '☁️',
+    category: 'saas',
+    envVars: [
+      { key: 'SALESFORCE_CLIENT_ID', description: 'Salesforce Connected App Client ID', required: true },
+      { key: 'SALESFORCE_CLIENT_SECRET', description: 'Salesforce Connected App Client Secret', required: true }
+    ],
+  },
 ];
 
 export const SERVICE_CATEGORIES = [
@@ -244,6 +294,7 @@ export const SERVICE_CATEGORIES = [
   { slug: 'email', label: 'Email', icon: '📧' },
   { slug: 'monitoring', label: 'Monitoring', icon: '🔍' },
   { slug: 'analytics', label: 'Analytics', icon: '📈' },
+  { slug: 'saas', label: 'SaaS', icon: '☁️' },
   { slug: 'infrastructure', label: 'Infra', icon: '🏗️' },
   { slug: 'other', label: 'Other', icon: '🛠️' },
 ];

@@ -93,7 +93,7 @@ export interface ApiService {
   registrationUrl: string;
   description: string;
   envVars: EnvVar[];
-  category: 'llm' | 'auth' | 'database' | 'payments' | 'email' | 'monitoring' | 'analytics' | 'infrastructure' | 'other';
+  category: 'llm' | 'auth' | 'database' | 'payments' | 'email' | 'monitoring' | 'analytics' | 'infrastructure' | 'saas' | 'other';
   icon: string;
   /** Official documentation for the API */
   documentationUrl?: string;
