@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useCallback, useMemo, useEffect } from "react";
+import { useState, useCallback, useMemo, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { generateAgentFiles } from "@/lib/engine";
@@ -38,7 +39,7 @@ const STEPS = [
   { label: "Export",       number: 8 },
 ];
 
-export default function WizardPage() {
+function WizardContent() {
   const [step, setStep] = useState(0);
   const [wizardMode, setWizardMode] = useState<'manual' | 'ai'>('manual');
   const [experienceLevel, setExperienceLevel] = useState<'beginner' | 'experienced'>('experienced');
@@ -83,6 +84,9 @@ export default function WizardPage() {
   const [modelSlug, setModelSlug] = useState<string | undefined>(AI_MODELS[0].slug);
   const [userCredits, setUserCredits] = useState(0);
 
+  const searchParams = useSearchParams();
+  const urlSessionId = searchParams.get("sessionId");
+
   useEffect(() => {
     const supabase = createClient();
     supabase.auth.getUser().then(({ data }) => {
@@ -94,6 +98,34 @@ export default function WizardPage() {
       }
     });
   }, []);
+
+  useEffect(() => {
+    if (urlSessionId) {
+      import("@/lib/actions/wizard").then(({ getWizardSession }) => {
+        getWizardSession(urlSessionId).then(session => {
+          if (session && session.generated_config) {
+            const config = session.generated_config;
+            setProjectName(`${config.projectName} (Fork)`);
+            const template = PROJECT_TEMPLATES.find(t => t.slug === config.templateSlug);
+            if (template) setSelectedTemplate(template);
+            setTemplateVersion(config.templateVersion);
+            setStackConfig(config.stackConfig);
+            setSelectedIDEs(config.selectedIDEs);
+            setSelectedPackages(config.selectedPackages);
+            setSelectedServices(config.selectedServices);
+            if (config.experienceLevel) setExperienceLevel(config.experienceLevel);
+            if (config.orchestrationMode) setOrchestrationMode(config.orchestrationMode);
+            if (config.selectedBrains) setSelectedBrains(config.selectedBrains);
+            if (config.selectedWorkflows) setSelectedWorkflows(config.selectedWorkflows);
+            setStep(6); // Skip straight to the IDE step since it's a fork
+          }
+        }).catch(err => {
+          console.error("Failed to load session:", err);
+          setToast("Failed to load community blueprint.");
+        });
+      });
+    }
+  }, [urlSessionId]);
 
   // Filter templates by category and search
   const filteredTemplates = useMemo(() => {
@@ -1752,5 +1784,13 @@ function StackField({
         ))}
       </select>
     </div>
+  );
+}
+
+export default function WizardPage() {
+  return (
+    <Suspense fallback={<div style={{ paddingTop: '8rem', textAlign: 'center' }}>Loading wizard...</div>}>
+      <WizardContent />
+    </Suspense>
   );
 }

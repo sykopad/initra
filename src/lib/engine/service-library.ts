@@ -68,7 +68,23 @@ export const SERVICE_LIBRARY: ApiService[] = [
     ],
     compatibility: {
       frameworks: ['nextjs', 'nuxt'],
-    }
+    },
+    boilerplateFiles: [
+      {
+        path: 'src/middleware.ts',
+        targetTemplate: 'nextjs',
+        content: `import { clerkMiddleware } from "@clerk/nextjs/server";\n\nexport default clerkMiddleware();\n\nexport const config = {\n  matcher: [\n    '/((?!_next|[^?]*\\\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',\n    '/(api|trpc)(.*)',\n  ],\n};`
+      },
+      {
+        path: 'package.json',
+        mergeType: 'package-json',
+        content: JSON.stringify({
+          dependencies: {
+            "@clerk/nextjs": "^6.0.0"
+          }
+        })
+      }
+    ]
   },
 
   // ── Payments ──────────────────────────────────
@@ -136,11 +152,18 @@ export const SERVICE_LIBRARY: ApiService[] = [
     boilerplateFiles: [
       {
         path: 'src/lib/supabase/client.ts',
+        targetTemplate: 'nextjs',
         content: `import { createBrowserClient } from '@supabase/ssr';\n\nexport const createClient = () =>\n  createBrowserClient(\n    process.env.NEXT_PUBLIC_SUPABASE_URL!,\n    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!\n  );`
       },
       {
         path: 'src/lib/supabase/server.ts',
+        targetTemplate: 'nextjs',
         content: `import { createServerClient } from '@supabase/ssr';\nimport { cookies } from 'next/headers';\n\nexport const createClient = async () => {\n  const cookieStore = await cookies();\n\n  return createServerClient(\n    process.env.NEXT_PUBLIC_SUPABASE_URL!,\n    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,\n    {\n      cookies: {\n        getAll() {\n          return cookieStore.getAll();\n        },\n        setAll(cookiesToSet) {\n          try {\n            cookiesToSet.forEach(({ name, value, options }) =>\n              cookieStore.set(name, value, options)\n            );\n          } catch {\n            // The \`setAll\` method was called from a Server Component.\n            // This can be ignored if you have middleware refreshing\n            // user sessions.\n          }\n        },\n      },\n    }\n  );\n};`
+      },
+      {
+        path: 'src/app/login/page.tsx',
+        targetTemplate: 'nextjs',
+        content: `import { headers } from 'next/headers';\nimport { createClient } from '@/lib/supabase/server';\nimport { redirect } from 'next/navigation';\n\nexport default async function Login(props: { searchParams: Promise<{ message: string }> }) {\n  const searchParams = await props.searchParams;\n  const signIn = async (formData: FormData) => {\n    'use server';\n    const email = formData.get('email') as string;\n    const password = formData.get('password') as string;\n    const supabase = await createClient();\n    const { error } = await supabase.auth.signInWithPassword({ email, password });\n    if (error) return redirect('/login?message=Could not authenticate user');\n    return redirect('/dashboard');\n  };\n\n  const signUp = async (formData: FormData) => {\n    'use server';\n    const origin = (await headers()).get('origin');\n    const email = formData.get('email') as string;\n    const password = formData.get('password') as string;\n    const supabase = await createClient();\n    const { error } = await supabase.auth.signUp({\n      email,\n      password,\n      options: {\n        emailRedirectTo: \`\${origin}/auth/callback\`\n      }\n    });\n    if (error) return redirect('/login?message=Could not authenticate user');\n    return redirect('/login?message=Check email to continue sign in process');\n  };\n\n  return (\n    <div style={{ display: 'flex', flexDirection: 'column', width: '100%', maxWidth: '400px', margin: '0 auto', gap: '1rem', padding: '2rem' }}>\n      <form style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>\n        <label htmlFor="email">Email</label>\n        <input style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc', color: '#000' }} name="email" placeholder="you@example.com" required />\n        <label htmlFor="password">Password</label>\n        <input style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc', color: '#000' }} type="password" name="password" placeholder="••••••••" required />\n        <button formAction={signIn} style={{ background: '#2563eb', color: 'white', padding: '0.5rem', borderRadius: '4px' }}>Sign In</button>\n        <button formAction={signUp} style={{ background: '#10b981', color: 'white', padding: '0.5rem', borderRadius: '4px' }}>Sign Up</button>\n        {searchParams?.message && <p style={{ marginTop: '1rem', padding: '1rem', background: 'rgba(255,0,0,0.1)', textAlign: 'center' }}>{searchParams.message}</p>}\n      </form>\n    </div>\n  );\n}`
       },
       {
         path: 'package.json',
@@ -165,6 +188,21 @@ export const SERVICE_LIBRARY: ApiService[] = [
       { key: 'UPSTASH_REDIS_REST_URL', description: 'Upstash Redis REST URL', required: true },
       { key: 'UPSTASH_REDIS_REST_TOKEN', description: 'Upstash Redis REST Token', required: true },
     ],
+    boilerplateFiles: [
+      {
+        path: 'src/lib/redis.ts',
+        content: `import { Redis } from '@upstash/redis';\n\nexport const redis = new Redis({\n  url: process.env.UPSTASH_REDIS_REST_URL!,\n  token: process.env.UPSTASH_REDIS_REST_TOKEN!,\n});`
+      },
+      {
+        path: 'package.json',
+        mergeType: 'package-json',
+        content: JSON.stringify({
+          dependencies: {
+            "@upstash/redis": "^1.28.0"
+          }
+        })
+      }
+    ]
   },
 
   // ── Email & Communication ─────────────────────
@@ -179,6 +217,21 @@ export const SERVICE_LIBRARY: ApiService[] = [
     envVars: [
       { key: 'RESEND_API_KEY', description: 'Your Resend API key', required: true, placeholder: 're_...' },
     ],
+    boilerplateFiles: [
+      {
+        path: 'src/lib/resend.ts',
+        content: `import { Resend } from 'resend';\n\nexport const resend = new Resend(process.env.RESEND_API_KEY!);`
+      },
+      {
+        path: 'package.json',
+        mergeType: 'package-json',
+        content: JSON.stringify({
+          dependencies: {
+            "resend": "^4.0.0"
+          }
+        })
+      }
+    ]
   },
   {
     slug: 'twilio',
@@ -206,6 +259,25 @@ export const SERVICE_LIBRARY: ApiService[] = [
     envVars: [
       { key: 'NEXT_PUBLIC_SENTRY_DSN', description: 'Sentry project DSN (client/server)', required: true },
     ],
+    boilerplateFiles: [
+      {
+        path: 'sentry.client.config.ts',
+        content: `import * as Sentry from '@sentry/nextjs';\n\nSentry.init({\n  dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,\n  tracesSampleRate: 1,\n  debug: false,\n});`
+      },
+      {
+        path: 'sentry.server.config.ts',
+        content: `import * as Sentry from '@sentry/nextjs';\n\nSentry.init({\n  dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,\n  tracesSampleRate: 1,\n  debug: false,\n});`
+      },
+      {
+        path: 'package.json',
+        mergeType: 'package-json',
+        content: JSON.stringify({
+          dependencies: {
+            "@sentry/nextjs": "^8.0.0"
+          }
+        })
+      }
+    ]
   },
   {
     slug: 'posthog',
@@ -218,6 +290,22 @@ export const SERVICE_LIBRARY: ApiService[] = [
       { key: 'NEXT_PUBLIC_POSTHOG_KEY', description: 'PostHog API key (client)', required: true },
       { key: 'NEXT_PUBLIC_POSTHOG_HOST', description: 'PostHog host URL', required: true, placeholder: 'https://app.posthog.com' },
     ],
+    boilerplateFiles: [
+      {
+        path: 'src/providers/posthog-provider.tsx',
+        targetTemplate: 'nextjs',
+        content: `'use client';\nimport posthog from 'posthog-js';\nimport { PostHogProvider } from 'posthog-js/react';\nimport { useEffect } from 'react';\n\nexport function CSPostHogProvider({ children }: { children: React.ReactNode }) {\n  useEffect(() => {\n    posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {\n      api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST!,\n      person_profiles: 'identified_only',\n    })\n  }, [])\n  return <PostHogProvider client={posthog}>{children}</PostHogProvider>\n}`
+      },
+      {
+        path: 'package.json',
+        mergeType: 'package-json',
+        content: JSON.stringify({
+          dependencies: {
+            "posthog-js": "^1.100.0"
+          }
+        })
+      }
+    ]
   },
 
   // ── Deployment & CI ───────────────────────────
@@ -331,6 +419,21 @@ export const SERVICE_LIBRARY: ApiService[] = [
       { key: 'CONTENTFUL_ACCESS_TOKEN', description: 'Contentful Delivery API Token', required: true },
       { key: 'CONTENTFUL_PREVIEW_ACCESS_TOKEN', description: 'Contentful Preview API Token', required: false }
     ],
+    boilerplateFiles: [
+      {
+        path: 'src/lib/contentful.ts',
+        content: `import { createClient } from 'contentful';\n\nexport const contentfulClient = createClient({\n  space: process.env.CONTENTFUL_SPACE_ID!,\n  accessToken: process.env.CONTENTFUL_ACCESS_TOKEN!,\n});`
+      },
+      {
+        path: 'package.json',
+        mergeType: 'package-json',
+        content: JSON.stringify({
+          dependencies: {
+            "contentful": "^10.0.0"
+          }
+        })
+      }
+    ]
   },
 
   // ── Search & Discovery ────────────────────────
@@ -375,6 +478,21 @@ export const SERVICE_LIBRARY: ApiService[] = [
       { key: 'NEXT_PUBLIC_MEILISEARCH_API_KEY', description: 'Meilisearch Search Key', required: true },
       { key: 'MEILISEARCH_MASTER_KEY', description: 'Meilisearch Master Key (Server only)', required: true }
     ],
+    boilerplateFiles: [
+      {
+        path: 'src/lib/meilisearch.ts',
+        content: `import { MeiliSearch } from 'meilisearch';\n\nexport const meilisearch = new MeiliSearch({\n  host: process.env.NEXT_PUBLIC_MEILISEARCH_HOST!,\n  apiKey: process.env.MEILISEARCH_MASTER_KEY!,\n});`
+      },
+      {
+        path: 'package.json',
+        mergeType: 'package-json',
+        content: JSON.stringify({
+          dependencies: {
+            "meilisearch": "^0.38.0"
+          }
+        })
+      }
+    ]
   },
 
   // ── Workflow Automation ───────────────────────
@@ -437,6 +555,21 @@ export const SERVICE_LIBRARY: ApiService[] = [
       { key: 'AWS_REGION', description: 'AWS Region', required: true, placeholder: 'us-east-1' },
       { key: 'AWS_S3_BUCKET_NAME', description: 'S3 Bucket Name', required: true }
     ],
+    boilerplateFiles: [
+      {
+        path: 'src/lib/s3.ts',
+        content: `import { S3Client } from '@aws-sdk/client-s3';\n\nexport const s3 = new S3Client({\n  region: process.env.AWS_REGION!,\n  credentials: {\n    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,\n    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,\n  }\n});`
+      },
+      {
+        path: 'package.json',
+        mergeType: 'package-json',
+        content: JSON.stringify({
+          dependencies: {
+            "@aws-sdk/client-s3": "^3.0.0"
+          }
+        })
+      }
+    ]
   },
 
   // ── Notifications & Communication ─────────────

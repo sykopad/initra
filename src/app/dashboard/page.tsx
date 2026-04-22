@@ -43,6 +43,13 @@ export default async function DashboardPage() {
     .eq('user_id', user.id)
     .order('created_at', { ascending: false });
 
+  // Fetch Hatched Ventures
+  const { data: hatchedVentures } = await supabase
+    .from('community_projects')
+    .select('id, title, created_at, status, is_hatched, live_url')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false });
+
   // Fetch Transactions
   const { data: transactions } = await supabase
     .from('credit_transactions')
@@ -89,6 +96,45 @@ export default async function DashboardPage() {
           <div className="purchase-section" style={{ marginTop: '1.5rem' }}>
             <h4 style={{ marginBottom: '1rem', fontSize: '1rem' }}>Top up Credits</h4>
             <CreditPurchase userId={user.id} />
+          </div>
+        </section>
+
+        {/* Hatched Ventures */}
+        <section className="dashboard-card projects-card">
+          <div className="card-header">
+            <h3>Hatched Ventures</h3>
+            <span className="count-badge">{hatchedVentures?.length || 0} Ventures</span>
+          </div>
+          <div className="project-list">
+            {hatchedVentures && hatchedVentures.length > 0 ? (
+              hatchedVentures.map(venture => (
+                <div key={venture.id} className="project-item" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div className="project-info">
+                    <span className="icon">🐣</span>
+                    <div>
+                      <h4>{venture.title}</h4>
+                      <span className="template">
+                        {new Date(venture.created_at).toLocaleDateString()} • {venture.is_hatched ? 'Live' : 'Provisioning'}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="project-actions" style={{ display: 'flex', gap: '0.5rem' }}>
+                    <Link href={`/dashboard/venture/${venture.id}`} className="btn-link" style={{ background: 'var(--primary-dark)', padding: '4px 12px', borderRadius: '4px', fontSize: '0.8rem', color: 'white' }}>
+                      📡 Telemetry
+                    </Link>
+                    {venture.live_url && (
+                      <a href={venture.live_url} target="_blank" rel="noreferrer" className="btn-link" style={{ padding: '4px 12px', borderRadius: '4px', fontSize: '0.8rem' }}>
+                        Visit Site
+                      </a>
+                    )}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="empty-state">
+                <p>No ventures hatched yet.</p>
+              </div>
+            )}
           </div>
         </section>
 

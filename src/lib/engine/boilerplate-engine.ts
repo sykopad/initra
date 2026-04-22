@@ -36,6 +36,7 @@ export function generateProjectBoilerplate(config: WizardConfig): GeneratedFile[
 
   // 4. Filter by condition
   const filteredFiles = files.filter(file => {
+    if (file.targetTemplate && file.targetTemplate !== config.templateSlug) return false;
     if (!file.condition) return true;
     const { field, value } = file.condition;
     return config.stackConfig[field] === value;

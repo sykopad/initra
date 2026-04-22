@@ -65,3 +65,15 @@ export async function updateWizardSessionStatus(sessionId: string, isPublic: boo
 
   if (error) throw error;
 }
+
+export async function getWizardSession(sessionId: string) {
+  const supabase = await createClient();
+  const { data: session, error } = await supabase
+    .from("wizard_sessions")
+    .select("*")
+    .eq("id", sessionId)
+    .single();
+
+  if (error) throw error;
+  return session;
+}

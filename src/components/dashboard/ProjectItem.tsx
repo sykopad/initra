@@ -65,7 +65,7 @@ export default function ProjectItem({ session }: ProjectItemProps) {
           )}
         </div>
       </div>
-      <div className="project-actions" style={{ display: 'flex', gap: '0.5rem' }}>
+      <div className="project-actions" style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
         <Link href={`/shared/${session.share_slug}`} className="btn-link">View Files</Link>
         <button 
           onClick={handleDelete} 

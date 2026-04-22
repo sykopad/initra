@@ -180,6 +180,7 @@ export interface WizardConfig {
 export interface BoilerplateFile {
   path: string;
   content: string;
+  targetTemplate?: string;
   /** Optional: only include if this condition matches stack config value */
   condition?: {
     field: string;
