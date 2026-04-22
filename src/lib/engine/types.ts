@@ -24,7 +24,8 @@ export type IDETarget =
   | 'aider'
   | 'devin'
   | 'replit'
-  | 'universal';
+  | 'universal'
+  | 'antigravity';
 
 /** Package/library categories */
 export type PackageCategory =

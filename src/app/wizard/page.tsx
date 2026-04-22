@@ -1706,10 +1706,13 @@ function WizardContent() {
                   isPushing={isPushing}
                 />
 
-                <div className="wizard-nav" style={{ marginTop: "3rem" }}>
+                <div className="wizard-nav" style={{ marginTop: "3rem", display: "flex", gap: "1rem", flexWrap: "wrap" }}>
                   <button className="btn btn-ghost" onClick={() => setStep(7)}>
                     ← Back to Review
                   </button>
+                  <Link href="/knowledge" className="btn btn-secondary">
+                    💡 View Setup Guide
+                  </Link>
                   <Link href="/community" className="btn btn-primary">
                     🌍 Explore Community Projects
                   </Link>

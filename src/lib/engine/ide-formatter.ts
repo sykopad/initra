@@ -39,6 +39,8 @@ export function formatForIDE(
       return formatDevin(variables, baseContent);
     case 'replit':
       return formatReplit(variables, baseContent);
+    case 'antigravity':
+      return formatAntigravity(variables, baseContent);
     case 'universal':
       return formatUniversal(variables, baseContent);
     default:
@@ -1000,4 +1002,128 @@ function formatReplit(vars: TemplateVariables, _base: string): GeneratedFile[] {
     filePath: '.replit-instructions.md',
     content,
   }];
+}
+
+/**
+ * Google Antigravity specialized format (.agents/rules/project-rules.md, GEMINI.md, etc.)
+ */
+function formatAntigravity(vars: TemplateVariables, _base: string): GeneratedFile[] {
+  const kb = getKnowledgeBlocks(vars);
+  const files: GeneratedFile[] = [];
+
+  // 1. Root Context (GEMINI.md)
+  let geminiContent = compose(`# Google Antigravity — {{projectName}}
+
+## Persona
+You are a senior {{languageLabel}} architect using Google Antigravity.
+Your objective is to maintain high-fidelity implementation of {{framework}} patterns.
+
+## Global Context
+- Framework: {{framework}} ({{templateVersion}})
+- Language: {{languageLabel}}
+- Rules Directory: \`.agents/rules/\`
+- Skills Directory: \`.agents/skills/\`
+
+@/agents/rules/project-rules.md
+`, vars);
+
+  geminiContent = injectIntelligence(geminiContent, vars);
+  
+  files.push({
+    ideTarget: 'antigravity',
+    filename: 'GEMINI.md',
+    filePath: 'GEMINI.md',
+    content: geminiContent,
+  });
+
+  // 2. Workspace Rules (.agents/rules/project-rules.md)
+  let rulesContent = compose(`# Project Rules — {{projectName}}
+
+> These rules are manually defined constraints for the Agent to follow.
+
+## Tech Stack
+- Framework: {{framework}}
+- Database: {{database}}
+- Auth: {{auth}}
+- Styling: {{styling}}
+
+## Development Workflow
+- Start: \`{{devCommand}}\`
+- Build: \`{{buildCommand}}\`
+{{#if testing}}
+- Test: \`{{testCommand}}\`
+{{/if}}
+
+## Activation
+- Always On: true
+- Glob: **/*.{ts,tsx,js,jsx,py,go}
+`, vars);
+
+  if (kb) {
+    rulesContent += `\n\n## Constraints & Anti-Patterns\n\n`;
+    rulesContent += kb.antiPatterns.map(ap => `- ${ap}`).join('\n');
+
+    rulesContent += `\n\n## Architecture Conventions\n\n`;
+    rulesContent += kb.conventions.map((c, i) => `${i + 1}. ${c}`).join('\n');
+  }
+
+  rulesContent = injectPackageKnowledge(rulesContent, vars);
+  rulesContent = injectServiceKnowledge(rulesContent, vars);
+  rulesContent = injectOverlays(rulesContent, vars);
+
+  files.push({
+    ideTarget: 'antigravity',
+    filename: 'project-rules.md',
+    filePath: '.agents/rules/project-rules.md',
+    content: rulesContent,
+  });
+
+  // 3. Setup Workflow (.agents/workflows/setup.md)
+  const workflowContent = compose(`# Workflow: Initial Setup
+description: Guide for setting up the {{projectName}} development environment.
+
+## Steps
+1. **Dependency Installation**: Run \`{{installCommand}}\` to install all required packages.
+2. **Environment Configuration**: Create a \`.env.local\` file based on \`.env.example\`.
+3. **Database Initialization**: {{#if dbPushCommand}}Run \`{{dbPushCommand}}\` to sync schema.{{else}}Ensure your database is reachable.{{/if}}
+4. **First Run**: Execute \`{{devCommand}}\` and verify the application is live.
+
+## Call /workflow-audit
+Once setup is complete, run the audit workflow to ensure quality.
+`, vars);
+
+  files.push({
+    ideTarget: 'antigravity',
+    filename: 'setup.md',
+    filePath: '.agents/workflows/setup.md',
+    content: workflowContent,
+  });
+
+  // 4. Initra Skill (.agents/skills/initra-standard/SKILL.md)
+  const skillContent = compose(`---
+name: initra-standard
+description: Specialized knowledge for maintaining Initra-generated projects.
+---
+
+# Initra Standard Skill
+
+When working on this project, adhere to the Initra architectural principles.
+
+## Core Principles
+1. **Named Exports**: Never use default exports except for page components.
+2. **Early Returns**: Keep functions flat and readable.
+3. **Type Safety**: Avoid \`any\` at all costs.
+
+## Heuristic Landmarks
+Refer to identified landmarks in \`GEMINI.md\` for structural context.
+`, vars);
+
+  files.push({
+    ideTarget: 'antigravity',
+    filename: 'SKILL.md',
+    filePath: '.agents/skills/initra-standard/SKILL.md',
+    content: skillContent,
+  });
+
+  return files;
 }

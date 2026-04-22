@@ -80,6 +80,11 @@ export default function Navbar() {
               Community
             </Link>
           </li>
+          <li>
+            <Link href="/knowledge" className={pathname === "/knowledge" ? "active" : ""}>
+              Knowledge
+            </Link>
+          </li>
 
           <li className="navbar-divider"></li>
 

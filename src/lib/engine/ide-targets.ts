@@ -95,6 +95,15 @@ export const IDE_TARGETS: IDETargetConfig[] = [
     description: 'Tool-agnostic open standard. Works across multiple AI coding agents.',
     supportsMultiFile: false,
   },
+  {
+    slug: 'antigravity',
+    name: 'Google Antigravity',
+    icon: '🚀',
+    configFilename: 'project-rules.md',
+    configPath: '.agents/rules/project-rules.md',
+    description: 'Advanced agent orchestration with Rules, Workflows, and Skills.',
+    supportsMultiFile: true,
+  },
 ];
 
 export function getIDETarget(slug: string): IDETargetConfig | undefined {
