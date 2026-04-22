@@ -519,6 +519,266 @@ nickname_candidates = ["Atlas", "Delta"]`}
     )
   },
   {
+    slug: "factory",
+    name: "Factory",
+    icon: "🏭",
+    content: (
+      <>
+        <h3>Skills, Droids & Commands</h3>
+        <p>Factory is an AI-native software development platform for enterprise-grade automation and orchestration.</p>
+        
+        <div className="guide-section">
+          <h4>🧩 Reusable Skills</h4>
+          <p>Extend Droid capabilities with outcome-focused modules in <code>.factory/skills/</code>.</p>
+          <ul>
+            <li><strong>Flexible Invocation</strong>: Skills can be triggered manually via slash commands or automatically by the Droid.</li>
+            <li><strong>Token-Efficient</strong>: Lightweight modules that provide specific expertise or workflows without bloat.</li>
+            <li><strong>Composable</strong>: Skills can be chained together inside a larger plan.</li>
+          </ul>
+        </div>
+
+        <div className="guide-section">
+          <h4>🤖 Custom Droids (Subagents)</h4>
+          <p>Specialized agents with unique system prompts, tool access, and model preferences for task hand-off.</p>
+          <ul>
+            <li><strong>Context Isolation</strong>: Each subagent runs in a fresh context window to prevent prompt pollution.</li>
+            <li><strong>Safety Rules</strong>: Stricter tool categories (read-only, edit, execute) for controlled execution.</li>
+            <li><strong>Project-Scoped</strong>: Define droids in <code>.factory/droids/</code> to share with your team.</li>
+          </ul>
+        </div>
+
+        <div className="guide-section">
+          <h4>⌨️ Custom Slash Commands</h4>
+          <p>Turn repeatable prompts into <code>/shortcuts</code> using Markdown templates or executable scripts.</p>
+          <ul>
+            <li><strong>Markdown Commands</strong>: Seed conversations with checklists or rubrics.</li>
+            <li><strong>Executable Commands</strong>: Shell scripts (starting with <code>#!</code>) for environment setup or tests.</li>
+          </ul>
+        </div>
+
+        <div className="guide-section">
+          <h4>🏢 Enterprise Focus</h4>
+          <p>Factory is designed for complex codebases, allowing teams to encode conventions, safety rules, and internal playbooks as version-controlled code.</p>
+        </div>
+      </>
+    )
+  },
+  {
+    slug: "ona",
+    name: "Ona",
+    icon: "🧬",
+    content: (
+      <>
+        <h3>Cloud-based Background Agents</h3>
+        <p>Ona is a platform for running autonomous teams of AI engineers in secure, orchestrated cloud environments.</p>
+        
+        <div className="guide-section">
+          <h4>📖 Codebase Context (AGENTS.md)</h4>
+          <p>Ona Agent relies on <code>AGENTS.md</code> to understand your project's unique tribal knowledge.</p>
+          <ul>
+            <li><strong>Tribal Knowledge</strong>: Codify branch naming, test commands, and directory purposes.</li>
+            <li><strong>Conciseness</strong>: Aim for under 300 lines to maintain high instruction-following quality.</li>
+            <li><strong>Nested Support</strong>: Monorepos can use per-package <code>AGENTS.md</code> files for tailored local context.</li>
+          </ul>
+        </div>
+
+        <div className="guide-section">
+          <h4>🛠️ Agent Skills</h4>
+          <p>Teach Ona specific workflows like PR creation, Sentry triage, or Go testing patterns.</p>
+          <ul>
+            <li><strong>Repository Skills</strong>: Step-by-step procedures in <code>.ona/skills/</code> discovered by description.</li>
+            <li><strong>Organization Skills</strong>: Shared best practices accessible across all projects via slash commands.</li>
+            <li><strong>Anti-Patterns</strong>: Explicitly define what agents should <em>not</em> do to prevent common mistakes.</li>
+          </ul>
+        </div>
+
+        <div className="guide-section">
+          <h4>🔔 Automation & Webhooks</h4>
+          <p>Integrate agents into your CI/CD and monitoring pipelines.</p>
+          <ul>
+            <li><strong>Completion Triggers</strong>: Instruct agents to run <code>curl</code> notifications upon task finish.</li>
+            <li><strong>WatchEvents API</strong>: Monitor agent activity and status programmatically.</li>
+          </ul>
+        </div>
+      </>
+    )
+  },
+  {
+    slug: "autohand",
+    name: "Autohand",
+    icon: "🦾",
+    content: (
+      <>
+        <h3>Adaptive Continuous Engineering</h3>
+        <p>Autohand is an autonomous AI software engineer with self-evolving capabilities, designed to achieve Level 5 programming autonomy.</p>
+        
+        <div className="guide-section">
+          <h4>🚀 Autohand Code</h4>
+          <p>Self-evolving code agent for terminal-based orchestration, Zed, and VS Code.</p>
+          <ul>
+            <li><strong>Orchestration</strong>: Manage teams of specialized agents (SRE, Technical Debt, Migration).</li>
+            <li><strong>Multi-File Editing</strong>: Ship complete features autonomously across your entire codebase.</li>
+            <li><strong>Agentic Search</strong>: Deep, context-aware repository analysis to locate and fix complex bugs.</li>
+          </ul>
+        </div>
+
+        <div className="guide-section">
+          <h4>🧬 Autohand Evolve</h4>
+          <p>Deploys self-improving agents that continuously discover and optimize your code using evolutionary algorithms.</p>
+          <ul>
+            <li><strong>Continuous Evolution</strong>: Agents discover, test, and optimize algorithms autonomously.</li>
+            <li><strong>Ground Truth Evaluation</strong>: Validate optimizations against performance criteria and real-world data.</li>
+            <li><strong>Cloud-Agnostic</strong>: Run self-evolving agents on AWS, GCP, Azure, or bare metal.</li>
+          </ul>
+        </div>
+
+        <div className="guide-section">
+          <h4>🛠️ Getting Started</h4>
+          <p>Install Autohand CLI to bootstrap your autonomous engineering environment.</p>
+          <pre style={{ background: "rgba(0,0,0,0.3)", padding: "1rem", borderRadius: "8px", marginTop: "0.5rem" }}>
+            <code>curl -fsSL https://autohand.ai/install.sh | sh</code>
+          </pre>
+          <p style={{ marginTop: "0.5rem" }}>Run <code>autohand init</code> in your venture root to connect your <code>autohand.json</code> config.</p>
+        </div>
+      </>
+    )
+  },
+  {
+    slug: "databricks-genie",
+    name: "Databricks Genie",
+    icon: "🧱",
+    content: (
+      <>
+        <h3>Data & AI Partner</h3>
+        <p>Databricks Genie Code is an autonomous AI partner built for high-performance data engineering and machine learning workflows.</p>
+        
+        <div className="guide-section">
+          <h4>📝 Custom Instructions</h4>
+          <p>Personalize Genie Code behavior with hierarchical instruction files.</p>
+          <ul>
+            <li><strong>Auto-Discovery</strong>: Automatically reads <code>AGENTS.md</code> and <code>CLAUDE.md</code> from your venture root.</li>
+            <li><strong>Workspace Standards</strong>: Admins can define <code>.assistant_workspace_instructions.md</code> for team-wide conventions.</li>
+            <li><strong>User Context</strong>: Define personal preferences in <code>.assistant_instructions.md</code>.</li>
+          </ul>
+        </div>
+
+        <div className="guide-section">
+          <h4>🧩 Agent Skills</h4>
+          <p>Extend Genie Code in Agent mode with specialized domain knowledge using the <strong>Agent Skills</strong> standard.</p>
+          <ul>
+            <li><strong>Built-in Expertise</strong>: Pre-configured for Unity Catalog, MLflow, and Databricks Notebooks.</li>
+            <li><strong>Custom Skills</strong>: Store task-specific workflows, reusable scripts, and documentation in <code>.assistant/skills/</code>.</li>
+            <li><strong>Automatic Hand-off</strong>: Genie Code dynamically loads relevant skills based on your request context.</li>
+          </ul>
+        </div>
+
+        <div className="guide-section">
+          <h4>💡 Best Practices</h4>
+          <ul>
+            <li><strong>Clear Scope</strong>: Focus skills on single tasks (e.g., "Deploy ML Model") for better recognition.</li>
+            <li><strong>Example-Driven</strong>: Include sample inputs/outputs in your skill documentation.</li>
+            <li><strong>Conciseness</strong>: Keep instruction files under 20,000 characters for optimal performance.</li>
+          </ul>
+        </div>
+      </>
+    )
+  },
+  {
+    slug: "laravel-boost",
+    name: "Laravel Boost",
+    icon: "🏗️",
+    content: (
+      <>
+        <h3>Laravel Infrastructure</h3>
+        <p>Laravel Boost provides a systematic tiered approach to AI context management using global guidelines and on-demand agent skills.</p>
+        
+        <div className="guide-section">
+          <h4>🏗️ Guidelines vs. Skills</h4>
+          <p>Optimize your agent&apos;s context window by separating core conventions from task-specific patterns.</p>
+          <ul>
+            <li><strong>Guidelines</strong>: Foundation context (Laravel standards) loaded upfront in <code>.ai/guidelines/</code>.</li>
+            <li><strong>Skills</strong>: On-demand modules for specific packages (Livewire, Pest, Inertia) in <code>.ai/skills/</code>.</li>
+            <li><strong>Context Efficiency</strong>: Skills reduce bloat by only loading detailed patterns when relevant to the task.</li>
+          </ul>
+        </div>
+
+        <div className="guide-section">
+          <h4>🧩 Agent Skills</h4>
+          <p>Boost supports the <strong>Agent Skills</strong> open standard for portable, actionable capabilities.</p>
+          <ul>
+            <li><strong>Auto-Installation</strong>: Running <code>boost:install</code> automatically detects and configures skills based on your <code>composer.json</code>.</li>
+            <li><strong>Custom Skills</strong>: Create task-specific logic in <code>.ai/skills/domain-logic/SKILL.md</code>.</li>
+            <li><strong>Skill Overrides</strong>: Replace built-in Boost skills with your own by matching folder names.</li>
+          </ul>
+        </div>
+
+        <div className="guide-section">
+          <h4>💻 Workflow</h4>
+          <pre style={{ background: "rgba(0,0,0,0.3)", padding: "1rem", borderRadius: "8px", marginTop: "0.5rem" }}>
+            <code>php artisan boost:install</code>
+          </pre>
+          <p style={{ marginTop: "0.5rem" }}>This command bootstraps your <code>.ai/</code> directory with detected package skills and core Laravel guidelines.</p>
+        </div>
+      </>
+    )
+  },
+  {
+    slug: "agent-skills",
+    name: "Agent Skills",
+    icon: "🔌",
+    content: (
+      <>
+        <h3>The Open Standard for AI Capabilities</h3>
+        <p>Agent Skills is a lightweight, open format for extending AI agent capabilities with specialized knowledge and workflows.</p>
+        
+        <div className="guide-section">
+          <h4>💡 What are Skills?</h4>
+          <p>A skill is a folder containing a <code>SKILL.md</code> file with metadata (YAML frontmatter) and instructions. Skills can also bundle scripts, templates, and reference materials.</p>
+          <pre className="code-block" style={{ background: "rgba(0,0,0,0.3)", padding: "1rem", borderRadius: "8px", marginTop: "0.5rem" }}>
+{`my-skill/
+├── SKILL.md          # Instructions + metadata
+├── scripts/          # Executable code
+├── references/       # Documentation
+└── assets/           # Templates, resources`}
+          </pre>
+        </div>
+
+        <div className="guide-section">
+          <h4>🔄 Progressive Disclosure</h4>
+          <ol>
+            <li><strong>Discovery</strong>: Agents load only the name and description at startup (\~100 tokens).</li>
+            <li><strong>Activation</strong>: Full instructions are loaded only when the task matches the skill&apos;s description.</li>
+            <li><strong>Execution</strong>: The agent follows instructions, loading referenced files or executing code on demand.</li>
+          </ol>
+        </div>
+
+        <div className="guide-section">
+          <h4>📝 The SKILL.md Format</h4>
+          <pre className="code-block" style={{ background: "rgba(0,0,0,0.3)", padding: "1rem", borderRadius: "8px", marginTop: "0.5rem" }}>
+{`---
+name: pdf-processing
+description: Extract text, fill forms, merge files. Use when handling PDFs.
+---
+
+# PDF Processing
+## When to use this skill
+Use this skill when the user needs to work with PDF files...`}
+          </pre>
+        </div>
+
+        <div className="guide-section">
+          <h4>✅ Best Practices</h4>
+          <ul>
+            <li><strong>Ground in Expertise</strong>: Avoid generic advice; include specific API patterns and project conventions.</li>
+            <li><strong>Stepwise Guidance</strong>: Concise, stepwise instructions with working examples tend to outperform exhaustive documentation.</li>
+            <li><strong>Spend Context Wisely</strong>: Focus on what the agent <em>doesn&apos;t</em> know. Cut generic explanations of standard technologies.</li>
+            <li><strong>Prescriptive for Fragility</strong>: Be very specific when operations are fragile (e.g., database migrations).</li>
+          </ul>
+        </div>
+      </>
+    )
+  },
+  {
     slug: "ecosystem",
     name: "Ecosystem Directory",
     icon: "🌐",
@@ -536,8 +796,8 @@ nickname_candidates = ["Atlas", "Delta"]`}
               </tr>
             </thead>
             <tbody>
-              <tr><td><strong>Claude</strong></td><td>Anthropic's AI for complex reasoning and coding.</td></tr>
-              <tr><td><strong>OpenAI Codex</strong></td><td>OpenAI's legacy and orchestration-focused coding engine.</td></tr>
+              <tr><td><strong>Claude</strong></td><td>Anthropic&apos;s AI for complex reasoning and coding.</td></tr>
+              <tr><td><strong>OpenAI Codex</strong></td><td>OpenAI&apos;s legacy and orchestration-focused coding engine.</td></tr>
               <tr><td><strong>Mistral Vibe</strong></td><td>Conversational CLI interface for codebase exploration.</td></tr>
               <tr><td><strong>Trae AI</strong></td><td>Adaptive AI IDE for high-velocity collaboration.</td></tr>
               <tr><td><strong>Ona</strong></td><td>Cloud-based background agents for engineering teams.</td></tr>

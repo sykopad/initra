@@ -28,7 +28,12 @@ export type IDETarget =
   | 'antigravity'
   | 'codex'
   | 'junie'
-  | 'mistral-vibe';
+  | 'mistral-vibe'
+  | 'factory'
+  | 'ona'
+  | 'autohand'
+  | 'databricks-genie'
+  | 'laravel-boost';
 
 /** Package/library categories */
 export type PackageCategory =

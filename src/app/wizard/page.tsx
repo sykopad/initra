@@ -640,7 +640,7 @@ function WizardContent() {
               <div style={{ maxWidth: "600px", margin: "0 auto", textAlign: "center" }}>
                 <h2 className="wizard-step-title">Tell us about yourself</h2>
                 <p className="wizard-step-subtitle" style={{ marginBottom: "2rem" }}>
-                  We'll tailor the wizard experience based on your expertise.
+                  We&apos;ll tailor the wizard experience based on your expertise.
                 </p>
 
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem", marginBottom: "2rem" }}>
@@ -650,7 +650,7 @@ function WizardContent() {
                     style={{ padding: "2rem" }}
                   >
                     <span style={{ fontSize: "2.5rem", marginBottom: "1rem", display: "block" }}>💻</span>
-                    <h3>I'm a Developer</h3>
+                    <h3>I&apos;m a Developer</h3>
                     <p style={{ fontSize: "0.85rem" }}>I want full control over the tech stack and architecture.</p>
                   </div>
                   <div 
@@ -659,7 +659,7 @@ function WizardContent() {
                     style={{ padding: "2rem" }}
                   >
                     <span style={{ fontSize: "2.5rem", marginBottom: "1rem", display: "block" }}>👔</span>
-                    <h3>I'm a Layman</h3>
+                    <h3>I&apos;m a Layman</h3>
                     <p style={{ fontSize: "0.85rem" }}>I want to build a project without worrying about the code.</p>
                   </div>
                 </div>
@@ -1723,6 +1723,84 @@ function WizardContent() {
                       <p style={{ margin: 0, fontSize: "0.8rem", color: "var(--text-muted)" }}>
                         Use <strong>Agent Profiles</strong> and <strong>Interactive Questions</strong> for a smooth CLI experience.
                         <Link href="/knowledge?ide=mistral-vibe" className="link-standard" style={{ marginLeft: "0.5rem" }}>Explore Vibe guide →</Link>
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {selectedIDEs.includes('factory') && (
+                  <div className="glass-panel" style={{ background: "rgba(107, 114, 128, 0.05)", border: "1px solid rgba(107, 114, 128, 0.2)", padding: "1rem", borderRadius: "12px", marginBottom: "1.5rem", display: "flex", alignItems: "center", gap: "1rem" }}>
+                    <span style={{ fontSize: "1.5rem" }}>🏭</span>
+                    <div style={{ flex: 1 }}>
+                      <p style={{ margin: 0, fontSize: "0.85rem", fontWeight: 600, color: "var(--text-muted)" }}>Pro Tip: Orchestrate with Factory</p>
+                      <p style={{ margin: 0, fontSize: "0.8rem", color: "var(--text-muted)" }}>
+                        Scale your team with <strong>Droids</strong>, <strong>Skills</strong>, and <strong>Custom Commands</strong>.
+                        <Link href="/knowledge?ide=factory" className="link-standard" style={{ marginLeft: "0.5rem" }}>Explore Factory guide →</Link>
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {selectedIDEs.includes('ona') && (
+                  <div className="glass-panel" style={{ background: "rgba(139, 92, 246, 0.05)", border: "1px solid rgba(139, 92, 246, 0.2)", padding: "1rem", borderRadius: "12px", marginBottom: "1.5rem", display: "flex", alignItems: "center", gap: "1rem" }}>
+                    <span style={{ fontSize: "1.5rem" }}>🧬</span>
+                    <div style={{ flex: 1 }}>
+                      <p style={{ margin: 0, fontSize: "0.85rem", fontWeight: 600, color: "var(--accent-primary-light)" }}>Pro Tip: Automate with Ona</p>
+                      <p style={{ margin: 0, fontSize: "0.8rem", color: "var(--text-muted)" }}>
+                        Use <strong>AGENTS.md</strong> and <strong>Skills</strong> to teach agents your tribal knowledge.
+                        <Link href="/knowledge?ide=ona" className="link-standard" style={{ marginLeft: "0.5rem" }}>Explore Ona guide →</Link>
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {selectedIDEs.includes('autohand') && (
+                  <div className="glass-panel" style={{ background: "rgba(16, 185, 129, 0.05)", border: "1px solid rgba(16, 185, 129, 0.2)", padding: "1rem", borderRadius: "12px", marginBottom: "1.5rem", display: "flex", alignItems: "center", gap: "1rem" }}>
+                    <span style={{ fontSize: "1.5rem" }}>🦾</span>
+                    <div style={{ flex: 1 }}>
+                      <p style={{ margin: 0, fontSize: "0.85rem", fontWeight: 600, color: "#10b981" }}>Pro Tip: Evolve with Autohand</p>
+                      <p style={{ margin: 0, fontSize: "0.8rem", color: "var(--text-muted)" }}>
+                        Achieve <strong>Level 5 Autonomy</strong> with self-evolving code and evolutionary optimization.
+                        <Link href="/knowledge?ide=autohand" className="link-standard" style={{ marginLeft: "0.5rem" }}>Explore Autohand guide →</Link>
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {selectedIDEs.includes('databricks-genie') && (
+                  <div className="glass-panel" style={{ background: "rgba(255, 54, 33, 0.05)", border: "1px solid rgba(255, 54, 33, 0.2)", padding: "1rem", borderRadius: "12px", marginBottom: "1.5rem", display: "flex", alignItems: "center", gap: "1rem" }}>
+                    <span style={{ fontSize: "1.5rem" }}>🧱</span>
+                    <div style={{ flex: 1 }}>
+                      <p style={{ margin: 0, fontSize: "0.85rem", fontWeight: 600, color: "#FF3621" }}>Pro Tip: Scale Data with Genie</p>
+                      <p style={{ margin: 0, fontSize: "0.8rem", color: "var(--text-muted)" }}>
+                        Genie Code auto-discovers <strong>AGENTS.md</strong> to follow your data engineering standards.
+                        <Link href="/knowledge?ide=databricks-genie" className="link-standard" style={{ marginLeft: "0.5rem" }}>Explore Genie guide →</Link>
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {selectedIDEs.includes('laravel-boost') && (
+                  <div className="glass-panel" style={{ background: "rgba(235, 68, 50, 0.05)", border: "1px solid rgba(235, 68, 50, 0.2)", padding: "1rem", borderRadius: "12px", marginBottom: "1.5rem", display: "flex", alignItems: "center", gap: "1rem" }}>
+                    <span style={{ fontSize: "1.5rem" }}>🏗️</span>
+                    <div style={{ flex: 1 }}>
+                      <p style={{ margin: 0, fontSize: "0.85rem", fontWeight: 600, color: "#EB4432" }}>Pro Tip: Boost Laravel Context</p>
+                      <p style={{ margin: 0, fontSize: "0.8rem", color: "var(--text-muted)" }}>
+                        Use <strong>Guidelines</strong> for conventions and <strong>Skills</strong> for implementation patterns in <code>.ai/</code>.
+                        <Link href="/knowledge?ide=laravel-boost" className="link-standard" style={{ marginLeft: "0.5rem" }}>Explore Boost guide →</Link>
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {selectedIDEs.some(ide => ['antigravity', 'cursor', 'junie', 'factory', 'laravel-boost', 'databricks-genie', 'ona'].includes(ide)) && (
+                  <div className="glass-panel" style={{ background: "rgba(124, 58, 237, 0.05)", border: "1px solid rgba(124, 58, 237, 0.2)", padding: "1rem", borderRadius: "12px", marginBottom: "1.5rem", display: "flex", alignItems: "center", gap: "1rem" }}>
+                    <span style={{ fontSize: "1.5rem" }}>🔌</span>
+                    <div style={{ flex: 1 }}>
+                      <p style={{ margin: 0, fontSize: "0.85rem", fontWeight: 600, color: "#7C3AED" }}>Cross-Platform: Agent Skills</p>
+                      <p style={{ margin: 0, fontSize: "0.8rem", color: "var(--text-muted)" }}>
+                        Your selection supports <strong>Agent Skills</strong>. Use the <code>SKILL.md</code> standard for portable AI capabilities.
+                        <Link href="/knowledge?ide=agent-skills" className="link-standard" style={{ marginLeft: "0.5rem" }}>Learn about Skills →</Link>
                       </p>
                     </div>
                   </div>

@@ -277,6 +277,46 @@ Vibe is configured via `config.toml`.
 - `vibe --agent plan` — Exploration mode.
 - `vibe --continue` — Resume last session.
 
+## Factory — Skills, Droids & Commands
+
+Factory is an AI-native software development platform that leverages specialized "Droids" and reusable "Skills" to automate complex engineering workflows.
+
+### Skills System
+Skills are reusable capabilities that extend what your Droid can do.
+- **Locations**: `.factory/skills/` (Workspace), `~/.factory/skills/` (Personal), and `.agent/skills/` (Compatibility).
+- **Format**: `SKILL.md` or `skill.mdx` with YAML frontmatter.
+- **Invocation**: Both you (via `/skill-name`) and the Droid (automatically based on relevance) can invoke skills.
+
+### Custom Droids (Subagents)
+Create specialized subagents with unique prompts, tool access, and model preferences.
+- **Discovery**: Scanned from `.factory/droids/` and `~/.factory/droids/`.
+- **Inheritance**: Project-level definitions override personal ones.
+- **Tool Categories**: `read-only` (analysis), `edit` (generation), `execute` (shell), `web` (research), and `mcp`.
+
+### Custom Slash Commands
+Turn repeatable prompts or setup steps into `/shortcuts`.
+- **Workspace**: `.factory/commands/` for project-specific shared commands.
+- **Markdown Commands**: Render into system notifications with `$ARGUMENTS` support.
+- **Executable Commands**: Scripts starting with a shebang for direct shell execution.
+
+## Ona — Cloud-based Background Agents
+
+Ona is a platform for background agents that run as a team of AI software engineers in the cloud, orchestrated and secured at the kernel.
+
+### Codebase Context (AGENTS.md)
+Ona Agent uses `AGENTS.md` to understand project conventions, commands, and architecture.
+- **Scope**: Supports nested `AGENTS.md` files in monorepos; agents read the nearest file in the tree.
+- **Optimization**: Recommended length is under 300 lines (ideal < 60 lines) for maximum instruction-following quality.
+
+### Agent Skills
+Skills are `SKILL.md` files containing step-by-step workflow instructions for repeatable tasks.
+- **Repository Skills**: Stored in `.ona/skills/<name>/SKILL.md`. Discovered automatically by description.
+- **Organization Skills**: Reusable prompts managed at the organization level, optionally available as slash commands.
+
+### Automation & Notifications
+- **Webhooks**: Agents can be instructed to run `curl` commands or background tasks upon completion.
+- **WatchEvents API**: Programmatic monitoring of task completion and agent lifecycle events.
+
 ## Platform Ecosystem Directory
 
 Initra integrates with a vast landscape of modern AI coding agents and platforms. Each platform has specific strengths, ranging from terminal-based CLI tools to full-featured cloud IDEs.
@@ -583,6 +623,127 @@ We implement frameworks **one at a time** to ensure maximum accuracy and deep he
 97. **Deep Venture Telemetry Dashboard**: Dedicated "Venture Detail" view in the Command Center showing live provisioning logs, webhook status, Vercel builds, and health scorecards.
 98. **The Community Blueprint Marketplace**: Upgrade the Community Hub to allow users to "Fork & Tweak Blueprint", loading a community project's `generated_config` directly back into the project wizard.
 
+
+## Autohand — Adaptive Continuous Engineering
+
+> Autonomous code evolution powered by evolutionary software engineering.
+
+**Autohand** is an autonomous AI software engineer with self-evolving capabilities. It provides Level 5 programming autonomy, enabling multi-file editing, agentic search, and continuous code evolution.
+
+### Autonomy Levels
+
+Autohand helps teams reach Level 5 autonomy through its specialized tools:
+- **L1 Assisted**: Autocomplete patterns.
+- **L2 Partial**: Writing blocks with human approval.
+- **L3 Conditional**: Feature implementation with oversight.
+- **L4 High**: Autonomous application development.
+- **L5 Full**: Software that evolves itself via evolutionary optimization.
+
+### Core Tools
+
+| Tool | Purpose |
+|------|---------|
+| **Autohand Code** | Self-evolving code agent for CLI, VS Code, and Zed Editor. Orchestrates agent teams to ship features autonomously. |
+| **Autohand Evolve** | Deploys self-improving agents that continuously discover, test, and optimize algorithms using evolutionary algorithms. |
+| **Autohand CLI** | Terminal-based orchestration hub for autonomous software engineering. |
+
+### Configuration
+
+Initra generates the `autohand.json` configuration file to bootstrap your autonomous engineering environment:
+
+```json
+{
+  "project": "venture-name",
+  "autonomy_level": 5,
+  "evolve": {
+    "enabled": true,
+    "ground_truth_eval": "tests/performance",
+    "infrastructure": "cloud-agnostic"
+  },
+  "agents": {
+    "orchestrator": "autohand-code",
+    "specialists": ["technical-debt", "legacy-migration", "autonomous-sre"]
+  }
+}
+```
+
+## Databricks Genie Code — Data & AI Partner
+
+> Autonomous AI partner purpose-built for data work in Databricks.
+
+**Databricks Genie Code** automates common Databricks workflows, from data exploration in Unity Catalog to building ML pipelines. It supports custom instructions and extensible agent skills.
+
+### Custom Instructions
+
+Genie Code automatically discovers and reads `AGENTS.md` and `CLAUDE.md` files in your workspace. 
+- **Workspace Instructions**: Configured in `.assistant_workspace_instructions.md` by admins for organization-wide standards.
+- **User Instructions**: Personal preferences stored in `.assistant_instructions.md`.
+- **Auto-Discovery**: Genie Code walks up the directory tree to inject all found instruction files into its context.
+
+### Agent Skills
+
+Extend Genie Code with specialized capabilities following the **Agent Skills** open standard.
+- **Location**: `.assistant/skills/` (Workspace or User directories).
+- **Structure**: Each skill requires a dedicated folder containing a `SKILL.md` file with YAML frontmatter (`name`, `description`).
+- **Capabilities**: Skills can include step-by-step guidance, reusable code, and executable scripts for model deployment or ETL patterns.
+
+## Laravel Boost — Laravel Infrastructure
+
+> Guidelines and agent skills for writing high-quality Laravel applications.
+
+**Laravel Boost** provides a systematic way to give AI agents context about your application through a combination of global guidelines and on-demand skills.
+
+### Guidelines vs. Skills
+
+| Aspect | Guidelines | Skills |
+|--------|------------|--------|
+| **Loaded** | Upfront, always present | On-demand, when relevant |
+| **Scope** | Broad, foundational Laravel conventions | Focused, task-specific implementation patterns |
+| **Location** | `.ai/guidelines/` | `.ai/skills/` |
+
+### Agent Skills
+
+Laravel Boost skills are lightweight, targeted knowledge modules that reduce context bloat.
+- **On-Demand Activation**: Skills are only loaded when relevant to the current task (e.g., Livewire components, Pest tests).
+- **Auto-Discovery**: `boost:install` detects packages in `composer.json` and installs matching skills (e.g., `livewire-development`).
+- **Customization**: Create your own skills in `.ai/skills/{skill-name}/SKILL.md` or override built-in ones by matching names.
+
+## Agent Skills — The Open Standard
+
+> A simple, open format for giving agents new capabilities and expertise.
+
+**Agent Skills** is an open format (originally developed by Anthropic) for extending AI agent capabilities with specialized knowledge and workflows. It is supported by a growing ecosystem including **Claude Code**, **Cursor**, **Junie**, **Factory**, **Databricks Genie**, and **Laravel Boost**.
+
+### Core Concept: Progressive Disclosure
+
+Skills manage context efficiently by only loading detailed information when it's actually needed:
+1. **Discovery**: Agents load only the `name` and `description` of available skills at startup.
+2. **Activation**: When a task matches a skill's description, the agent reads the full `SKILL.md` instructions.
+3. **Execution**: The agent follows the instructions, loading referenced files (scripts, references, assets) as required.
+
+### SKILL.md Specification
+
+Every skill is a folder containing a `SKILL.md` file with YAML frontmatter:
+
+```markdown
+---
+name: skill-identifier
+description: Describes what the skill does and when to use it.
+---
+
+# Skill Instructions
+Step-by-step guidance, examples, and procedural knowledge go here.
+```
+
+### Directory Structure
+
+```directory
+my-skill/
+├── SKILL.md          # Required: instructions + metadata
+├── scripts/          # Optional: executable code
+├── references/       # Optional: documentation
+└── assets/           # Optional: templates, resources
+```
 
 ## Conventions
 
