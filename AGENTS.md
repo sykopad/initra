@@ -60,6 +60,267 @@ A **pure, deterministic TypeScript pipeline** — no LLM calls:
 | GitHub Copilot | `.github/copilot-instructions.md` |
 | Universal | `AGENTS.md` |
 
+## Claude Code Documentation Index
+
+Fetch the complete documentation index at: https://code.claude.com/docs/llms.txt
+Use this file to discover all available pages before exploring further.
+
+## Extend Claude with skills
+
+Skills extend what Claude can do. Create a `SKILL.md` file with instructions, and Claude adds it to its toolkit. Claude uses skills when relevant, or you can invoke one directly with `/skill-name`.
+
+Create a skill when you keep pasting the same playbook, checklist, or multi-step procedure into chat, or when a section of CLAUDE.md has grown into a procedure rather than a fact. Unlike CLAUDE.md content, a skill's body loads only when it's used, so long reference material costs almost nothing until you need it.
+
+- **Project Skills**: `.claude/skills/<skill-name>/SKILL.md`
+- **Personal Skills**: `~/.claude/skills/<skill-name>/SKILL.md`
+- **Standard**: Follows the [Agent Skills](https://agentskills.io) open standard.
+
+Skills support YAML frontmatter for configuration (`name`, `description`, `disable-model-invocation`, etc.) and string substitutions (`$ARGUMENTS`, `${CLAUDE_SESSION_ID}`, etc.).
+
+## Cursor — Rules, Skills & Subagents
+
+Cursor provides a comprehensive system for guiding AI through persistent context, specialized skills, and autonomous subagents.
+
+### Rules
+Cursor uses rules to provide system-level instructions. They bundle prompts, scripts, and conventions.
+- **Project Rules**: Stored in `.cursor/rules/`, version-controlled, and scoped via glob patterns.
+- **User Rules**: Global preferences defined in settings.
+- **Team Rules**: Managed from the dashboard for enterprise-wide standards.
+- **AGENTS.md**: Simple, lightweight alternative for project-level instructions.
+
+#### Rule Activation Modes
+- **Always Apply**: Injected into every chat.
+- **Apply Intelligently**: Agent decides relevance based on description.
+- **Apply to Specific Files**: Triggered by glob patterns.
+- **Apply Manually**: Mentioned via `@rule-name`.
+
+### Agent Skills
+Cursor supports the **Agent Skills** open standard for portable, actionable capabilities.
+- **Locations**: `.cursor/skills/`, `.agents/skills/`, and user-level `~/.cursor/skills/`.
+- **Structure**: A folder containing `SKILL.md` (instructions) and optional `scripts/`, `references/`, and `assets/`.
+- **Invocation**: Automatic (based on context) or manual (via `/skill-name`).
+
+### Subagents
+Subagents are specialized assistants for parallel tasks or complex workflows.
+- **Context Isolation**: Each subagent runs in its own window, preventing context bloat in the main chat.
+- **Built-in Subagents**: `Explore` (codebase analysis), `Bash` (terminal operations), and `Browser` (web interaction).
+- **Custom Subagents**: Defined in `.cursor/agents/` with YAML frontmatter specifying name, description, and model choice (`inherit` or `fast`).
+
+## Windsurf — Cascade, Memories & Rules
+
+Persist context across Cascade conversations with auto-generated memories and user-defined rules.
+
+### Features
+- **Rules**: Tell Cascade how to behave (e.g., "use bun, not npm"). Activation: `always_on`, `glob`, `model_decision`, or `manual`.
+- **AGENTS.md**: Location-scoped rules with zero config. Root = always-on, subdirectory = glob.
+- **Workflows**: Prompt templates for repeatable multi-step tasks. Invoke with `/[workflow-name]`.
+- **Skills**: Multi-step procedures bundled with supporting files (scripts, templates). Dynamically invoked or `@mention`.
+- **Memories**: Auto-generated context stored locally in `~/.codeium/windsurf/memories/`.
+
+### Activation Modes
+| Mode | Trigger | Context Cost |
+|------|---------|--------------|
+| Always On | `always_on` | Every message |
+| Model Decision | `model_decision` | Description always; content on demand |
+| Glob | `glob` | Only when matching files are touched |
+| Manual | `manual` | Only when `@mentioned` |
+
+### Skill Structure
+- **Workspace Skill**: `.windsurf/skills/<skill-name>/SKILL.md`
+- **Global Skill**: `~/.codeium/windsurf/skills/<skill-name>/SKILL.md`
+- **Specification**: Follows the [Agent Skills](https://agentskills.io) open standard.
+
+### Worktrees
+Windsurf supports git worktrees for parallel Cascade tasks. Configure hooks in `.windsurf/hooks.json` to handle environment setup.
+
+## Visual Studio Code — Customize AI
+
+VS Code allows you to teach the AI about your codebase, coding standards, and workflows through various customization options.
+
+### Customization Types
+- **Custom Instructions**: Define project-wide rules and conventions.
+  - **Always-on**: `.github/copilot-instructions.md`, `AGENTS.md`, or `CLAUDE.md`.
+  - **File-based**: `*.instructions.md` targeting specific file types or folders.
+- **Prompt Files**: Markdown files (`.prompt.md`) for repeatable tasks invoked via slash commands (e.g., `/create-react-form`).
+- **Custom Agents**: Define specialized personas (e.g., security reviewer, planner) in `.agent.md` files with specific behaviors and tools.
+- **Agent Skills**: Folders containing `SKILL.md` and supporting resources (scripts, templates) for complex tasks.
+- **MCP Servers**: Connect external tools and data through the Model Context Protocol.
+
+### Instruction Priority
+1. **Personal Instructions**: User-level (highest priority).
+2. **Repository Instructions**: `.github/copilot-instructions.md` or `AGENTS.md`.
+3. **Organization Instructions**: GitHub organization-level (lowest priority).
+
+### Discovery in Monorepos
+Enable `chat.useCustomizationsInParentRepositories` to discover customization files in parent directories up to the `.git` root.
+
+### Skill & Agent Structure
+- **Skills**: `.github/skills/<name>/SKILL.md` or `~/.copilot/skills/<name>/SKILL.md`.
+- **Agents**: `.github/agents/<name>.agent.md` or `~/.copilot/agents/<name>.agent.md`.
+- **Standard**: Follows the [Agent Skills](https://agentskills.io) open standard.
+
+## Codex — Subagents & Parallel Workflows
+
+Codex handles complex tasks by spawning specialized subagents in parallel and collecting their results.
+
+### Core Concepts
+- **Subagents**: Specialized agents spawned for parallel execution (e.g., codebase exploration, multi-step planning).
+- **Custom Agents**: TOML-based configurations for personal (`~/.codex/agents/`) or project-scoped (`.codex/agents/`) agents.
+- **Batched Jobs**: `spawn_agents_on_csv` for processing many similar tasks across rows in a CSV.
+
+### Built-in Agents
+- `default`: General-purpose fallback.
+- `worker`: Execution-focused for implementation and fixes.
+- `explorer`: Read-heavy codebase exploration.
+
+### Custom Agent Schema (TOML)
+Standalone custom agent files must define:
+- `name`: Identifier used for spawning.
+- `description`: Human-facing guidance.
+- `developer_instructions`: Core behavior directives.
+
+### Global Settings
+Configured under `[agents]` in `config.toml`:
+- `max_threads`: Concurrent agent thread cap (default: 6).
+- `max_depth`: Nesting depth (default: 1).
+- `job_max_runtime_seconds`: Timeout for CSV fan-out jobs.
+
+### Typical Workflow
+1. **Explicit Spawn**: Codex only spawns agents when explicitly requested (e.g., "Spawn one agent per point...").
+2. **Orchestration**: Codex manages routing, results collection, and thread closure.
+3. **Approvals**: Subagents inherit the parent's sandbox policy and live runtime overrides.
+
+### File Locations
+- **Project**: `.codex/agents/<name>.toml`
+- **Global**: `~/.codex/agents/<name>.toml`
+
+### Display Nicknames
+Use `nickname_candidates` in the TOML file to assign readable, distinct labels to spawned agent instances in the UI.
+
+## Junie — Skills, Subagents & Guidelines
+
+Junie provides task-specific context through a tiered system of Agent Skills and specialized subagents.
+
+### Agent Skills
+Agent Skills are on-demand folders containing instructions, templates, and scripts.
+- **Project Scope**: `.junie/skills/<name>/SKILL.md`.
+- **User Scope**: `~/.junie/skills/<name>/SKILL.md` (macOS/Linux) or `%USERPROFILE%\.junie\skills\<name>\` (Windows).
+- **Format**: Markdown with YAML frontmatter (`name`, `description`).
+
+### Custom Subagents
+Subagents extend Junie's logic with tailored system prompts and tool restrictions.
+- **Locations**: `.junie/agents/` (Project) or `~/.junie/agents/` (User).
+- **Tool Groups**: Read, Bash, Glob, Grep, Write, Edit, WebSearch, AskUserQuestion.
+- **Automatic Delegation**: Junie delegates tasks based on the subagent's name and description.
+
+### Guidelines (AGENTS.md)
+Junie uses `AGENTS.md` for persistent, reusable project context.
+- **Discovery Order**: `.junie/AGENTS.md` → `AGENTS.md` → `.junie/guidelines/`.
+
+### Custom Slash Commands
+Create frequently used prompts via `/commands`.
+- **Format**: Markdown files with YAML frontmatter (`description`).
+- **Arguments**: Supports `$argumentName` in prompt templates.
+
+### Custom LLMs
+Integrate with local providers (Ollama) or proxies via JSON profiles in `.junie/models/`.
+
+## Trae AI — Adaptive Rules & Skills
+
+Trae AI uses a tiered system of Rules and Skills to provide context-aware assistance without bloating the context window.
+
+### Core Features
+- **Rules**: Always-on behavioral guidelines.
+  - **User Rules**: Global preferences across all projects.
+  - **Project Rules**: Specific to the current project, stored in `.trae/rules/`.
+- **Skills**: On-demand procedural knowledge packaged in `SKILL.md` files.
+- **AGENTS.md**: Native support for project-level behavioral guidance.
+- **Git Commit Rules**: Specialized rules for generating high-quality commit messages via `scene: git_message`.
+
+### Rule Activation Modes
+- **Always Apply**: Injected into every chat.
+- **Apply to Specific Files**: Triggered by glob patterns (e.g., `src/**/*.ts`).
+- **Apply Intelligently**: AI decides based on the task description.
+- **Apply Manually**: Invoked using `#Rule` in chat.
+
+### Skill Structure
+Trae follows the [Agent Skills](https://agentskills.io) open standard:
+- **Project Skills**: `.trae/skills/<name>/SKILL.md`
+- **Global Skills**: `~/.trae/skills/<name>/SKILL.md`
+
+### Directory Recursion
+Trae supports up to 3 levels of nested directories in `.trae/rules/` for clean organization. It also reads `.trae/rules/` in subdirectories for module-specific isolation.
+
+## Mistral AI Vibe — Conversational CLI & Skills
+
+Vibe is a high-performance command-line coding assistant that provides a conversational interface to your codebase.
+
+### Core Features
+- **Interactive Chat**: Conversational AI agent that breaks down complex tasks into tool calls.
+- **Agent Profiles**: Choose from `default` (approval-based), `plan` (read-only), `accept-edits`, or `auto-approve`.
+- **Subagents & Tasks**: Delegate background work using the `task` tool (e.g., `vibe --agent explore`).
+- **Interactive Questions**: Agent can ask clarifying questions with pre-defined options via `ask_user_question`.
+- **Safety First**: Trust folder system prevents execution in sensitive directories.
+
+### Skills System
+Extend Vibe's functionality using the Agent Skills specification.
+- **Locations**: `.agents/skills/`, `.vibe/skills/`, and global `~/.vibe/skills/`.
+- **Format**: `SKILL.md` with YAML frontmatter. Supports custom tools and slash commands.
+
+### Configuration
+Vibe is configured via `config.toml`.
+- **Model Registry**: Customize `active_model`, `enabled_tools`, and `disabled_tools`.
+- **MCP Servers**: Connect to external tools via the Model Context Protocol (HTTP or stdio).
+
+### Commands
+- `vibe` — Start interactive session.
+- `vibe --agent plan` — Exploration mode.
+- `vibe --continue` — Resume last session.
+
+## Platform Ecosystem Directory
+
+Initra integrates with a vast landscape of modern AI coding agents and platforms. Each platform has specific strengths, ranging from terminal-based CLI tools to full-featured cloud IDEs.
+
+| Platform | Description | Role |
+|----------|-------------|------|
+| **Claude** | Anthropic's AI built for problem solvers. Tackle complex challenges, analyze data, and write code. | Reasoning & Logic |
+| **OpenAI Codex** | OpenAI's coding agent for software development and complex orchestration. | Orchestration |
+| **Mistral AI Vibe** | Conversational CLI interface to your codebase powered by Mistral's models. | CLI Explorer |
+| **TRAE** | Adaptive AI IDE that collaborates with you to transform development velocity. | Adaptive IDE |
+| **Ona** | Cloud-based platform for background agents running a team of AI engineers. | Cloud Agents |
+| **Factory** | AI-native software development platform for refactors, migrations, and CI/CD. | Droid Platform |
+| **Autohand Code CLI** | Autonomous LLM-powered coding agent using the ReAct (Reason + Act) pattern. | Terminal Agent |
+| **Gemini CLI** | Open-source agent bringing the power of Google Gemini directly into your terminal. | Terminal Agent |
+| **Databricks Genie** | Autonomous AI partner purpose-built for data work in Databricks. | Data Specialist |
+| **Laravel Boost** | Guidelines and agent skills for writing high-quality Laravel applications. | Framework Expert |
+| **Cursor** | AI editor and coding agent for building features, fixing bugs, and reviews. | AI-Native Editor |
+| **Emdash** | Desktop app for running multiple coding agents in parallel in isolated worktrees. | Parallel Runner |
+| **Amp** | Frontier coding agent designed to wield the full power of leading LLMs. | Frontier Agent |
+| **Letta** | Platform for building stateful agents with advanced, self-improving memory. | Stateful Memory |
+| **Workshop** | Cross-platform agent for building full applications with sub-agent support. | Multi-Agent Hub |
+| **Spring AI** | Streamlined development for applications incorporating AI functionality. | Java/Spring Expert |
+| **Piebald** | Desktop & web app for agentic development with complete configuration control. | Control Center |
+| **Agentman** | Agentic healthcare platform automating revenue cycle workflows. | Healthcare Vertical |
+| **AI Edge Gallery** | Google destination for running powerful open-source LLMs on mobile devices. | Mobile Edge |
+| **VS Code** | The standard code editor for core edit-build-debug cycles. | Core Editor |
+| **OpenCode** | Open source agent for terminal, IDE, and desktop environments. | Open Platform |
+| **GitHub Copilot** | Editor-integrated suggestions and chat-based implementation partner. | Pair Programmer |
+| **Command Code** | Neuro-symbolic AI agent that continuously learns your specific coding taste. | Personalized Agent |
+| **Goose** | Open source, extensible AI agent that installs, executes, edits, and tests. | Extensible Agent |
+| **VT Code** | Open-source coding agent with LLM-native understanding and shell safety. | Safety-First Agent |
+| **Kiro** | Structure-focused agent bringing spec-driven development to AI coding. | Spec Specialist |
+| **Firebender** | Android-native coding agent that writes and tests features in emulators. | Android Expert |
+| **Junie** | LLM-agnostic coding agent built on the IntelliJ platform for deep project understanding. | JetBrains Agent |
+| **Qodo** | Agentic code integrity platform for reviewing, testing, and writing code. | Quality Guard |
+| **Snowflake Cortex** | Intelligent agent for data engineering, analytics, and machine learning. | Snowflake Expert |
+| **fast-agent** | Simple, extendable interaction tool for coding, evals, and skills development. | Tooling Expert |
+| **nanobot** | Ultra-lightweight personal agent for terminal, Telegram, Discord, and Slack. | Multi-Channel Agent |
+| **Mux** | Browser-based runner for parallel coding agents with isolated workspaces. | Web-Based Runner |
+| **Roo Code** | Editor-integrated AI dev team with deep project-wide context. | Team Orchestrator |
+| **Claude Code** | Terminal-based agentic tool that reads, edits, and integrates with dev tools. | Terminal Agent |
+| **pi** | Minimal terminal coding harness that adapts to your existing workflows. | Minimalist CLI |
+| **OpenHands** | Open platform for scaling cloud coding agents model-agnostically. | Cloud Platform |
+
 ### Database Schema (`initra` schema)
 
 All tables live in the `initra` schema on Supabase (NOT `public`).

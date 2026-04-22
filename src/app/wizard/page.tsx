@@ -1611,7 +1611,7 @@ function WizardContent() {
             {/* ── Step 8: Hatch Engine 2.0 Dashboard ────────── */}
             {step === 8 && generatedFiles.length > 0 && (
               <>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
                   <div>
                     <h2 className="wizard-step-title" style={{ textAlign: "left", margin: 0 }}>Hatchery Dashboard</h2>
                     <p className="wizard-step-subtitle" style={{ textAlign: "left", margin: "0.25rem 0 0 0" }}>
@@ -1623,6 +1623,110 @@ function WizardContent() {
                     <button className={`btn btn-ghost btn-sm ${isSharing ? 'loading' : ''}`} onClick={!isSharing ? handleShareConfig : undefined}>🔗 Share</button>
                   </div>
                 </div>
+
+                {selectedIDEs.includes('claude-code') && (
+                  <div className="glass-panel" style={{ background: "rgba(124, 58, 237, 0.05)", border: "1px solid rgba(124, 58, 237, 0.2)", padding: "1rem", borderRadius: "12px", marginBottom: "1.5rem", display: "flex", alignItems: "center", gap: "1rem" }}>
+                    <span style={{ fontSize: "1.5rem" }}>🟣</span>
+                    <div style={{ flex: 1 }}>
+                      <p style={{ margin: 0, fontSize: "0.85rem", fontWeight: 600, color: "var(--accent-primary-light)" }}>Pro Tip: Extend Claude with Skills</p>
+                      <p style={{ margin: 0, fontSize: "0.8rem", color: "var(--text-muted)" }}>
+                        You can create specialized workflows using <code>SKILL.md</code>. 
+                        <Link href="/knowledge?ide=claude" className="link-standard" style={{ marginLeft: "0.5rem" }}>Learn how to create skills →</Link>
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {selectedIDEs.includes('cursor') && (
+                  <div className="glass-panel" style={{ background: "rgba(34, 211, 238, 0.05)", border: "1px solid rgba(34, 211, 238, 0.2)", padding: "1rem", borderRadius: "12px", marginBottom: "1.5rem", display: "flex", alignItems: "center", gap: "1rem" }}>
+                    <span style={{ fontSize: "1.5rem" }}>⚡</span>
+                    <div style={{ flex: 1 }}>
+                      <p style={{ margin: 0, fontSize: "0.85rem", fontWeight: 600, color: "var(--accent-secondary-light)" }}>Pro Tip: Leverage Cursor Rules & Subagents</p>
+                      <p style={{ margin: 0, fontSize: "0.8rem", color: "var(--text-muted)" }}>
+                        Scale your development with <strong>Project Rules</strong> and autonomous <strong>Subagents</strong>.
+                        <Link href="/knowledge?ide=cursor" className="link-standard" style={{ marginLeft: "0.5rem" }}>Explore Cursor guide →</Link>
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {selectedIDEs.includes('windsurf') && (
+                  <div className="glass-panel" style={{ background: "rgba(6, 182, 212, 0.05)", border: "1px solid rgba(6, 182, 212, 0.2)", padding: "1rem", borderRadius: "12px", marginBottom: "1.5rem", display: "flex", alignItems: "center", gap: "1rem" }}>
+                    <span style={{ fontSize: "1.5rem" }}>🌊</span>
+                    <div style={{ flex: 1 }}>
+                      <p style={{ margin: 0, fontSize: "0.85rem", fontWeight: 600, color: "var(--accent-secondary-light)" }}>Pro Tip: Master Windsurf Cascade</p>
+                      <p style={{ margin: 0, fontSize: "0.8rem", color: "var(--text-muted)" }}>
+                        Utilize <strong>Memories</strong>, <strong>Rules</strong>, and <strong>Workflows</strong> to supercharge your agent.
+                        <Link href="/knowledge?ide=windsurf" className="link-standard" style={{ marginLeft: "0.5rem" }}>Explore Windsurf guide →</Link>
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {selectedIDEs.includes('copilot') && (
+                  <div className="glass-panel" style={{ background: "rgba(34, 197, 94, 0.05)", border: "1px solid rgba(34, 197, 94, 0.2)", padding: "1rem", borderRadius: "12px", marginBottom: "1.5rem", display: "flex", alignItems: "center", gap: "1rem" }}>
+                    <span style={{ fontSize: "1.5rem" }}>🐙</span>
+                    <div style={{ flex: 1 }}>
+                      <p style={{ margin: 0, fontSize: "0.85rem", fontWeight: 600, color: "var(--accent-success-light)" }}>Pro Tip: Customize VS Code Copilot</p>
+                      <p style={{ margin: 0, fontSize: "0.8rem", color: "var(--text-muted)" }}>
+                        Use <strong>Custom Instructions</strong>, <strong>Agents</strong>, and <strong>Skills</strong> to tailor Copilot to your project.
+                        <Link href="/knowledge?ide=vscode" className="link-standard" style={{ marginLeft: "0.5rem" }}>View Copilot guide →</Link>
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {selectedIDEs.includes('codex') && (
+                  <div className="glass-panel" style={{ background: "rgba(245, 158, 11, 0.05)", border: "1px solid rgba(245, 158, 11, 0.2)", padding: "1rem", borderRadius: "12px", marginBottom: "1.5rem", display: "flex", alignItems: "center", gap: "1rem" }}>
+                    <span style={{ fontSize: "1.5rem" }}>📜</span>
+                    <div style={{ flex: 1 }}>
+                      <p style={{ margin: 0, fontSize: "0.85rem", fontWeight: 600, color: "var(--accent-warning-light)" }}>Pro Tip: Master Codex Subagents</p>
+                      <p style={{ margin: 0, fontSize: "0.8rem", color: "var(--text-muted)" }}>
+                        Scale complex tasks with <strong>Subagents</strong> and <strong>Parallel Workflows</strong>.
+                        <Link href="/knowledge?ide=codex" className="link-standard" style={{ marginLeft: "0.5rem" }}>Explore Codex guide →</Link>
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {selectedIDEs.includes('trae') && (
+                  <div className="glass-panel" style={{ background: "rgba(16, 185, 129, 0.05)", border: "1px solid rgba(16, 185, 129, 0.2)", padding: "1rem", borderRadius: "12px", marginBottom: "1.5rem", display: "flex", alignItems: "center", gap: "1rem" }}>
+                    <span style={{ fontSize: "1.5rem" }}>🎋</span>
+                    <div style={{ flex: 1 }}>
+                      <p style={{ margin: 0, fontSize: "0.85rem", fontWeight: 600, color: "var(--accent-success-light)" }}>Pro Tip: Master Trae Rules & Skills</p>
+                      <p style={{ margin: 0, fontSize: "0.8rem", color: "var(--text-muted)" }}>
+                        Use <strong>Adaptive Rules</strong> and <strong>Skills</strong> to maintain high quality without context bloat.
+                        <Link href="/knowledge?ide=trae" className="link-standard" style={{ marginLeft: "0.5rem" }}>Explore Trae guide →</Link>
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {selectedIDEs.includes('junie') && (
+                  <div className="glass-panel" style={{ background: "rgba(249, 115, 22, 0.05)", border: "1px solid rgba(249, 115, 22, 0.2)", padding: "1rem", borderRadius: "12px", marginBottom: "1.5rem", display: "flex", alignItems: "center", gap: "1rem" }}>
+                    <span style={{ fontSize: "1.5rem" }}>🦊</span>
+                    <div style={{ flex: 1 }}>
+                      <p style={{ margin: 0, fontSize: "0.85rem", fontWeight: 600, color: "var(--accent-warning-light)" }}>Pro Tip: Scale with Junie Skills</p>
+                      <p style={{ margin: 0, fontSize: "0.8rem", color: "var(--text-muted)" }}>
+                        Optimize tasks using <strong>Agent Skills</strong> and specialized <strong>Subagents</strong>.
+                        <Link href="/knowledge?ide=junie" className="link-standard" style={{ marginLeft: "0.5rem" }}>View Junie guide →</Link>
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {selectedIDEs.includes('mistral-vibe') && (
+                  <div className="glass-panel" style={{ background: "rgba(37, 99, 235, 0.05)", border: "1px solid rgba(37, 99, 235, 0.2)", padding: "1rem", borderRadius: "12px", marginBottom: "1.5rem", display: "flex", alignItems: "center", gap: "1rem" }}>
+                    <span style={{ fontSize: "1.5rem" }}>🌪️</span>
+                    <div style={{ flex: 1 }}>
+                      <p style={{ margin: 0, fontSize: "0.85rem", fontWeight: 600, color: "var(--accent-primary-light)" }}>Pro Tip: Master Mistral Vibe</p>
+                      <p style={{ margin: 0, fontSize: "0.8rem", color: "var(--text-muted)" }}>
+                        Use <strong>Agent Profiles</strong> and <strong>Interactive Questions</strong> for a smooth CLI experience.
+                        <Link href="/knowledge?ide=mistral-vibe" className="link-standard" style={{ marginLeft: "0.5rem" }}>Explore Vibe guide →</Link>
+                      </p>
+                    </div>
+                  </div>
+                )}
 
                 <div className="hatch-workspace">
                   {/* Left Column: Rules Editor */}

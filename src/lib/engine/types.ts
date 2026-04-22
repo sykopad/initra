@@ -25,7 +25,10 @@ export type IDETarget =
   | 'devin'
   | 'replit'
   | 'universal'
-  | 'antigravity';
+  | 'antigravity'
+  | 'codex'
+  | 'junie'
+  | 'mistral-vibe';
 
 /** Package/library categories */
 export type PackageCategory =

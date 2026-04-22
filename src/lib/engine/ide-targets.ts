@@ -11,7 +11,7 @@ export const IDE_TARGETS: IDETargetConfig[] = [
     icon: '🟣',
     configFilename: 'CLAUDE.md',
     configPath: 'CLAUDE.md',
-    description: 'Claude Code agent context file. Loaded automatically at session start.',
+    description: 'Claude Code agent context file. Supports persistent context via CLAUDE.md and extensible Agent Skills.',
     supportsMultiFile: false,
   },
   {
@@ -20,7 +20,7 @@ export const IDE_TARGETS: IDETargetConfig[] = [
     icon: '⚡',
     configFilename: 'project-context.mdc',
     configPath: '.cursor/rules/project-context.mdc',
-    description: 'Cursor rules with YAML frontmatter. Supports glob patterns and auto-apply.',
+    description: 'Cursor AI rules, skills, and subagents. Supports persistent context, specialized workflows, and parallel task delegation.',
     supportsMultiFile: true,
   },
   {
@@ -29,7 +29,7 @@ export const IDE_TARGETS: IDETargetConfig[] = [
     icon: '🌊',
     configFilename: 'project-context.md',
     configPath: '.windsurf/rules/project-context.md',
-    description: 'Windsurf workspace rules in Markdown format.',
+    description: 'Windsurf Cascade agent. Supports persistent context via Memories, Rules, and AGENTS.md.',
     supportsMultiFile: true,
   },
   {
@@ -47,7 +47,7 @@ export const IDE_TARGETS: IDETargetConfig[] = [
     icon: '🐙',
     configFilename: 'copilot-instructions.md',
     configPath: '.github/copilot-instructions.md',
-    description: 'GitHub Copilot agent instructions. Applied to all Copilot interactions.',
+    description: 'GitHub Copilot agent instructions. Supports persistent context via Instructions, Custom Agents, and Agent Skills.',
     supportsMultiFile: false,
   },
   {
@@ -56,7 +56,7 @@ export const IDE_TARGETS: IDETargetConfig[] = [
     icon: '🎋',
     configFilename: '.traerules',
     configPath: '.traerules',
-    description: 'ByteDance Trae IDE rules. Supports context-aware adaptations.',
+    description: 'ByteDance Trae IDE rules. Supports adaptive project rules, global user rules, and on-demand Agent Skills.',
     supportsMultiFile: false,
   },
   {
@@ -102,6 +102,33 @@ export const IDE_TARGETS: IDETargetConfig[] = [
     configFilename: 'project-rules.md',
     configPath: '.agents/rules/project-rules.md',
     description: 'Advanced agent orchestration with Rules, Workflows, and Skills.',
+    supportsMultiFile: true,
+  },
+  {
+    slug: 'codex',
+    name: 'Codex',
+    icon: '📜',
+    configFilename: 'config.toml',
+    configPath: '.codex/config.toml',
+    description: 'Codex orchestration agent. Supports parallel subagents and CSV batch processing.',
+    supportsMultiFile: true,
+  },
+  {
+    slug: 'junie',
+    name: 'Junie',
+    icon: '🦊',
+    configFilename: 'AGENTS.md',
+    configPath: '.junie/AGENTS.md',
+    description: 'Junie CLI and JetBrains agent. Supports Agent Skills, custom subagents, and AGENTS.md guidelines.',
+    supportsMultiFile: true,
+  },
+  {
+    slug: 'mistral-vibe',
+    name: 'Mistral AI Vibe',
+    icon: '🌪️',
+    configFilename: 'config.toml',
+    configPath: '.vibe/config.toml',
+    description: 'Conversational CLI agent by Mistral AI. Supports subagents, skills, and interactive user questions.',
     supportsMultiFile: true,
   },
 ];

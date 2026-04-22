@@ -2,7 +2,8 @@
 
 import Navbar from "@/components/Navbar";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 
 const IDE_GUIDES = [
   {
@@ -70,19 +71,526 @@ const IDE_GUIDES = [
     icon: "🟣",
     content: (
       <>
-        <h3>CLAUDE.md</h3>
-        <p>Claude Code reads <code>CLAUDE.md</code> at the start of every session. It provides the essential tech stack context and commands.</p>
+        <h3>CLAUDE.md & Agent Skills</h3>
+        <p>Claude Code reads <code>CLAUDE.md</code> at session start, but you can also extend its power using <strong>Agent Skills</strong>.</p>
+        
         <div className="guide-section">
-          <h4>Usage</h4>
-          <p>Simply keep <code>CLAUDE.md</code> in your project root. Claude will refer to it to understand how to build, test, and run your project without being asked.</p>
+          <h4>💡 What are Skills?</h4>
+          <p>Skills extend what Claude can do. Create a <code>SKILL.md</code> file with instructions, and Claude adds it to its toolkit.</p>
+          <ul>
+            <li><strong>Project Skills</strong>: <code>.claude/skills/&lt;name&gt;/SKILL.md</code></li>
+            <li><strong>Personal Skills</strong>: <code>~/.claude/skills/&lt;name&gt;/SKILL.md</code></li>
+          </ul>
+        </div>
+
+        <div className="guide-section">
+          <h4>🛠️ Creating a Skill</h4>
+          <p>Every skill needs YAML frontmatter and Markdown content. The <code>name</code> field becomes the <code>/slash-command</code>.</p>
+          <pre className="code-block">
+{`---
+name: explain-code
+description: Explains code with visual diagrams.
+---
+
+When explaining code, always include:
+1. An analogy from everyday life.
+2. An ASCII art diagram.
+3. A step-by-step walkthrough.`}
+          </pre>
+        </div>
+
+        <div className="guide-section">
+          <h4>🔄 Dynamic Substitutions</h4>
+          <p>Skills support dynamic values like <code>$ARGUMENTS</code> (all inputs), <code>$0</code>, <code>$1</code> (indexed arguments), and <code>\${CLAUDE_SESSION_ID}</code> for session-specific logging.</p>
+        </div>
+
+        <div className="guide-section">
+          <h4>⚙️ Configuration (Frontmatter)</h4>
+          <p>Control how your skill behaves using YAML fields:</p>
+          <ul>
+            <li><code>disable-model-invocation</code>: Set to <code>true</code> for manual <code>/slash</code> commands only.</li>
+            <li><code>user-invocable</code>: Set to <code>false</code> for background knowledge.</li>
+            <li><code>context: fork</code>: Run the skill in an isolated subagent.</li>
+          </ul>
+        </div>
+
+        <div className="guide-section">
+          <h4>📂 Where Skills Live</h4>
+          <table className="knowledge-table" style={{ width: "100%", marginTop: "1rem" }}>
+            <thead>
+              <tr>
+                <th style={{ textAlign: "left", padding: "0.5rem" }}>Scope</th>
+                <th style={{ textAlign: "left", padding: "0.5rem" }}>Path</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style={{ padding: "0.5rem" }}>Project</td>
+                <td style={{ padding: "0.5rem" }}><code>.claude/skills/&lt;name&gt;/SKILL.md</code></td>
+              </tr>
+              <tr>
+                <td style={{ padding: "0.5rem" }}>Personal</td>
+                <td style={{ padding: "0.5rem" }}><code>~/.claude/skills/&lt;name&gt;/SKILL.md</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div className="guide-section">
+          <h4>📚 Documentation Index</h4>
+          <p>Access the full Claude Code docs index at: <a href="https://code.claude.com/docs/llms.txt" target="_blank" rel="noopener noreferrer">code.claude.com/docs/llms.txt</a></p>
+        </div>
+      </>
+    )
+  },
+  {
+    slug: "cursor",
+    name: "Cursor AI",
+    icon: "⚡",
+    content: (
+      <>
+        <h3>Rules, Skills & Subagents</h3>
+        <p>Cursor provides a comprehensive system for guiding AI through persistent context, specialized skills, and autonomous subagents.</p>
+        
+        <div className="guide-section">
+          <h4>📜 Project Rules (.mdc)</h4>
+          <p>Stored in <code>.cursor/rules</code>, these files define your project conventions using Markdown and YAML frontmatter.</p>
+          <ul>
+            <li><strong>Always Apply</strong>: Rules included in every chat session.</li>
+            <li><strong>Apply Intelligently</strong>: Agent decides relevance based on description.</li>
+            <li><strong>Apply to Specific Files</strong>: Scoped via <code>globs</code> patterns.</li>
+            <li><strong>Apply Manually</strong>: Explicitly @-mentioned in chat.</li>
+          </ul>
+        </div>
+
+        <div className="guide-section">
+          <h4>🛠️ Agent Skills</h4>
+          <p>Portable packages for specialized capabilities. Cursor automatically discovers skills from <code>.cursor/skills/</code> and <code>.agents/skills/</code>.</p>
+          <pre className="code-block">
+{`.cursor/skills/
+└── deploy-app/
+    ├── SKILL.md
+    └── scripts/`}
+          </pre>
+        </div>
+
+        <div className="guide-section">
+          <h4>👥 Subagents</h4>
+          <p>Delegate complex tasks to specialized assistants with their own context window. Cursor includes built-in subagents for Codebase Exploration, Terminal, and Browsing.</p>
+          <ul>
+            <li><strong>Foreground</strong>: Blocks until completion. Best for sequential tasks.</li>
+            <li><strong>Background</strong>: Independent execution. Best for long-running work.</li>
+          </ul>
+        </div>
+
+        <div className="guide-section">
+          <h4>🌍 Team & User Rules</h4>
+          <p>Global preferences (User Rules) and organization-wide standards (Team Rules) ensure consistency across all projects.</p>
+        </div>
+      </>
+    )
+  },
+  {
+    slug: "windsurf",
+    name: "Windsurf",
+    icon: "🌊",
+    content: (
+      <>
+        <h3>Cascade, Memories & Rules</h3>
+        <p>Windsurf&apos;s <strong>Cascade</strong> uses a powerful combination of auto-generated memories and user-defined rules to maintain project context.</p>
+        
+        <div className="guide-section">
+          <h4>📜 Rules & AGENTS.md</h4>
+          <p>Rules tell Cascade how to behave. You can define them in <code>.windsurf/rules/</code> or use <code>AGENTS.md</code> for directory-scoped instructions.</p>
+          <ul>
+            <li><strong>Always On</strong>: Rule is included in every message.</li>
+            <li><strong>Model Decision</strong>: Cascade reads the rule only when relevant.</li>
+            <li><strong>Glob</strong>: Applied when specific files are touched.</li>
+          </ul>
+        </div>
+
+        <div className="guide-section">
+          <h4>🛠️ Skills & Workflows</h4>
+          <p>Skills bundle multi-step procedures with resource files, while Workflows are prompt templates for repeatable tasks.</p>
+          <pre className="code-block">
+{`.windsurf/
+├── rules/          # .md files with trigger frontmatter
+├── workflows/      # .md files invoked via /slash
+└── skills/         # Folders with SKILL.md + resources`}
+          </pre>
+        </div>
+
+        <div className="guide-section">
+          <h4>🧠 Memories</h4>
+          <p>Cascade auto-generates memories during conversations. For durable, shared knowledge, prefer <strong>Rules</strong> or <strong>AGENTS.md</strong>.</p>
+        </div>
+
+        <div className="guide-section">
+          <h4>📊 Comparison: Skills vs Rules vs Workflows</h4>
+          <table className="knowledge-table" style={{ width: "100%", marginTop: "1rem" }}>
+            <thead>
+              <tr>
+                <th style={{ textAlign: "left", padding: "0.5rem" }}>Feature</th>
+                <th style={{ textAlign: "left", padding: "0.5rem" }}>Purpose</th>
+                <th style={{ textAlign: "left", padding: "0.5rem" }}>Activation</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style={{ padding: "0.5rem" }}><strong>Skills</strong></td>
+                <td style={{ padding: "0.5rem" }}>Multi-step procedures + files</td>
+                <td style={{ padding: "0.5rem" }}>Model Decision / @mention</td>
+              </tr>
+              <tr>
+                <td style={{ padding: "0.5rem" }}><strong>Rules</strong></td>
+                <td style={{ padding: "0.5rem" }}>Behavioral guidelines</td>
+                <td style={{ padding: "0.5rem" }}>Auto / Glob / Manual</td>
+              </tr>
+              <tr>
+                <td style={{ padding: "0.5rem" }}><strong>Workflows</strong></td>
+                <td style={{ padding: "0.5rem" }}>Repeatable prompt templates</td>
+                <td style={{ padding: "0.5rem" }}>Manual via /slash</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div className="guide-section">
+          <h4>🚀 Worktrees</h4>
+          <p>Run parallel tasks without interfering with your main workspace. Use <code>post_setup_worktree</code> hooks in <code>.windsurf/hooks.json</code> to sync env files.</p>
+        </div>
+      </>
+    )
+  },
+  {
+    slug: "vscode",
+    name: "VS Code Copilot",
+    icon: "💙",
+    content: (
+      <>
+        <h3>Customize AI in Visual Studio Code</h3>
+        <p>VS Code offers powerful ways to teach the AI about your codebase, coding standards, and workflows using <strong>Copilot Instructions</strong> and <strong>Agent Skills</strong>.</p>
+        
+        <div className="guide-section">
+          <h4>📜 Custom Instructions</h4>
+          <p>Define rules that influence how AI generates code. You can use project-wide or file-specific instructions.</p>
+          <ul>
+            <li><strong>Always-on</strong>: <code>.github/copilot-instructions.md</code> or <code>AGENTS.md</code> applies to every request.</li>
+            <li><strong>File-based</strong>: <code>*.instructions.md</code> files conditionally apply based on file type or location using glob patterns.</li>
+            <li><strong>Organization-level</strong>: Shared across multiple repositories within a GitHub organization.</li>
+          </ul>
+        </div>
+
+        <div className="guide-section">
+          <h4>⚡ Prompt Files</h4>
+          <p>Create <code>.prompt.md</code> files for repeatable tasks. Invoke them manually in chat using <code>/slash-commands</code>.</p>
+          <pre className="code-block">
+{`.github/prompts/
+└── create-react-form.prompt.md   # Invoke with /create-react-form`}
+          </pre>
+        </div>
+
+        <div className="guide-section">
+          <h4>👤 Custom Agents</h4>
+          <p>Define specialized personas (e.g., Security Reviewer, Planner) in <code>.agent.md</code> files. Each agent has its own tools and instructions.</p>
+        </div>
+
+        <div className="guide-section">
+          <h4>🛠️ Agent Skills</h4>
+          <p>Portable capabilities that work across VS Code, Copilot CLI, and cloud agents. Bundled in directories with a <code>SKILL.md</code> file.</p>
+          <table className="knowledge-table" style={{ width: "100%", marginTop: "1rem" }}>
+            <thead>
+              <tr>
+                <th style={{ textAlign: "left", padding: "0.5rem" }}>Scope</th>
+                <th style={{ textAlign: "left", padding: "0.5rem" }}>Default Path</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style={{ padding: "0.5rem" }}>Project</td>
+                <td style={{ padding: "0.5rem" }}><code>.github/skills/&lt;name&gt;/SKILL.md</code></td>
+              </tr>
+              <tr>
+                <td style={{ padding: "0.5rem" }}>Personal</td>
+                <td style={{ padding: "0.5rem" }}><code>~/.copilot/skills/&lt;name&gt;/SKILL.md</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div className="guide-section">
+          <h4>🔌 MCP Servers</h4>
+          <p>Connect external tools and data through the <strong>Model Context Protocol</strong> to give the AI access to databases and APIs.</p>
+        </div>
+      </>
+    )
+  },
+  {
+    slug: "codex",
+    name: "Codex",
+    icon: "📜",
+    content: (
+      <>
+        <h3>Subagents & Parallel Workflows</h3>
+        <p>Codex orchestrates complex tasks by spawning specialized subagents in parallel, each with its own model configuration and instructions.</p>
+        
+        <div className="guide-section">
+          <h4>🤖 Built-in Agents</h4>
+          <ul>
+            <li><strong>default</strong>: General-purpose fallback agent.</li>
+            <li><strong>worker</strong>: Execution-focused for implementation and fixes.</li>
+            <li><strong>explorer</strong>: Read-heavy codebase exploration agent.</li>
+          </ul>
+        </div>
+
+        <div className="guide-section">
+          <h4>👤 Custom Agents (TOML)</h4>
+          <p>Define your own agents in <code>.codex/agents/</code>. Each file must specify <code>name</code>, <code>description</code>, and <code>developer_instructions</code>.</p>
+          <pre className="code-block">
+{`name = "reviewer"
+description = "PR reviewer focused on security."
+developer_instructions = """
+Review code like an owner. Prioritize security.
+"""
+nickname_candidates = ["Atlas", "Delta"]`}
+          </pre>
+        </div>
+
+        <div className="guide-section">
+          <h4>📊 CSV Batch Processing</h4>
+          <p>Use <code>spawn_agents_on_csv</code> to process many similar tasks. Codex reads the CSV, spawns one worker per row, and exports the results.</p>
+        </div>
+
+        <div className="guide-section">
+          <h4>⚙️ Global Settings</h4>
+          <p>Configure orchestration in <code>config.toml</code> under the <code>[agents]</code> section.</p>
+          <ul>
+            <li><code>max_threads</code>: Concurrent open thread cap (default: 6).</li>
+            <li><code>max_depth</code>: Nesting depth for spawned agents (default: 1).</li>
+          </ul>
+        </div>
+      </>
+    )
+  },
+  {
+    slug: "trae",
+    name: "Trae AI",
+    icon: "🎋",
+    content: (
+      <>
+        <h3>Adaptive Rules & Skills</h3>
+        <p>Trae AI provides a tiered system of <strong>Rules</strong> and <strong>Skills</strong> to guide the agent without bloating the context window.</p>
+        
+        <div className="guide-section">
+          <h4>📜 User vs Project Rules</h4>
+          <ul>
+            <li><strong>User Rules</strong>: Take effect in all projects (Global preferences).</li>
+            <li><strong>Project Rules</strong>: Specific to the current project, stored in <code>.trae/rules/</code>.</li>
+          </ul>
+        </div>
+
+        <div className="guide-section">
+          <h4>⚡ Application Modes</h4>
+          <p>Control exactly when rules are applied:</p>
+          <ul>
+            <li><strong>Always Apply</strong>: Effective for all chats in the project.</li>
+            <li><strong>Apply to Specific Files</strong>: Triggered by <code>globs</code> patterns.</li>
+            <li><strong>Apply Intelligently</strong>: AI decides based on the <code>description</code>.</li>
+            <li><strong>Apply Manually</strong>: Use <code>#Rule</code> in chat.</li>
+          </ul>
+        </div>
+
+        <div className="guide-section">
+          <h4>🛠️ Agent Skills</h4>
+          <p>Skills are on-demand capabilities packaged in <code>SKILL.md</code>. They only load when invoked, saving tokens.</p>
+          <pre className="code-block">
+{`.trae/skills/
+└── code-review/
+    ├── SKILL.md
+    └── examples/`}
+          </pre>
+        </div>
+
+        <div className="guide-section">
+          <h4>📁 Convention Directories</h4>
+          <p>Trae also supports the standard <code>.agents/skills/</code> directory and <code>AGENTS.md</code> / <code>CLAUDE.md</code> files for cross-IDE compatibility.</p>
+        </div>
+
+        <div className="guide-section">
+          <h4>📝 Git Commit Rules</h4>
+          <p>Enforce standards for AI-generated commit messages by adding <code>scene: git_message</code> to your rule frontmatter.</p>
+        </div>
+      </>
+    )
+  },
+  {
+    slug: "junie",
+    name: "Junie",
+    icon: "🦊",
+    content: (
+      <>
+        <h3>Skills, Subagents & Guidelines</h3>
+        <p>Junie provides task-specific context through a tiered system of Agent Skills and specialized subagents.</p>
+        
+        <div className="guide-section">
+          <h4>🛠️ Agent Skills</h4>
+          <p>Folders with instructions and reference materials. Junie only reads a skill's content when it matches the task's needs.</p>
+          <ul>
+            <li><strong>Project Scope</strong>: <code>.junie/skills/&lt;name&gt;/SKILL.md</code></li>
+            <li><strong>User Scope</strong>: <code>~/.junie/skills/&lt;name&gt;/SKILL.md</code></li>
+          </ul>
+          <pre className="code-block">
+{`.junie/skills/api-design/
+├── SKILL.md
+├── templates/
+└── checklists/`}
+          </pre>
+        </div>
+
+        <div className="guide-section">
+          <h4>👥 Custom Subagents</h4>
+          <p>Extend Junie's logic with tailored system prompts, tool restrictions, and model overrides.</p>
+          <ul>
+            <li><strong>Automatic Delegation</strong>: Junie selects subagents by matching their description to the task.</li>
+            <li><strong>Tool Restrictions</strong>: Allow or disallow specific tool groups (Read, Bash, Edit, etc.).</li>
+          </ul>
+        </div>
+
+        <div className="guide-section">
+          <h4>📜 Guidelines (AGENTS.md)</h4>
+          <p>Persistent, reusable project context added to every task. Junie reads from <code>.junie/AGENTS.md</code> or <code>AGENTS.md</code>.</p>
+        </div>
+
+        <div className="guide-section">
+          <h4>⌨️ Custom Slash Commands</h4>
+          <p>Create shortcuts for repetitive prompts using <code>/commands</code>. Supports arguments like <code>Explain the code in $file</code>.</p>
+        </div>
+
+        <div className="guide-section">
+          <h4>🧠 Custom LLMs</h4>
+          <p>Integrate local providers like <strong>Ollama</strong> or enterprise proxies via JSON profiles in <code>.junie/models/</code>.</p>
+        </div>
+      </>
+    )
+  },
+  {
+    slug: "mistral-vibe",
+    name: "Mistral AI Vibe",
+    icon: "🌪️",
+    content: (
+      <>
+        <h3>Conversational CLI & Skills</h3>
+        <p>Vibe is a high-performance command-line coding assistant that provides a conversational interface to your codebase.</p>
+        
+        <div className="guide-section">
+          <h4>🤖 Built-in Agent Profiles</h4>
+          <ul>
+            <li><strong>default</strong>: Standard agent requiring approval for tool executions.</li>
+            <li><strong>plan</strong>: Read-only agent for exploration and planning. Auto-approves safe tools.</li>
+            <li><strong>accept-edits</strong>: Auto-approves file edits (write_file, search_replace).</li>
+            <li><strong>auto-approve</strong>: Auto-approves all tool executions. Use with caution.</li>
+          </ul>
+        </div>
+
+        <div className="guide-section">
+          <h4>🛠️ Skills & Subagents</h4>
+          <p>Extend Vibe using the Agent Skills specification or delegate tasks to specialized subagents.</p>
+          <ul>
+            <li><strong>Skills</strong>: Add new tools and slash commands via <code>.vibe/skills/</code>.</li>
+            <li><strong>Subagents</strong>: Delegate background work using the <code>task</code> tool.</li>
+          </ul>
+        </div>
+
+        <div className="guide-section">
+          <h4>❓ Interactive Questions</h4>
+          <p>The <code>ask_user_question</code> tool allows the agent to ask clarifying questions with pre-defined options, displayed as tabs in the CLI.</p>
+        </div>
+
+        <div className="guide-section">
+          <h4>🛡️ Safety & Trust</h4>
+          <p>Vibe includes a <strong>Trust Folder System</strong> to ensure you only run the agent in directories you trust, preventing accidental execution in sensitive locations.</p>
+        </div>
+
+        <div className="guide-section">
+          <h4>⚙️ MCP Integration</h4>
+          <p>Connect to <strong>Model Context Protocol</strong> servers (stdio or HTTP) to extend Vibe's toolset with custom infrastructure.</p>
+        </div>
+      </>
+    )
+  },
+  {
+    slug: "ecosystem",
+    name: "Ecosystem Directory",
+    icon: "🌐",
+    content: (
+      <>
+        <h3>The AI Coding Landscape</h3>
+        <p>A comprehensive directory of modern agentic coding platforms and tools supported by or integrated with Initra.</p>
+        
+        <div className="guide-section">
+          <table className="knowledge-table" style={{ width: "100%", marginTop: "1rem" }}>
+            <thead>
+              <tr>
+                <th style={{ textAlign: "left", padding: "0.5rem" }}>Platform</th>
+                <th style={{ textAlign: "left", padding: "0.5rem" }}>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>Claude</strong></td><td>Anthropic's AI for complex reasoning and coding.</td></tr>
+              <tr><td><strong>OpenAI Codex</strong></td><td>OpenAI's legacy and orchestration-focused coding engine.</td></tr>
+              <tr><td><strong>Mistral Vibe</strong></td><td>Conversational CLI interface for codebase exploration.</td></tr>
+              <tr><td><strong>Trae AI</strong></td><td>Adaptive AI IDE for high-velocity collaboration.</td></tr>
+              <tr><td><strong>Ona</strong></td><td>Cloud-based background agents for engineering teams.</td></tr>
+              <tr><td><strong>Factory</strong></td><td>AI Droids for enterprise migrations and refactors.</td></tr>
+              <tr><td><strong>Autohand CLI</strong></td><td>Autonomous terminal agent using the ReAct pattern.</td></tr>
+              <tr><td><strong>Gemini CLI</strong></td><td>Open-source terminal agent powered by Google Gemini.</td></tr>
+              <tr><td><strong>Databricks Genie</strong></td><td>Autonomous AI partner for data-specific workflows.</td></tr>
+              <tr><td><strong>Laravel Boost</strong></td><td>Best-practice guidelines for AI-assisted Laravel development.</td></tr>
+              <tr><td><strong>Cursor</strong></td><td>AI-native code editor and agentic implementation tool.</td></tr>
+              <tr><td><strong>Emdash</strong></td><td>Parallel agent execution via git worktrees.</td></tr>
+              <tr><td><strong>Amp</strong></td><td>Frontier coding agent wielding high-reasoning models.</td></tr>
+              <tr><td><strong>Letta</strong></td><td>Stateful memory platform for self-improving agents.</td></tr>
+              <tr><td><strong>Workshop</strong></td><td>Cross-platform hub for multi-agent applications.</td></tr>
+              <tr><td><strong>Spring AI</strong></td><td>Streamlined AI integration for Java/Spring environments.</td></tr>
+              <tr><td><strong>Piebald</strong></td><td>Control-focused agentic development workspace.</td></tr>
+              <tr><td><strong>Agentman</strong></td><td>Healthcare automation via testable AI agents.</td></tr>
+              <tr><td><strong>AI Edge Gallery</strong></td><td>Google's hub for mobile on-device LLM execution.</td></tr>
+              <tr><td><strong>VS Code</strong></td><td>The industry standard extensible editor for AI integration.</td></tr>
+              <tr><td><strong>OpenCode</strong></td><td>Open-source agent for terminal and desktop environments.</td></tr>
+              <tr><td><strong>GitHub Copilot</strong></td><td>The standard-bearer for AI pair programming.</td></tr>
+              <tr><td><strong>Command Code</strong></td><td>Neuro-symbolic agent that learns individual coding style.</td></tr>
+              <tr><td><strong>Goose</strong></td><td>Extensible, open-source agent for full-lifecycle tasks.</td></tr>
+              <tr><td><strong>VT Code</strong></td><td>Safety-first agent with robust shell isolation.</td></tr>
+              <tr><td><strong>Kiro</strong></td><td>Spec-driven development platform for AI coding.</td></tr>
+              <tr><td><strong>Firebender</strong></td><td>Android-native agent with emulator integration.</td></tr>
+              <tr><td><strong>Junie</strong></td><td>IntelliJ-based agent with deep semantic understanding.</td></tr>
+              <tr><td><strong>Qodo</strong></td><td>Quality-first platform for reviews and integrity.</td></tr>
+              <tr><td><strong>Snowflake Cortex</strong></td><td>Snowflake-native agent for data and ML engineering.</td></tr>
+              <tr><td><strong>fast-agent</strong></td><td>Developer tool for interaction, evals, and skills.</td></tr>
+              <tr><td><strong>nanobot</strong></td><td>Lightweight agent for terminal and messaging platforms.</td></tr>
+              <tr><td><strong>Mux</strong></td><td>Isolated workspace runner for parallel browser agents.</td></tr>
+              <tr><td><strong>Roo Code</strong></td><td>Project-wide context orchestration in your editor.</td></tr>
+              <tr><td><strong>Claude Code</strong></td><td>Agentic terminal tool for reading and editing code.</td></tr>
+              <tr><td><strong>pi</strong></td><td>Minimalist terminal harness for custom workflows.</td></tr>
+              <tr><td><strong>OpenHands</strong></td><td>Scalable open platform for cloud-native agents.</td></tr>
+            </tbody>
+          </table>
         </div>
       </>
     )
   }
 ];
 
-export default function KnowledgeCenter() {
+function KnowledgeContent() {
+  const searchParams = useSearchParams();
   const [activeIde, setActiveIde] = useState("antigravity");
+
+  useEffect(() => {
+    const ide = searchParams.get("ide");
+    if (ide && IDE_GUIDES.some(g => g.slug === ide)) {
+      setActiveIde(ide);
+    }
+  }, [searchParams]);
 
   return (
     <>
@@ -100,7 +608,7 @@ export default function KnowledgeCenter() {
               <span className="gradient-text">Knowledge Center</span>
             </h1>
             <p className="hero-subtitle" style={{ margin: "0 auto", maxWidth: "800px" }}>
-              Welcome to the new world of agentic coding. Whether you're a seasoned architect or a former WordPress designer, 
+              Welcome to the new world of agentic coding. Whether you&apos;re a seasoned architect or a former WordPress designer, 
               Initra and modern AI agents empower you to build world-class infrastructure in minutes.
             </p>
           </div>
@@ -174,22 +682,22 @@ export default function KnowledgeCenter() {
                       I used to be a WordPress website designer. I relied on heavy plugins, paid subscriptions, and limited templates. 
                       I knew very little about &quot;real&quot; coding. But then, the world changed.
                     </p>
-
+ 
                     <blockquote style={{ borderLeft: "4px solid var(--accent-primary)", paddingLeft: "2rem", margin: "2.5rem 0", fontStyle: "italic", color: "var(--text-primary)", fontSize: "1.25rem" }}>
                       &quot;I can now spin up Next.js websites with ease&mdash;even easier than WordPress, and they look better, load faster, and I have 100% control.&quot;
                     </blockquote>
-
+ 
                     <h3 style={{ color: "var(--text-primary)", marginTop: "3rem", marginBottom: "1rem" }}>What is a Framework?</h3>
                     <p style={{ marginBottom: "1.5rem" }}>
                       Think of a <strong>Framework</strong> (like Next.js or Nuxt) as a high-performance engine and chassis for your car. 
                       Unlike WordPress, which is like a pre-built trailer you can only customize so much, a framework gives you the professional tools to build exactly what you want.
                     </p>
-
+ 
                     <p style={{ marginBottom: "1.5rem" }}>
                       With modern AI agents like <strong>Google Antigravity</strong> or <strong>Cursor</strong>, you don&apos;t need to write the engine yourself. 
                       You just need to know how to talk to the mechanics. Initra generates the blueprints (the rules) that tell these AI mechanics exactly how to build your dream.
                     </p>
-
+ 
                     <p>
                       No more plugin purchases. No more slow loading times. No more vendor lock-in. 
                       Next.js sites are <strong>faster</strong>, <strong>nicer looking</strong>, and give you <strong>more control</strong> than WordPress ever could.
@@ -202,7 +710,14 @@ export default function KnowledgeCenter() {
           </div>
         </div>
       </div>
+    </>
+  );
+}
 
+export default function KnowledgeCenter() {
+  return (
+    <Suspense fallback={<div style={{ paddingTop: "10rem", textAlign: "center", color: "var(--text-muted)" }}>Loading Knowledge Base...</div>}>
+      <KnowledgeContent />
       <style jsx global>{`
         .guide-content h3 { margin-top: 2rem; margin-bottom: 1rem; }
         .guide-content h4 { margin-top: 1.5rem; margin-bottom: 0.75rem; color: var(--accent-primary); }
@@ -225,7 +740,25 @@ export default function KnowledgeCenter() {
         .guide-section {
           margin-bottom: 2.5rem;
         }
+
+        .knowledge-table {
+          border-collapse: collapse;
+          font-size: 0.85rem;
+          background: rgba(0,0,0,0.2);
+          border-radius: 8px;
+          overflow: hidden;
+        }
+        
+        .knowledge-table th {
+          background: rgba(255,255,255,0.05);
+          color: var(--text-primary);
+        }
+        
+        .knowledge-table td {
+          border-top: 1px solid var(--border-subtle);
+          color: var(--text-secondary);
+        }
       `}</style>
-    </>
+    </Suspense>
   );
 }
