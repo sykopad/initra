@@ -138,3 +138,121 @@
   border-color: var(--accent-primary);
   background: rgba(124, 58, 237, 0.1);
 }
+
+/* Infrastructure Map Styles */
+.infra-map {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+.infra-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.infra-section h4 {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin: 0;
+}
+.infra-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1rem;
+}
+.infra-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+.infra-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--border-medium);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+.infra-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--gradient-sovereign);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.infra-card:hover::before {
+  opacity: 1;
+}
+.infra-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.infra-card-icon {
+  font-size: 1.5rem;
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.infra-card-status {
+  font-size: 0.65rem;
+  padding: 2px 8px;
+  border-radius: 99px;
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+.infra-card-content h5 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+.infra-card-content p {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+.infra-card-footer {
+  margin-top: auto;
+  display: flex;
+  gap: 0.75rem;
+}
+.infra-link {
+  font-size: 0.75rem;
+  color: var(--accent-primary-light);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  transition: opacity 0.2s;
+}
+.infra-link:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+.infra-mini-icons {
+  display: flex;
+  gap: 4px;
+  margin-top: 4px;
+}
+.infra-mini-icon {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}

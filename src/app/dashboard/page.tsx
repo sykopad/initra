@@ -5,6 +5,7 @@ import CreditPurchase from "@/components/wizard/CreditPurchase";
 import RepoBuilder from "@/components/dashboard/RepoBuilder";
 import ProjectItem from "@/components/dashboard/ProjectItem";
 import Navbar from "@/components/Navbar";
+import { SERVICE_LIBRARY } from "@/lib/engine/service-library";
 import "./dashboard.css";
 
 export default async function DashboardPage() {
@@ -46,7 +47,7 @@ export default async function DashboardPage() {
   // Fetch Hatched Ventures
   const { data: hatchedVentures } = await supabase
     .from('community_projects')
-    .select('id, title, created_at, status, is_hatched, live_url')
+    .select('id, title, created_at, status, is_hatched, live_url, blueprint_config')
     .eq('user_id', user.id)
     .order('created_at', { ascending: false });
 
@@ -116,6 +117,16 @@ export default async function DashboardPage() {
                       <span className="template">
                         {new Date(venture.created_at).toLocaleDateString()} • {venture.is_hatched ? 'Live' : 'Provisioning'}
                       </span>
+                      <div className="infra-mini-icons">
+                        <span className="infra-mini-icon" title={((venture.blueprint_config as any)?.templateSlug === 'nextjs' ? 'Next.js' : 'Nuxt')}>
+                          {(venture.blueprint_config as any)?.templateSlug === 'nextjs' ? '▲' : '💚'}
+                        </span>
+                        {((venture.blueprint_config as any)?.selectedServices || []).map((slug: string) => {
+                          const svc = SERVICE_LIBRARY.find(s => s.slug === slug);
+                          if (!svc) return null;
+                          return <span key={slug} className="infra-mini-icon" title={svc.name}>{svc.icon}</span>;
+                        })}
+                      </div>
                     </div>
                   </div>
                   <div className="project-actions" style={{ display: 'flex', gap: '0.5rem' }}>

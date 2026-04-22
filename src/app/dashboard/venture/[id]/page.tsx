@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import { SERVICE_LIBRARY } from "@/lib/engine/service-library";
+import InfrastructureMap from "@/components/dashboard/InfrastructureMap";
 
 export default async function VentureTelemetryPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -76,30 +77,12 @@ export default async function VentureTelemetryPage({ params }: { params: Promise
 
             {/* Infrastructure Map */}
             <div className="glass-panel" style={{ padding: '1.5rem' }}>
-              <h3 style={{ marginBottom: '1rem', fontSize: '1.2rem' }}>Infrastructure Map</h3>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                <span className="badge-soft" style={{ fontSize: '0.9rem', padding: '0.4rem 0.8rem', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-medium)' }}>
-                  💻 {config.templateSlug}
-                </span>
-                {services.map((slug: string) => {
-                  const svc = SERVICE_LIBRARY.find(s => s.slug === slug);
-                  if (!svc) return null;
-                  return (
-                    <span key={slug} title={svc.name} style={{
-                      fontSize: '0.9rem', 
-                      padding: '0.4rem 0.8rem', 
-                      borderRadius: '4px',
-                      background: 'rgba(255,255,255,0.05)',
-                      border: '1px solid var(--border-medium)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.4rem',
-                    }}>
-                      {svc.icon} {svc.name}
-                    </span>
-                  )
-                })}
-              </div>
+              <h3 style={{ marginBottom: '1.5rem', fontSize: '1.2rem' }}>Infrastructure Map</h3>
+              <InfrastructureMap 
+                templateSlug={config.templateSlug} 
+                selectedServices={services} 
+                isHatched={venture.is_hatched} 
+              />
             </div>
             
           </div>
