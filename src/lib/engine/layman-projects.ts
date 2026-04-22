@@ -109,6 +109,58 @@ export const LAYMAN_PROJECTS: LaymanProject[] = [
       'sanity': 'A powerful Headless CMS allowing your team to manage products without code.',
       'vercel': 'Global edge network to ensure your storefront loads instantly worldwide.'
     }
+  },
+  {
+    slug: 'saas-dashboard',
+    name: 'Enterprise SaaS Dashboard',
+    description: 'A fully-featured B2B SaaS boilerplate with billing, robust auth, analytics, and error tracking.',
+    difficulty: 'hard',
+    icon: '🏢',
+    category: 'web-app',
+    recommendedTemplate: 'nextjs',
+    recommendedPackages: ['zustand', 'lucide-react'],
+    recommendedServices: ['stripe', 'clerk', 'resend', 'sentry', 'posthog'],
+    reasoning: {
+      'stripe': 'Manages recurring subscription billing seamlessly.',
+      'clerk': 'Provides enterprise-grade authentication with SSO and SAML support.',
+      'resend': 'Transactional email API for user invites, receipts, and alerts.',
+      'sentry': 'Real-time error tracking to maintain high uptime guarantees.',
+      'posthog': 'Product analytics and feature flags for data-driven decisions.'
+    }
+  },
+  {
+    slug: 'global-media-platform',
+    name: 'Global Media Portal',
+    description: 'A high-performance editorial platform with headless CMS and lightning-fast search.',
+    difficulty: 'medium',
+    icon: '📰',
+    category: 'web-app',
+    recommendedTemplate: 'nextjs',
+    recommendedPackages: ['framer-motion', 'date-fns'],
+    recommendedServices: ['contentful', 'algolia', 'aws-s3', 'vercel'],
+    reasoning: {
+      'contentful': 'Powerful Headless CMS enabling structured editorial workflows.',
+      'algolia': 'Blazing fast instant search across thousands of articles.',
+      'aws-s3': 'Highly durable storage for high-resolution media assets.',
+      'vercel': 'Edge caching to deliver content to readers instantly.'
+    }
+  },
+  {
+    slug: 'support-helpdesk',
+    name: 'Automated Helpdesk',
+    description: 'A dedicated customer support portal and ticketing system with built-in automation.',
+    difficulty: 'medium',
+    icon: '🎧',
+    category: 'web-app',
+    recommendedTemplate: 'nextjs',
+    recommendedPackages: ['react-hook-form', 'zod'],
+    recommendedServices: ['freshdesk', 'zapier', 'slack', 'supabase'],
+    reasoning: {
+      'freshdesk': 'Robust backend for ticket management and customer communication.',
+      'zapier': 'Connects support events to thousands of external tools automatically.',
+      'slack': 'Internal notifications to alert support agents instantly.',
+      'supabase': 'Secure database for storing customer profiles and internal notes.'
+    }
   }
 ];
 

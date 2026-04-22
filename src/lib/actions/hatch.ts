@@ -36,9 +36,10 @@ function getVercelFramework(templateSlug: string): string | null {
   return mapping[templateSlug] || null;
 }
 
-export async function hatchVenture(projectId: string) {
+export async function hatchVenture(projectId: string, userGithubToken?: string) {
   const supabase = await createClient();
-  const octokit = new Octokit({ auth: GITHUB_TOKEN });
+  const tokenToUse = userGithubToken || GITHUB_TOKEN;
+  const octokit = new Octokit({ auth: tokenToUse });
 
   // 1. Fetch Project Data
   const { data: project, error: fetchError } = await supabase
@@ -52,6 +53,7 @@ export async function hatchVenture(projectId: string) {
 
   const config = project.blueprint_config as WizardConfig;
   const repoName = project.title.toLowerCase().replace(/[^a-z0-9]/g, '-');
+  const isPrivate = config.isPrivate ?? false;
 
   try {
     // 2. Create GitHub Repository
@@ -61,7 +63,7 @@ export async function hatchVenture(projectId: string) {
       name: repoName,
       description: project.description,
       auto_init: true,
-      private: false,
+      private: isPrivate,
     });
     await updateProvisioningStatus(projectId, { github: 'complete' });
 

@@ -174,6 +174,7 @@ export interface WizardConfig {
   modelSlug?: string;
   includeTests?: boolean;
   webhookUrl?: string;
+  isPrivate?: boolean;
 }
 
 /** Boilerplate file definition */

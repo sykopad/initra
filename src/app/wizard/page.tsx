@@ -434,7 +434,21 @@ function WizardContent() {
 
   // Push to GitHub -> Actually Hatch Full Venture 2.0
   const handlePushToGitHub = useCallback(async (settings: RepoSettings) => {
-    if (!projectName || generatedFiles.length === 0) return;
+    if (!settings.name || generatedFiles.length === 0) return;
+
+    // Retrieve user's GitHub token
+    const supabase = createClient();
+    const { data: { session } } = await supabase.auth.getSession();
+    const providerToken = session?.provider_token;
+    
+    if (!providerToken) {
+      setToast("⚠️ Please connect your GitHub account again to grant repo access.");
+      setTimeout(() => {
+        window.location.href = '/login';
+      }, 2000);
+      return;
+    }
+
     setIsPushing(true);
     setToast("Initializing Infrastructure Hatchery...");
 
@@ -455,6 +469,7 @@ function WizardContent() {
         selectedWorkflows,
         modelSlug,
         webhookUrl: settings.webhookUrl,
+        isPrivate: settings.isPrivate,
       };
 
       const id = await createHatchProject(settings.name, settings.description || "", config);
@@ -462,7 +477,7 @@ function WizardContent() {
       setToast("🚀 Project initialized! Starting multi-pillar provisioning...");
 
       // 2. Trigger async hatching
-      hatchVenture(id).catch(err => {
+      hatchVenture(id, providerToken).catch(err => {
         console.error("Hatch background error:", err);
       });
 
