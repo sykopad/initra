@@ -1577,12 +1577,12 @@ export default function WizardPage() {
                   </div>
                 </div>
 
-                <div className="hatch-workspace" style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: "2rem", minHeight: "75vh" }}>
+                <div className="hatch-workspace">
                   {/* Left Column: Rules Editor */}
                   <div className="workspace-editor-side" style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
                     <div className="glass-panel" style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", padding: "1.5rem" }}>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "1rem", marginBottom: "1rem", minWidth: 0 }}>
-                        <div className="file-tabs" style={{ marginBottom: 0, flex: 1, minWidth: 0 }}>
+                        <div className="file-tabs">
                           {generatedFiles.map((file, idx) => (
                             <button
                               key={idx}

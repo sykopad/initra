@@ -912,8 +912,8 @@ h1, h2, h3, h4, h5, h6 {
   overflow-x: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--border-medium) transparent;
-  min-width: 0; /* Crucial: Prevent content from expanding the parent */
-  flex: 1;
+  min-width: 0;
+  width: 100%;
 }
 
 .file-tabs::-webkit-scrollbar {
@@ -923,6 +923,13 @@ h1, h2, h3, h4, h5, h6 {
 .file-tabs::-webkit-scrollbar-thumb {
   background: var(--border-medium);
   border-radius: 10px;
+}
+
+.hatch-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 2rem;
+  min-height: 75vh;
 }
 
 .file-tab {
@@ -1573,6 +1580,11 @@ h1, h2, h3, h4, h5, h6 {
     width: 100%;
     position: relative;
     top: 0;
+  }
+
+  .hatch-workspace {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
   }
 
   .wizard-nav {
