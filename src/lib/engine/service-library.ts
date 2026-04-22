@@ -284,6 +284,187 @@ export const SERVICE_LIBRARY: ApiService[] = [
       { key: 'SALESFORCE_CLIENT_SECRET', description: 'Salesforce Connected App Client Secret', required: true }
     ],
   },
+
+  // ── Content Management (CMS) ──────────────────
+  {
+    slug: 'sanity',
+    name: 'Sanity',
+    registrationUrl: 'https://www.sanity.io/',
+    description: 'Structured content platform and headless CMS',
+    icon: '📝',
+    category: 'cms',
+    envVars: [
+      { key: 'NEXT_PUBLIC_SANITY_PROJECT_ID', description: 'Sanity Project ID', required: true },
+      { key: 'NEXT_PUBLIC_SANITY_DATASET', description: 'Sanity Dataset (e.g. production)', required: true, placeholder: 'production' },
+      { key: 'SANITY_API_TOKEN', description: 'Sanity API Token (Server)', required: false }
+    ],
+  },
+  {
+    slug: 'contentful',
+    name: 'Contentful',
+    registrationUrl: 'https://www.contentful.com/',
+    description: 'Enterprise headless CMS',
+    icon: '📋',
+    category: 'cms',
+    envVars: [
+      { key: 'CONTENTFUL_SPACE_ID', description: 'Contentful Space ID', required: true },
+      { key: 'CONTENTFUL_ACCESS_TOKEN', description: 'Contentful Delivery API Token', required: true },
+      { key: 'CONTENTFUL_PREVIEW_ACCESS_TOKEN', description: 'Contentful Preview API Token', required: false }
+    ],
+  },
+
+  // ── Search & Discovery ────────────────────────
+  {
+    slug: 'algolia',
+    name: 'Algolia',
+    registrationUrl: 'https://www.algolia.com/',
+    description: 'Blazing fast search and discovery API',
+    icon: '🔍',
+    category: 'search',
+    envVars: [
+      { key: 'NEXT_PUBLIC_ALGOLIA_APP_ID', description: 'Algolia Application ID', required: true },
+      { key: 'NEXT_PUBLIC_ALGOLIA_SEARCH_KEY', description: 'Algolia Search-only API Key', required: true },
+      { key: 'ALGOLIA_ADMIN_KEY', description: 'Algolia Admin API Key (Server only)', required: true }
+    ],
+  },
+  {
+    slug: 'meilisearch',
+    name: 'Meilisearch',
+    registrationUrl: 'https://www.meilisearch.com/',
+    description: 'Lightning fast open-source search engine',
+    icon: '⚡',
+    category: 'search',
+    envVars: [
+      { key: 'NEXT_PUBLIC_MEILISEARCH_HOST', description: 'Meilisearch Host URL', required: true },
+      { key: 'NEXT_PUBLIC_MEILISEARCH_API_KEY', description: 'Meilisearch Search Key', required: true },
+      { key: 'MEILISEARCH_MASTER_KEY', description: 'Meilisearch Master Key (Server only)', required: true }
+    ],
+  },
+
+  // ── Workflow Automation ───────────────────────
+  {
+    slug: 'zapier',
+    name: 'Zapier',
+    registrationUrl: 'https://zapier.com/',
+    description: 'Automation platform linking 5000+ apps',
+    icon: '⚡',
+    category: 'automation',
+    envVars: [
+      { key: 'ZAPIER_WEBHOOK_URL', description: 'Zapier Webhook URL for catching events', required: true }
+    ],
+  },
+  {
+    slug: 'make',
+    name: 'Make (Integromat)',
+    registrationUrl: 'https://www.make.com/',
+    description: 'Visual workflow automation platform',
+    icon: '🔗',
+    category: 'automation',
+    envVars: [
+      { key: 'MAKE_WEBHOOK_URL', description: 'Make Webhook URL for triggering scenarios', required: true }
+    ],
+  },
+
+  // ── Advanced Database & Storage ───────────────
+  {
+    slug: 'neon',
+    name: 'Neon',
+    registrationUrl: 'https://neon.tech/',
+    description: 'Serverless Postgres built for the cloud',
+    icon: '🐘',
+    category: 'database',
+    envVars: [
+      { key: 'DATABASE_URL', description: 'Neon Postgres Connection String', required: true, placeholder: 'postgresql://...' }
+    ],
+  },
+  {
+    slug: 'mongodb-atlas',
+    name: 'MongoDB Atlas',
+    registrationUrl: 'https://www.mongodb.com/cloud/atlas',
+    description: 'Managed MongoDB NoSQL database',
+    icon: '🍃',
+    category: 'database',
+    envVars: [
+      { key: 'MONGODB_URI', description: 'MongoDB Connection String', required: true, placeholder: 'mongodb+srv://...' }
+    ],
+  },
+  {
+    slug: 'aws-s3',
+    name: 'AWS S3',
+    registrationUrl: 'https://aws.amazon.com/s3/',
+    description: 'Highly durable cloud object storage',
+    icon: '🪣',
+    category: 'storage',
+    envVars: [
+      { key: 'AWS_ACCESS_KEY_ID', description: 'AWS Access Key', required: true },
+      { key: 'AWS_SECRET_ACCESS_KEY', description: 'AWS Secret Key', required: true },
+      { key: 'AWS_REGION', description: 'AWS Region', required: true, placeholder: 'us-east-1' },
+      { key: 'AWS_S3_BUCKET_NAME', description: 'S3 Bucket Name', required: true }
+    ],
+  },
+
+  // ── Notifications & Communication ─────────────
+  {
+    slug: 'slack',
+    name: 'Slack',
+    registrationUrl: 'https://api.slack.com/',
+    description: 'Webhooks for internal team notifications',
+    icon: '💬',
+    category: 'notifications',
+    envVars: [
+      { key: 'SLACK_WEBHOOK_URL', description: 'Slack Incoming Webhook URL', required: true }
+    ],
+  },
+  {
+    slug: 'discord',
+    name: 'Discord',
+    registrationUrl: 'https://discord.com/developers/applications',
+    description: 'Bots and webhooks for communities',
+    icon: '🎮',
+    category: 'notifications',
+    envVars: [
+      { key: 'DISCORD_WEBHOOK_URL', description: 'Discord Webhook URL', required: true }
+    ],
+  },
+  {
+    slug: 'pusher',
+    name: 'Pusher',
+    registrationUrl: 'https://pusher.com/',
+    description: 'Realtime WebSockets for chat and sync',
+    icon: '🔌',
+    category: 'notifications',
+    envVars: [
+      { key: 'PUSHER_APP_ID', description: 'Pusher App ID', required: true },
+      { key: 'NEXT_PUBLIC_PUSHER_KEY', description: 'Pusher Key', required: true },
+      { key: 'PUSHER_SECRET', description: 'Pusher Secret', required: true },
+      { key: 'NEXT_PUBLIC_PUSHER_CLUSTER', description: 'Pusher Cluster', required: true }
+    ],
+  },
+
+  // ── Marketing & Mail ──────────────────────────
+  {
+    slug: 'hubspot',
+    name: 'HubSpot',
+    registrationUrl: 'https://developers.hubspot.com/',
+    description: 'Inbound marketing, CRM, and sales platform',
+    icon: '🎯',
+    category: 'saas',
+    envVars: [
+      { key: 'HUBSPOT_ACCESS_TOKEN', description: 'HubSpot Private App Access Token', required: true }
+    ],
+  },
+  {
+    slug: 'mailchimp',
+    name: 'Mailchimp',
+    registrationUrl: 'https://mailchimp.com/developer/',
+    description: 'Email marketing and newsletters',
+    icon: '🐵',
+    category: 'saas',
+    envVars: [
+      { key: 'MAILCHIMP_API_KEY', description: 'Mailchimp API Key', required: true },
+      { key: 'MAILCHIMP_SERVER_PREFIX', description: 'Mailchimp Server Prefix (e.g. us1)', required: true }
+    ],
+  },
 ];
 
 export const SERVICE_CATEGORIES = [
@@ -295,6 +476,11 @@ export const SERVICE_CATEGORIES = [
   { slug: 'monitoring', label: 'Monitoring', icon: '🔍' },
   { slug: 'analytics', label: 'Analytics', icon: '📈' },
   { slug: 'saas', label: 'SaaS', icon: '☁️' },
+  { slug: 'cms', label: 'CMS', icon: '📝' },
+  { slug: 'search', label: 'Search', icon: '🔍' },
+  { slug: 'automation', label: 'Automation', icon: '⚡' },
+  { slug: 'storage', label: 'Storage', icon: '🪣' },
+  { slug: 'notifications', label: 'Alerts', icon: '💬' },
   { slug: 'infrastructure', label: 'Infra', icon: '🏗️' },
   { slug: 'other', label: 'Other', icon: '🛠️' },
 ];
