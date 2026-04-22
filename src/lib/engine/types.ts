@@ -173,6 +173,7 @@ export interface WizardConfig {
   logoUrl?: string;
   modelSlug?: string;
   includeTests?: boolean;
+  webhookUrl?: string;
 }
 
 /** Boilerplate file definition */

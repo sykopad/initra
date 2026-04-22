@@ -299,6 +299,19 @@ We implement frameworks **one at a time** to ensure maximum accuracy and deep he
 86. **AI Auto-Repair Engine (Complete)**: Specialized prompt sequences for autonomous fixes. (Done 2026-04-21)
 87. **Framework-Specific ADR Injection (Complete)**: Automated generation of ADRs based on audit findings. (Done 2026-04-21)
 
+### 🌐 Phase 27: API & Service Integration Expansion (Complete)
+
+88. **Layman Wizard Redesign (Complete)**: Automated backend package selection for beginners with curated architecture summaries. (Done 2026-04-22)
+89. **Enterprise Service Catalog (Complete)**: Added 14+ new platforms spanning CMS (Sanity), Search (Algolia), Automation (Zapier), and Storage (AWS S3). (Done 2026-04-22)
+90. **Strict Categorization (Complete)**: Expanded internal schema typing to support granular service categories in the Wizard UI. (Done 2026-04-22)
+
+### 🚀 Phase 28: Enterprise Infrastructure Orchestration
+
+91. **Service-Specific Boilerplate Injection**: Auto-generate configurations (e.g., `sanity.config.ts`, Algolia client) for new SaaS platforms.
+92. **Advanced Venture Blueprints**: Introduce "Enterprise E-Commerce" and other high-end templates pre-wired with specific CMS and Search APIs.
+93. **Connected Services Dashboard**: Visual "Infrastructure Map" in the user Command Center displaying hooked-up SaaS tools per venture.
+94. **Webhooks & Automation Engine**: Ping user-defined webhooks (Zapier/Make) upon successful repository birth to trigger external workflows.
+
 ## Conventions
 
 - Use TypeScript strict mode. Avoid `any`.

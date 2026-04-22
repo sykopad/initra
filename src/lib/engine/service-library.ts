@@ -298,6 +298,26 @@ export const SERVICE_LIBRARY: ApiService[] = [
       { key: 'NEXT_PUBLIC_SANITY_DATASET', description: 'Sanity Dataset (e.g. production)', required: true, placeholder: 'production' },
       { key: 'SANITY_API_TOKEN', description: 'Sanity API Token (Server)', required: false }
     ],
+    boilerplateFiles: [
+      {
+        path: 'sanity.config.ts',
+        content: `import { defineConfig } from 'sanity';\nimport { structureTool } from 'sanity/structure';\n\nexport default defineConfig({\n  name: 'default',\n  title: 'Sanity Studio',\n  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,\n  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET!,\n  plugins: [structureTool()],\n  schema: {\n    types: [],\n  },\n});`
+      },
+      {
+        path: 'sanity.cli.ts',
+        content: `import { defineCliConfig } from 'sanity/cli';\n\nexport default defineCliConfig({\n  api: {\n    projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,\n    dataset: process.env.NEXT_PUBLIC_SANITY_DATASET!,\n  }\n});`
+      },
+      {
+        path: 'package.json',
+        mergeType: 'package-json',
+        content: JSON.stringify({
+          dependencies: {
+            "next-sanity": "^9.0.0",
+            "sanity": "^3.0.0"
+          }
+        })
+      }
+    ],
   },
   {
     slug: 'contentful',
@@ -325,6 +345,22 @@ export const SERVICE_LIBRARY: ApiService[] = [
       { key: 'NEXT_PUBLIC_ALGOLIA_APP_ID', description: 'Algolia Application ID', required: true },
       { key: 'NEXT_PUBLIC_ALGOLIA_SEARCH_KEY', description: 'Algolia Search-only API Key', required: true },
       { key: 'ALGOLIA_ADMIN_KEY', description: 'Algolia Admin API Key (Server only)', required: true }
+    ],
+    boilerplateFiles: [
+      {
+        path: 'src/lib/algolia.ts',
+        content: `import algoliasearch from 'algoliasearch';\n\nexport const searchClient = algoliasearch(\n  process.env.NEXT_PUBLIC_ALGOLIA_APP_ID!,\n  process.env.NEXT_PUBLIC_ALGOLIA_SEARCH_KEY!\n);`
+      },
+      {
+        path: 'package.json',
+        mergeType: 'package-json',
+        content: JSON.stringify({
+          dependencies: {
+            "algoliasearch": "^5.0.0",
+            "react-instantsearch": "^7.0.0"
+          }
+        })
+      }
     ],
   },
   {

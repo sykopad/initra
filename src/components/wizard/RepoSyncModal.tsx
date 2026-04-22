@@ -14,6 +14,7 @@ export interface RepoSettings {
   name: string;
   description: string;
   isPrivate: boolean;
+  webhookUrl?: string;
 }
 
 export default function RepoSyncModal({ 

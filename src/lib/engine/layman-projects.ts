@@ -92,6 +92,23 @@ export const LAYMAN_PROJECTS: LaymanProject[] = [
       'ai': 'Specialized tools to stream AI responses directly to the user.',
       'supabase': 'Saves conversation history and user preferences.',
     }
+  },
+  {
+    slug: 'enterprise-ecommerce',
+    name: 'Enterprise E-Commerce',
+    description: 'A highly scalable online storefront with CMS, lightning-fast search, and payments.',
+    difficulty: 'hard',
+    icon: '🛒',
+    category: 'web-app',
+    recommendedTemplate: 'nextjs',
+    recommendedPackages: ['zustand', 'lucide-react'],
+    recommendedServices: ['stripe', 'algolia', 'sanity', 'vercel'],
+    reasoning: {
+      'stripe': 'World-class payment processing to handle enterprise transactions safely.',
+      'algolia': 'Provides blazing fast product search and discovery for your catalog.',
+      'sanity': 'A powerful Headless CMS allowing your team to manage products without code.',
+      'vercel': 'Global edge network to ensure your storefront loads instantly worldwide.'
+    }
   }
 ];
 

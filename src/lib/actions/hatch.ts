@@ -197,6 +197,27 @@ export async function hatchVenture(projectId: string) {
       })
       .eq('id', projectId);
 
+    // 9. Trigger Webhook (if provided)
+    if (config.webhookUrl) {
+      console.log(`[Hatch] Triggering Webhook: ${config.webhookUrl}`);
+      try {
+        await fetch(config.webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            event: 'venture_hatched',
+            project_id: projectId,
+            repo_url: repo.html_url,
+            live_url: `https://${domain}`,
+            supabase_url: supabaseUrl,
+            timestamp: new Date().toISOString()
+          })
+        });
+      } catch (webhookErr) {
+        console.warn("[Hatch] Failed to trigger webhook:", webhookErr);
+      }
+    }
+
     return {
       success: true,
       repoUrl: repo.html_url,

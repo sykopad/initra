@@ -422,6 +422,7 @@ export default function WizardPage() {
         selectedBrains,
         selectedWorkflows,
         modelSlug,
+        webhookUrl: settings.webhookUrl,
       };
 
       const id = await createHatchProject(settings.name, settings.description || "", config);

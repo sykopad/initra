@@ -37,6 +37,7 @@ export default async function DashboardPage() {
       created_at, 
       template_id,
       share_slug,
+      generated_config,
       project_templates (name, slug, icon_emoji)
     `)
     .eq('user_id', user.id)
