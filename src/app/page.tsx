@@ -57,8 +57,8 @@ export default function HomePage() {
             The Autonomous SaaS Builder for <span className="gradient-text" style={{ background: 'var(--gradient-sovereign)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Sovereign Developers.</span>
           </h1>
           <p className="hero-subtitle" style={{ maxWidth: '750px' }}>
-            Build, deploy, and manage production applications on your own Git infrastructure. 
-            Initra orchestrates your entire stack—from repository creation to cloud deployment—while 
+            Build, deploy, and manage production applications on your own Git infrastructure.
+            Initra orchestrates your entire stack—from repository creation to cloud deployment—while
             ensuring you own every single line of code.
           </p>
 
@@ -128,7 +128,7 @@ export default function HomePage() {
               <div className="feature-icon" style={{ borderColor: 'var(--accent-amber)' }}>🐙</div>
               <h3>100% Repository Ownership</h3>
               <p>
-                Unlike closed-door app builders, Initra pushes every change directly to your own GitHub infrastructure. 
+                Unlike closed-door app builders, Initra pushes every change directly to your own GitHub infrastructure.
                 Your code, your data, your sovereign environment.
               </p>
             </div>
@@ -136,7 +136,7 @@ export default function HomePage() {
               <div className="feature-icon" style={{ borderColor: 'var(--accent-secondary)' }}>🔍</div>
               <h3>Deep Heuristic Analysis</h3>
               <p>
-                Scan existing repositories to automatically identify UI landmarks, logic blocks, and 
+                Scan existing repositories to automatically identify UI landmarks, logic blocks, and
                 architecture patterns for instant AI-driven modification.
               </p>
               <div className="scanner-container">
@@ -152,7 +152,7 @@ export default function HomePage() {
               <div className="feature-icon" style={{ borderColor: 'var(--accent-primary)' }}>🧠</div>
               <h3>Multi-Agent Orchestration</h3>
               <p>
-                Synthesis of complex business objectives into high-fidelity IDE rules. 
+                Synthesis of complex business objectives into high-fidelity IDE rules.
                 Configure your agents with specialized "Brain Overlays" for design, architecture, or security.
               </p>
             </div>
@@ -165,41 +165,41 @@ export default function HomePage() {
         <div className="container">
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '5rem', alignItems: 'center' }}>
             <div className="card" style={{ padding: '3rem', borderLeft: '4px solid var(--accent-amber)', background: 'linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%)' }}>
-               <div className="hero-badge" style={{ marginBottom: '1.5rem', background: 'rgba(245, 158, 11, 0.1)', borderColor: 'rgba(245, 158, 11, 0.3)' }}>
-                  <span className="badge-dot" style={{ background: 'var(--accent-amber)' }}></span>
-                  Claude Opus 4.6 Blueprints
-               </div>
-               <h2 style={{ fontSize: 'var(--text-4xl)', marginBottom: 'var(--space-md)', textAlign: 'left', lineHeight: 1.1 }}>
-                 The Autonomous <span className="gradient-text" style={{ background: 'var(--gradient-sovereign)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Idea Fabric.</span>
-               </h2>
-               <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem', lineHeight: 1.7 }}>
-                 Every 24 hours, our Idea Fabric autonomously generates high-fidelity venture blueprints. 
-                 Vote on the next big open-source project, hatch it with one click, and contribute to a global ecosystem 
-                 of autonomous ventures.
-               </p>
-               <div style={{ display: 'flex', gap: '1rem' }}>
-                 <Link href="/community" className="btn btn-primary" style={{ background: 'var(--gradient-sovereign)' }}>Visit the Marketplace →</Link>
-               </div>
+              <div className="hero-badge" style={{ marginBottom: '1.5rem', background: 'rgba(245, 158, 11, 0.1)', borderColor: 'rgba(245, 158, 11, 0.3)' }}>
+                <span className="badge-dot" style={{ background: 'var(--accent-amber)' }}></span>
+                Claude Opus 4.6 Blueprints
+              </div>
+              <h2 style={{ fontSize: 'var(--text-4xl)', marginBottom: 'var(--space-md)', textAlign: 'left', lineHeight: 1.1 }}>
+                The Autonomous <span className="gradient-text" style={{ background: 'var(--gradient-sovereign)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Idea Fabric.</span>
+              </h2>
+              <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem', lineHeight: 1.7 }}>
+                Every 24 hours, our Idea Fabric autonomously generates high-fidelity venture blueprints.
+                Vote on the next big open-source project, hatch it with one click, and contribute to a global ecosystem
+                of autonomous ventures.
+              </p>
+              <div style={{ display: 'flex', gap: '1rem' }}>
+                <Link href="/community" className="btn btn-primary" style={{ background: 'var(--gradient-sovereign)' }}>Visit the Marketplace →</Link>
+              </div>
             </div>
-            
+
             <div style={{ position: 'relative' }}>
-               <div className="glass-panel" style={{ padding: '2rem', transform: 'rotate(-2deg)', background: 'rgba(0,0,0,0.4)', borderRadius: '24px', position: 'relative', zIndex: 2 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                      <div className="stat-number" style={{ fontSize: '1rem' }}>💡 Top Idea</div>
-                    </div>
-                    <span className="badge-outline" style={{ fontSize: '0.7rem', borderColor: 'var(--accent-amber)', color: 'var(--accent-amber)' }}>VOTING OPEN</span>
+              <div className="glass-panel" style={{ padding: '2rem', background: 'rgba(0,0,0,0.4)', borderRadius: '24px', position: 'relative', zIndex: 2 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <div className="stat-number" style={{ fontSize: '1rem' }}>💡 Top Idea</div>
                   </div>
-                  <h3 style={{ fontSize: '1.25rem', marginBottom: '1rem' }}>Peer-to-Peer AI Energy Grid</h3>
-                  <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>An autonomous billing and distribution network for localized renewable energy clusters.</p>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                   <div style={{ display: 'flex', WebkitMaskImage: 'linear-gradient(to right, black 50%, transparent 100%)' }}>
-                        {[1,2,3,4].map(i => <div key={i} style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'var(--bg-tertiary)', border: '2px solid var(--bg-primary)', marginLeft: i === 1 ? 0 : '-8px' }}></div>)}
-                   </div>
-                     <span style={{ fontSize: '0.8rem', color: 'var(--accent-amber)', fontWeight: 700 }}>2,841 UPVOTES</span>
+                  <span className="badge-outline" style={{ fontSize: '0.7rem', borderColor: 'var(--accent-amber)', color: 'var(--accent-amber)' }}>VOTING OPEN</span>
+                </div>
+                <h3 style={{ fontSize: '1.25rem', marginBottom: '1rem' }}>Peer-to-Peer AI Energy Grid</h3>
+                <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>An autonomous billing and distribution network for localized renewable energy clusters.</p>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', WebkitMaskImage: 'linear-gradient(to right, black 50%, transparent 100%)' }}>
+                    {[1, 2, 3, 4].map(i => <div key={i} style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'var(--bg-tertiary)', border: '2px solid var(--bg-primary)', marginLeft: i === 1 ? 0 : '-8px' }}></div>)}
                   </div>
-               </div>
-               <div style={{ position: 'absolute', top: '10%', left: '10%', right: '-5%', bottom: '-5%', background: 'var(--accent-primary)', opacity: 0.1, filter: 'blur(100px)', borderRadius: '50%', zIndex: 1 }}></div>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--accent-amber)', fontWeight: 700 }}>2,841 UPVOTES</span>
+                </div>
+              </div>
+              <div style={{ position: 'absolute', top: '10%', left: '10%', right: '-5%', bottom: '-5%', background: 'var(--accent-primary)', opacity: 0.1, filter: 'blur(100px)', borderRadius: '50%', zIndex: 1 }}></div>
             </div>
           </div>
         </div>
@@ -211,18 +211,18 @@ export default function HomePage() {
           <div style={{ maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
             <h2 style={{ fontSize: 'var(--text-3xl)', marginBottom: '1.5rem' }}>Scale the Studio.</h2>
             <p style={{ color: 'var(--text-secondary)', marginBottom: '3rem' }}>
-              Initra is a community-owned venture factory. Your donations help us maintain the high-performance 
+              Initra is a community-owned venture factory. Your donations help us maintain the high-performance
               inference clusters and cloud provisioning credits needed to keep hatching open-source ventures for everyone.
             </p>
             <div className="donation-card" style={{ maxWidth: '500px', margin: '0 auto', textAlign: 'left', padding: '2rem', background: 'var(--gradient-card)', border: '1px solid var(--border-accent)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                  <span style={{ fontWeight: 600 }}>Next Milestone: A100 Inference Buffer</span>
-                  <span style={{ color: 'var(--accent-amber)', fontWeight: 800 }}>82%</span>
-                </div>
-                <div style={{ width: '100%', height: '6px', background: 'var(--bg-input)', borderRadius: '3px', overflow: 'hidden' }}>
-                   <div style={{ width: '82%', height: '100%', background: 'var(--accent-amber)', boxShadow: '0 0 10px var(--accent-amber)' }}></div>
-                </div>
-                <button className="btn btn-secondary btn-sm" style={{ width: '100%', marginTop: '2rem', background: 'var(--bg-primary)' }}>❤️ Fuel the Studio</button>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                <span style={{ fontWeight: 600 }}>Next Milestone: A100 Inference Buffer</span>
+                <span style={{ color: 'var(--accent-amber)', fontWeight: 800 }}>82%</span>
+              </div>
+              <div style={{ width: '100%', height: '6px', background: 'var(--bg-input)', borderRadius: '3px', overflow: 'hidden' }}>
+                <div style={{ width: '82%', height: '100%', background: 'var(--accent-amber)', boxShadow: '0 0 10px var(--accent-amber)' }}></div>
+              </div>
+              <button className="btn btn-secondary btn-sm" style={{ width: '100%', marginTop: '2rem', background: 'var(--bg-primary)' }}>❤️ Fuel the Studio</button>
             </div>
           </div>
         </div>
@@ -232,7 +232,7 @@ export default function HomePage() {
       <footer style={{ borderTop: '1px solid var(--border-subtle)', padding: '3rem 0', textAlign: 'center' }}>
         <div className="container">
           <div className="navbar-brand" style={{ justifyContent: 'center', marginBottom: '1.5rem' }}>
-             <span>INITRA</span>
+            <span>INITRA</span>
           </div>
           <p style={{ color: 'var(--text-muted)', fontSize: 'var(--text-sm)' }}>
             The Autonomous Venture Studio for Sovereign Developers.<br />
