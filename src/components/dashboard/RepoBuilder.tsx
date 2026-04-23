@@ -137,8 +137,10 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           repoId: activeRepo.id,
-          filePath: pendingChanges.filePath,
-          content: pendingChanges.code,
+          files: [{
+            path: pendingChanges.filePath,
+            content: pendingChanges.code
+          }],
           commitMessage: `✨ AI built UI change: ${pendingChanges.filePath}`
         })
       });
@@ -304,6 +306,27 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
               <button className="close-btn" onClick={() => setError(null)}>×</button>
             </div>
           )}
+
+          {pendingChanges && (
+            <div className="changes-bar animate-slide-down" style={{ marginBottom: '1.5rem' }}>
+              <div className="bar-inner">
+                <div className="changes-info">
+                  <span className="sparkle">✨</span>
+                  <span>AI has generated changes for <strong>{pendingChanges.filePath}</strong></span>
+                </div>
+                <div style={{ display: 'flex', gap: '1rem' }}>
+                  <button className="btn btn-ghost btn-sm" onClick={() => setPendingChanges(null)}>Discard</button>
+                  <button 
+                    className="btn btn-primary btn-sm" 
+                    onClick={handlePush}
+                    disabled={isPushing}
+                  >
+                    {isPushing ? "Pushing..." : "Push to GitHub"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
           
           <div className="builder-controls" style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.02)', padding: '1rem', borderRadius: '12px' }}>
             <div className="model-switcher-dashboard">
@@ -375,26 +398,6 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
                     }}
                   >
                     Confirm Disconnect
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-          {pendingChanges && (
-            <div className="changes-bar animate-slide-up">
-              <div className="bar-inner">
-                <div className="changes-info">
-                  <span className="sparkle">✨</span>
-                  <span>AI has generated changes for <strong>{pendingChanges.filePath}</strong></span>
-                </div>
-                <div style={{ display: 'flex', gap: '1rem' }}>
-                  <button className="btn btn-ghost btn-sm" onClick={() => setPendingChanges(null)}>Discard</button>
-                  <button 
-                    className="btn btn-primary btn-sm" 
-                    onClick={handlePush}
-                    disabled={isPushing}
-                  >
-                    {isPushing ? "Pushing..." : "Push to GitHub"}
                   </button>
                 </div>
               </div>
