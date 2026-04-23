@@ -19,12 +19,20 @@ export async function POST(req: Request) {
 
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized: Please log in." }, { status: 401 });
+    }
+
     const { data: { session } } = await supabase.auth.getSession();
     const cookieStore = await cookies();
     const providerToken = session?.provider_token || cookieStore.get("sb-github-token")?.value;
 
-    if (!user || !providerToken) {
-      return NextResponse.json({ error: "User or GitHub token not found" }, { status: 401 });
+    if (!providerToken) {
+      return NextResponse.json({ 
+        error: "GitHub session expired", 
+        message: "Your GitHub connection has expired. Please reconnect to continue." 
+      }, { status: 401 });
     }
 
     const octokit = new Octokit({ auth: providerToken });

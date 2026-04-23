@@ -12,11 +12,14 @@ export async function GET(request: Request) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
     
     if (!error && data.session) {
-      const response = NextResponse.redirect(`${requestUrl.origin}${next}`);
+      const isDashboard = next.startsWith('/dashboard');
+      const redirectUrl = isDashboard ? `${requestUrl.origin}${next}` : `${requestUrl.origin}${next}`;
+      const response = NextResponse.redirect(redirectUrl);
       
       // Store the provider_token (GitHub Access Token) in a secure cookie
       // This is needed because Supabase SSR does not persist provider_tokens in the session cookie
       if (data.session.provider_token) {
+        console.log("[Auth Callback] Setting GitHub token cookie");
         response.cookies.set("sb-github-token", data.session.provider_token, {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
@@ -24,12 +27,15 @@ export async function GET(request: Request) {
           maxAge: 60 * 60 * 24 * 7, // 1 week
           path: "/",
         });
+      } else {
+        console.warn("[Auth Callback] No provider_token found in session");
       }
 
       return response;
     }
   }
 
+  console.error("[Auth Callback] Code exchange failed or no code provided");
   // Return the user to an error page with some instructions
-  return NextResponse.redirect(`${requestUrl.origin}/auth/error`);
+  return NextResponse.redirect(`${requestUrl.origin}/auth/error?reason=callback_failed`);
 }
