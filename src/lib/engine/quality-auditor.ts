@@ -139,6 +139,36 @@ export async function performQualityAudit(files: string[], framework: string): P
     });
   }
 
+  const hasErrorBoundaries = files.some(f => f.includes("error.tsx") || f.includes("error.js") || f.includes("ErrorBoundary"));
+  if (hasErrorBoundaries) {
+    checks.push({ id: 'logic-hydration', title: 'Hydration Resilience', status: 'pass', category: 'Logic', message: 'Error boundaries or Next.js error segments detected.' });
+  } else if (framework === 'nextjs') {
+    score -= 5;
+    checks.push({
+      id: 'logic-hydration',
+      title: 'Hydration Resilience',
+      status: 'warning',
+      category: 'Logic',
+      message: 'No global error boundaries detected. UI might crash on hydration or runtime errors.',
+      actionable_repair: 'Implement a global error.tsx (Next.js) or a custom ErrorBoundary component to prevent full-page crashes.'
+    });
+  }
+
+  const hasAPIWrapper = files.some(f => f.includes("api/client") || f.includes("lib/api") || f.includes("services/"));
+  if (hasAPIWrapper) {
+    checks.push({ id: 'logic-api', title: 'API Resilience', status: 'pass', category: 'Logic', message: 'Centralized API client or service layer detected.' });
+  } else {
+    score -= 10;
+    checks.push({
+      id: 'logic-api',
+      title: 'API Resilience',
+      status: 'warning',
+      category: 'Logic',
+      message: 'No centralized API client detected. Error handling and headers might be inconsistent.',
+      actionable_repair: 'Create a centralized API client or service layer to handle global error states, token injection, and response normalization.'
+    });
+  }
+
   // Clamp score
   score = Math.max(0, Math.min(100, score));
 

@@ -67,6 +67,19 @@ TECHNICAL DIRECTIVE:
 3. Extract logic into a reusable custom hook or a centralized store (e.g. using Zustand or React Context).
 4. Update the primary component to consume this new logic layer.`;
 
+    case 'logic-hydration':
+      return `${baseContext}
+1. Create a global error.tsx file in the root 'app' directory (Next.js 16).
+2. Implement a Client Component that uses 'useEffect' to log the error to a service (like Pino or Sentry).
+3. Provide a 'Try Again' button that attempts to reset the error boundary.`;
+
+    case 'logic-api':
+      return `${baseContext}
+1. Create a centralized API client in 'src/lib/api.ts' or 'src/services/api.ts'.
+2. Implement a fetch/axios wrapper that handles global response errors (401, 500).
+3. Inject authentication headers (Bearer tokens) automatically from the session store.
+4. Export a standardized 'fetcher' for use in SWR or React Query hooks.`;
+
     default:
       return `${baseContext} Please analyze the issue and implement the most robust fix following ${framework} best practices.`;
   }
