@@ -393,10 +393,22 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
                     className="studio-select"
                   >
                     <option value="" disabled>Select a section to customize...</option>
-                    {segments.map(s => (
-                      <option key={s.id} value={s.id}>{s.name} ({s.domain})</option>
+                    {segments.map((s, idx) => (
+                      <option key={s.id || `${s.file_path}-${idx}`} value={s.id} style={{ background: '#1a1a1a', color: 'white' }}>
+                        {s.name} — {s.domain}
+                      </option>
                     ))}
                   </select>
+
+                  {studioSegmentId && segments.find(s => s.id === studioSegmentId) && (
+                    <div className="segment-context-box animate-fade-in">
+                      <div className="context-header">
+                        <span className="context-badge">{(segments.find(s => s.id === studioSegmentId)?.type || 'unknown').toUpperCase()}</span>
+                        <span className="context-path">{segments.find(s => s.id === studioSegmentId)?.file_path}</span>
+                      </div>
+                      <p className="context-desc">{segments.find(s => s.id === studioSegmentId)?.description}</p>
+                    </div>
+                  )}
                 </div>
                 <div className="studio-field">
                   <label>AI Modification Prompt</label>
@@ -420,93 +432,7 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
             </div>
           </div>
 
-          <style jsx>{`
-            .creative-studio {
-              position: relative;
-            }
-            .studio-inner {
-              padding: 2rem;
-              border-radius: 24px;
-              background: linear-gradient(135deg, rgba(139, 92, 246, 0.05), rgba(16, 185, 129, 0.05));
-              border: 1px solid rgba(255, 255, 255, 0.1);
-              box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-            }
-            .studio-header {
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-              margin-bottom: 2rem;
-            }
-            .studio-icon {
-              font-size: 1.5rem;
-              background: var(--accent-primary);
-              width: 40px;
-              height: 40px;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              border-radius: 12px;
-              box-shadow: 0 0 15px rgba(139, 92, 246, 0.5);
-            }
-            .model-badge {
-              font-size: 0.7rem;
-              font-weight: 700;
-              padding: 4px 10px;
-              background: rgba(255, 255, 255, 0.05);
-              border-radius: 20px;
-              color: var(--text-muted);
-            }
-            .studio-grid {
-              display: flex;
-              flex-direction: column;
-              gap: 1.5rem;
-            }
-            .studio-field label {
-              display: block;
-              font-size: 0.75rem;
-              font-weight: 700;
-              color: var(--text-muted);
-              margin-bottom: 8px;
-              text-transform: uppercase;
-              letter-spacing: 0.05em;
-            }
-            .studio-select {
-              width: 100%;
-              background: rgba(255, 255, 255, 0.05);
-              border: 1px solid rgba(255, 255, 255, 0.1);
-              padding: 12px;
-              border-radius: 12px;
-              color: white;
-              outline: none;
-            }
-            .studio-prompt-wrapper {
-              display: flex;
-              gap: 12px;
-              align-items: flex-end;
-            }
-            .studio-textarea {
-              flex: 1;
-              background: rgba(255, 255, 255, 0.05);
-              border: 1px solid rgba(255, 255, 255, 0.1);
-              padding: 16px;
-              border-radius: 16px;
-              color: white;
-              min-height: 100px;
-              resize: none;
-              font-size: 0.95rem;
-              outline: none;
-              transition: border-color 0.2s;
-            }
-            .studio-textarea:focus {
-              border-color: var(--accent-primary);
-            }
-            .studio-btn {
-              padding: 16px 24px !important;
-              border-radius: 16px !important;
-              height: auto !important;
-              min-width: 180px;
-            }
-          `}</style>
+
 
           {/* Grouped Segments View */}
           <div className="domains-container">
@@ -575,6 +501,136 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
       )}
 
       <style jsx>{`
+            .creative-studio {
+              position: relative;
+            }
+            .studio-inner {
+              padding: 2rem;
+              border-radius: 24px;
+              background: linear-gradient(135deg, rgba(139, 92, 246, 0.05), rgba(16, 185, 129, 0.05));
+              border: 1px solid rgba(255, 255, 255, 0.1);
+              box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            }
+            .studio-header {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 2rem;
+            }
+            .studio-icon {
+              font-size: 1.5rem;
+              background: var(--accent-primary);
+              width: 40px;
+              height: 40px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              border-radius: 12px;
+              box-shadow: 0 0 15px rgba(139, 92, 246, 0.5);
+            }
+            .model-badge {
+              font-size: 0.7rem;
+              font-weight: 700;
+              padding: 4px 10px;
+              background: rgba(255, 255, 255, 0.05);
+              border-radius: 20px;
+              color: var(--text-muted);
+            }
+            .studio-grid {
+              display: flex;
+              flex-direction: column;
+              gap: 1.5rem;
+            }
+            .studio-field label {
+              display: block;
+              font-size: 0.75rem;
+              font-weight: 700;
+              color: var(--text-muted);
+              margin-bottom: 8px;
+              text-transform: uppercase;
+              letter-spacing: 0.05em;
+            }
+            .studio-select {
+              width: 100%;
+              background: rgba(255, 255, 255, 0.05);
+              border: 1px solid rgba(255, 255, 255, 0.1);
+              padding: 14px;
+              border-radius: 12px;
+              color: white;
+              outline: none;
+              font-size: 0.95rem;
+              font-weight: 500;
+              transition: border-color 0.2s;
+            }
+            .studio-select:focus {
+              border-color: var(--accent-primary);
+            }
+            .studio-select option {
+              background: #1a1a1a;
+              color: white;
+              padding: 12px;
+            }
+            .segment-context-box {
+              margin-top: 12px;
+              padding: 12px 16px;
+              background: rgba(255, 255, 255, 0.02);
+              border: 1px solid rgba(255, 255, 255, 0.05);
+              border-radius: 12px;
+            }
+            .context-header {
+              display: flex;
+              align-items: center;
+              gap: 10px;
+              margin-bottom: 6px;
+            }
+            .context-badge {
+              font-size: 0.6rem;
+              font-weight: 900;
+              padding: 2px 6px;
+              background: var(--accent-primary);
+              color: white;
+              border-radius: 4px;
+              letter-spacing: 0.05em;
+            }
+            .context-path {
+              font-family: monospace;
+              font-size: 0.75rem;
+              color: var(--text-muted);
+            }
+            .context-desc {
+              margin: 0;
+              font-size: 0.8rem;
+              color: var(--text-secondary);
+              line-height: 1.5;
+            }
+            .studio-prompt-wrapper {
+              display: flex;
+              gap: 12px;
+              align-items: flex-end;
+            }
+            .studio-textarea {
+              flex: 1;
+              background: rgba(255, 255, 255, 0.05);
+              border: 1px solid rgba(255, 255, 255, 0.1);
+              padding: 16px;
+              border-radius: 16px;
+              color: white;
+              min-height: 100px;
+              resize: none;
+              font-size: 0.95rem;
+              outline: none;
+              transition: border-color 0.2s;
+            }
+            .studio-textarea:focus {
+              border-color: var(--accent-primary);
+            }
+            .studio-btn {
+              padding: 16px 24px !important;
+              border-radius: 16px !important;
+              height: auto !important;
+              min-width: 180px;
+            }
+
         .repo-select-minimal {
           background: transparent;
           border: none;

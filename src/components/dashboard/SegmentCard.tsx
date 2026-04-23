@@ -22,6 +22,16 @@ interface SegmentCardProps {
 }
 
 export default function SegmentCard({ segment, repoId, onEditSuccess, onSelect }: SegmentCardProps) {
+  const getIcon = (type: string) => {
+    switch (type) {
+      case 'navigation': return '🧭';
+      case 'layout': return '🏗️';
+      case 'page': return '📄';
+      case 'style': return '🎨';
+      default: return '🧩';
+    }
+  };
+
   return (
     <div className="segment-card glass-panel" onClick={onSelect} style={{ cursor: onSelect ? 'pointer' : 'default' }}>
       <div className="segment-header">
