@@ -37,6 +37,13 @@ export async function POST(req: Request) {
 
     const octokit = new Octokit({ auth: providerToken });
 
+    // 0. Fetch Repo Info from GitHub (to get default branch)
+    const { data: ghRepo } = await octokit.rest.repos.get({
+      owner,
+      repo: repoName
+    });
+    const defaultBranch = ghRepo.default_branch || 'main';
+
     // 1. Sync Repository in DB
     const { data: syncedRepo, error: repoError } = await supabase
       .from('synced_repositories')
@@ -44,6 +51,7 @@ export async function POST(req: Request) {
         user_id: user.id,
         owner,
         repo_name: repoName,
+        default_branch: defaultBranch,
         last_synced_at: new Date().toISOString()
       }, { onConflict: 'owner,repo_name' })
       .select()
