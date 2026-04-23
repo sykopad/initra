@@ -26,7 +26,12 @@ export async function POST(req: Request) {
 
     const { data: { session } } = await supabase.auth.getSession();
     const cookieStore = await cookies();
-    const providerToken = session?.provider_token || cookieStore.get("sb-github-token")?.value;
+    let providerToken = session?.provider_token || cookieStore.get("sb-github-token")?.value;
+
+    // Local development fallback to environment variable
+    if (!providerToken && process.env.GITHUB_TOKEN) {
+      providerToken = process.env.GITHUB_TOKEN;
+    }
 
     if (!providerToken) {
       return NextResponse.json({ 

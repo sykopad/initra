@@ -47,6 +47,8 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
 
   const fetchSegments = async (repoId: string) => {
     setIsLoading(true);
+    setSegments([]);
+    setAudit(null);
     try {
       const res = await fetch(`/api/builder/segment`, {
         method: "POST",
@@ -61,6 +63,9 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
     } catch (e: any) {
       console.error(e);
       setError(e.message);
+      if (e.message.includes("GitHub session expired")) {
+        setShowReconnect(true);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -70,6 +75,7 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
   const [pendingChanges, setPendingChanges] = useState<{ code: string; filePath: string } | null>(null);
   const [isPushing, setIsPushing] = useState(false);
   const [showReconnect, setShowReconnect] = useState(false);
+  const [showDisconnectConfirm, setShowDisconnectConfirm] = useState(false);
 
   const handleReconnect = async () => {
     const { createClient } = await import("@/lib/supabase/client");
@@ -230,30 +236,72 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
         </div>
       ) : (
         <div className="builder-view animate-fade-in">
-          <div className="repo-status" style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <span className="dot pulse"></span>
-              <div>
-                <div style={{ fontSize: '0.9rem', fontWeight: 600 }}>{activeRepo.owner}/{activeRepo.repo_name}</div>
-                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Synced {new Date(activeRepo.last_synced_at).toLocaleString()}</div>
+          <div className="repo-status" style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: '12px', border: '1px solid var(--border-light)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <div className="repo-icon-wrapper">
+                <span className="dot pulse"></span>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <select 
+                    className="repo-select-minimal"
+                    value={activeRepo.id}
+                    onChange={(e) => {
+                      const repo = initialRepos?.find(r => r.id === e.target.value);
+                      if (repo) setActiveRepo(repo);
+                    }}
+                  >
+                    {initialRepos?.map(repo => (
+                      <option key={repo.id} value={repo.id}>{repo.owner}/{repo.repo_name}</option>
+                    ))}
+                  </select>
+                  <button 
+                    className={`btn-icon ${isLoading ? 'spinning' : ''}`} 
+                    onClick={() => fetchSegments(activeRepo.id)}
+                    title="Refresh Analysis"
+                    disabled={isLoading}
+                  >
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+                    </svg>
+                  </button>
+                </div>
+                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+                  Last synced {new Date(activeRepo.last_synced_at).toLocaleString()}
+                </div>
               </div>
             </div>
-            <div style={{ display: 'flex', gap: '0.75rem' }}>
+            <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+              {showReconnect && (
+                <button 
+                  className="btn btn-secondary btn-sm" 
+                  onClick={handleReconnect}
+                  style={{ background: '#24292e', color: 'white', border: 'none' }}
+                >
+                  Reconnect GitHub
+                </button>
+              )}
               <button 
                 className="btn btn-ghost btn-sm" 
-                style={{ color: 'var(--accent-rose)' }}
-                onClick={async () => {
-                  if (confirm("Disconnect this repository? Your code stays on GitHub, but you won't be able to manage it from Initra.")) {
-                    await disconnectRepo(activeRepo.id);
-                    setActiveRepo(null);
-                  }
-                }}
+                style={{ color: 'var(--accent-rose)', opacity: 0.8 }}
+                onClick={() => setShowDisconnectConfirm(true)}
               >
                 Disconnect
               </button>
-              <button className="btn btn-secondary btn-sm" onClick={() => setActiveRepo(null)}>Switch Venture</button>
+              <button className="btn btn-primary btn-sm" onClick={() => setActiveRepo(null)}>+ New</button>
             </div>
           </div>
+
+          {error && (
+            <div className="error-banner animate-slide-down">
+              <span className="error-icon">⚠️</span>
+              <p>{error}</p>
+              {error.includes("expired") && (
+                <button className="btn btn-link btn-sm" onClick={handleReconnect}>Fix Now</button>
+              )}
+              <button className="close-btn" onClick={() => setError(null)}>×</button>
+            </div>
+          )}
           
           {audit && <AuditScorecard audit={audit} onRepair={handleRepair} />}
 
@@ -283,6 +331,28 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
             ))}
           </div>
 
+          {/* Custom Disconnect Modal */}
+          {showDisconnectConfirm && (
+            <div className="modal-overlay animate-fade-in">
+              <div className="modal-content animate-scale-up">
+                <h3>Disconnect Repository?</h3>
+                <p>This will stop Initra from managing <strong>{activeRepo.repo_name}</strong>. Your code and history on GitHub will remain completely untouched.</p>
+                <div className="modal-actions">
+                  <button className="btn btn-ghost" onClick={() => setShowDisconnectConfirm(false)}>Cancel</button>
+                  <button 
+                    className="btn btn-danger" 
+                    onClick={async () => {
+                      await disconnectRepo(activeRepo.id);
+                      setActiveRepo(null);
+                      setShowDisconnectConfirm(false);
+                    }}
+                  >
+                    Confirm Disconnect
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
           {pendingChanges && (
             <div className="changes-bar animate-slide-up">
               <div className="bar-inner">
@@ -307,6 +377,145 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
       )}
 
       <style jsx>{`
+        .repo-select-minimal {
+          background: transparent;
+          border: none;
+          color: white;
+          font-weight: 700;
+          font-size: 1rem;
+          cursor: pointer;
+          padding: 2px 4px;
+          border-radius: 4px;
+          outline: none;
+          transition: background 0.2s;
+        }
+        .repo-select-minimal:hover {
+          background: rgba(255,255,255,0.05);
+        }
+        .repo-select-minimal option {
+          background: #1a1a1a;
+          color: white;
+        }
+        .btn-icon {
+          background: transparent;
+          border: none;
+          color: var(--text-muted);
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 4px;
+          border-radius: 50%;
+          transition: all 0.2s;
+        }
+        .btn-icon:hover {
+          color: white;
+          background: rgba(255,255,255,0.1);
+        }
+        .btn-icon.spinning svg {
+          animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        .error-banner {
+          background: rgba(244, 63, 94, 0.1);
+          border: 1px solid rgba(244, 63, 94, 0.2);
+          padding: 0.75rem 1rem;
+          border-radius: 12px;
+          margin-bottom: 1.5rem;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          position: relative;
+        }
+        .error-banner p {
+          margin: 0;
+          font-size: 0.85rem;
+          color: var(--accent-rose);
+        }
+        .close-btn {
+          margin-left: auto;
+          background: transparent;
+          border: none;
+          color: var(--text-muted);
+          cursor: pointer;
+          font-size: 1.2rem;
+        }
+        .animate-slide-down {
+          animation: slide-down 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes slide-down {
+          from { transform: translateY(-10px); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
+        .modal-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0,0,0,0.8);
+          backdrop-filter: blur(10px);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 2000;
+        }
+        .modal-content {
+          background: var(--bg-secondary);
+          border: 1px solid var(--border-medium);
+          padding: 2rem;
+          border-radius: 24px;
+          max-width: 450px;
+          width: 90%;
+          text-align: center;
+          box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+        }
+        .modal-content h3 {
+          font-size: 1.5rem;
+          margin-bottom: 1rem;
+          color: white;
+        }
+        .modal-content p {
+          color: var(--text-muted);
+          line-height: 1.6;
+          margin-bottom: 2rem;
+        }
+        .modal-actions {
+          display: flex;
+          gap: 1rem;
+          justify-content: center;
+        }
+        .btn-danger {
+          background: var(--accent-rose);
+          color: white;
+          border: none;
+          padding: 10px 20px;
+          border-radius: 8px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: transform 0.2s;
+        }
+        .btn-danger:hover {
+          transform: translateY(-2px);
+          filter: brightness(1.1);
+        }
+        .animate-scale-up {
+          animation: scale-up 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes scale-up {
+          from { transform: scale(0.95); opacity: 0; }
+          to { transform: scale(1); opacity: 1; }
+        }
+        .animate-fade-in {
+          animation: fade-in 0.3s ease-out;
+        }
+        @keyframes fade-in {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
         .repo-builder {
           grid-column: span 2;
           background: rgba(124, 58, 237, 0.05) !important;
