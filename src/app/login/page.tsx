@@ -301,6 +301,12 @@ export default function LoginPage() {
           font-weight: 600;
         }
 
+        .icon {
+          width: 18px;
+          height: 18px;
+          flex-shrink: 0;
+        }
+
         .mode-toggle {
           margin-top: 1.5rem;
         }
@@ -318,6 +324,12 @@ export default function LoginPage() {
         .btn-link:hover {
           opacity: 0.8;
           text-decoration: underline;
+        }
+
+        .login-footer {
+          color: var(--text-muted);
+          font-size: 0.75rem;
+          margin-top: 1rem;
         }
 
         .error-message {
