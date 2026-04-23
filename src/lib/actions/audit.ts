@@ -36,31 +36,38 @@ export async function repairAuditAction(repoId: string, check: AuditCheck, frame
     throw new Error(deduction.error || "Insufficient credits.");
   }
 
-  // 4. Determine target file (heuristic for now based on check type)
-  let targetFile = "README.md"; // Default
-  if (check.id === 'seo-basics') targetFile = framework === 'nextjs' ? 'src/app/sitemap.ts' : 'public/robots.txt';
-  if (check.id === 'seo-og') targetFile = framework === 'nextjs' ? 'src/app/layout.tsx' : 'nuxt.config.ts';
-  if (check.id === 'sec-middleware') targetFile = 'middleware.ts';
-  if (check.id === 'acc-landmarks') targetFile = framework === 'nextjs' ? 'src/app/layout.tsx' : 'app.vue';
-  
-  // 5. Generate Repair Instructions
+  // 4. Generate Repair Instructions
   const prompt = generateRepairPrompt(check, framework);
   const adr = generateAuditADR(check, framework);
 
-  // 6. Call AI to generate the fix
+  // 6. Call AI to generate the fix (Multi-file support)
   const messages = [
-    { role: 'system', content: "You are an expert developer. Return only the code content for the requested file, no explanation, no markdown blocks." },
-    { role: 'user', content: `${prompt}\n\nTarget File: ${targetFile}\nProvide the full source code for this file to resolve the issue.` }
+    { 
+      role: 'system', 
+      content: `You are an expert developer. Resolve the audit failure by providing the necessary file updates.
+      RETURN ONLY a JSON array of objects: [{"path": "string", "content": "string", "explanation": "string"}]
+      No markdown blocks, no additional text.` 
+    },
+    { 
+      role: 'user', 
+      content: `${prompt}\n\nPlease generate the required files to fix this issue completely.` 
+    }
   ];
 
   try {
-    const aiResponse = await callOpenRouter(messages as any, model.slug, false);
-    const newCode = aiResponse.choices[0].message.content.trim();
+    const aiResponse = await callOpenRouter(messages as any, model.slug, true); // JSON MODE ON
+    let content = aiResponse.choices[0].message.content.trim();
+    
+    // Safety check for markdown blocks if the model ignored the system prompt
+    if (content.includes("```")) {
+      content = content.replace(/```json\n/g, "").replace(/```\n/g, "").replace(/```/g, "");
+    }
+
+    const files = JSON.parse(content);
 
     return {
       success: true,
-      newCode,
-      filePath: targetFile,
+      files, // Array of {path, content, explanation}
       adr: adr,
       newBalance: deduction.newBalance
     };

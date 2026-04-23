@@ -74,7 +74,7 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
   };
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [pendingChanges, setPendingChanges] = useState<{ code: string; filePath: string } | null>(null);
+  const [pendingChanges, setPendingChanges] = useState<{ files: Array<{ path: string; content: string; explanation?: string }> } | null>(null);
   const [isPushing, setIsPushing] = useState(false);
   const [showReconnect, setShowReconnect] = useState(false);
   const [showDisconnectConfirm, setShowDisconnectConfirm] = useState(false);
@@ -125,7 +125,7 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
   };
 
   const handleEditSuccess = (newCode: string, filePath: string) => {
-    setPendingChanges({ code: newCode, filePath });
+    setPendingChanges({ files: [{ path: filePath, content: newCode }] });
   };
 
   const handlePush = async () => {
@@ -137,18 +137,17 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           repoId: activeRepo.id,
-          files: [{
-            path: pendingChanges.filePath,
-            content: pendingChanges.code
-          }],
-          commitMessage: `✨ AI built UI change: ${pendingChanges.filePath}`
+          files: pendingChanges.files.map(f => ({ path: f.path, content: f.content })),
+          commitMessage: `✨ AI built UI change: ${pendingChanges.files.map(f => f.path).join(', ')}`
         })
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       
-      alert("Successfully pushed to GitHub!");
       setPendingChanges(null);
+      // Re-fetch to verify audit status
+      fetchSegments(activeRepo.id);
+      alert("Successfully pushed to GitHub! Refreshing audit status...");
     } catch (err: any) {
       alert("Push failed: " + err.message);
     } finally {
@@ -161,8 +160,7 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
     try {
       const res = await repairAuditAction(activeRepo.id, check, activeRepo.framework, selectedModel);
       if (res.success) {
-        setPendingChanges({ code: res.newCode, filePath: res.filePath });
-        // NOTE: In a future iteration, we will also push the ADR file automatically.
+        setPendingChanges({ files: res.files });
       }
     } catch (err: any) {
       alert("Repair failed: " + err.message);
@@ -312,7 +310,7 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
               <div className="bar-inner">
                 <div className="changes-info">
                   <span className="sparkle">✨</span>
-                  <span>AI has generated changes for <strong>{pendingChanges.filePath}</strong></span>
+                  <span>AI has generated changes for <strong>{pendingChanges.files.length} file{pendingChanges.files.length > 1 ? 's' : ''}</strong></span>
                 </div>
                 <div style={{ display: 'flex', gap: '1rem' }}>
                   <button className="btn btn-ghost btn-sm" onClick={() => setPendingChanges(null)}>Discard</button>
