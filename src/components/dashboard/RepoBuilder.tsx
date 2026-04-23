@@ -48,18 +48,19 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
   const fetchSegments = async (repoId: string) => {
     setIsLoading(true);
     try {
-      // We can create a dedicated GET route or just use the sync route if it's idempotent
-      // For now, let's assume we need to trigger an analysis if segments are empty
       const res = await fetch(`/api/builder/segment`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ repoUrl: `https://github.com/${activeRepo?.owner}/${activeRepo?.repo_name}` })
       });
       const data = await res.json();
-      setSegments(data.segments);
+      if (!res.ok) throw new Error(data.error || "Failed to fetch segments");
+      
+      setSegments(data.segments || []);
       if (data.audit) setAudit(data.audit);
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
+      setError(e.message);
     } finally {
       setIsLoading(false);
     }
@@ -103,7 +104,7 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
         framework: data.framework,
         last_synced_at: new Date().toISOString()
       });
-      setSegments(data.segments);
+      setSegments(data.segments || []);
       if (data.audit) setAudit(data.audit);
     } catch (err: any) {
       setError(err.message);
@@ -259,7 +260,7 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
           {/* Grouped Segments View */}
           <div className="domains-container">
             {Object.entries(
-              segments.reduce((acc, seg) => {
+              (segments || []).reduce((acc, seg) => {
                 const domain = seg.domain || "Core Application";
                 if (!acc[domain]) acc[domain] = [];
                 acc[domain].push(seg);
