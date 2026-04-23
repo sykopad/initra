@@ -67,7 +67,7 @@ Output Format:
     const response = await callOpenRouter([
       { role: "system", content: systemPrompt },
       { role: "user", content: `Goal: ${goal}` }
-    ], 'community'); // Use community tier for mapping
+    ], 'community', true); // Use community tier for mapping with JSON mode enabled
 
     const result = JSON.parse(response.choices[0].message.content);
 

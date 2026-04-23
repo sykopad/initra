@@ -253,8 +253,8 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
                       if (repo) setActiveRepo(repo);
                     }}
                   >
-                    {initialRepos?.map(repo => (
-                      <option key={repo.id} value={repo.id}>{repo.owner}/{repo.repo_name}</option>
+                    {initialRepos?.map((repo, idx) => (
+                      <option key={repo.id || idx} value={repo.id}>{repo.owner}/{repo.repo_name}</option>
                     ))}
                   </select>
                   <button 
@@ -345,9 +345,9 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
               <div key={domain} className="domain-section">
                 <h4 className="domain-title">{domain}</h4>
                 <div className="segments-grid">
-                  {domainSegments.map(seg => (
+                  {domainSegments.map((seg, idx) => (
                     <SegmentCard 
-                      key={seg.id || seg.file_path} 
+                      key={seg.id || `${seg.file_path}-${seg.name}-${idx}`} 
                       segment={seg} 
                       repoId={activeRepo.id} 
                       onEditSuccess={handleEditSuccess}

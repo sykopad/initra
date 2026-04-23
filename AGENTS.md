@@ -23,9 +23,10 @@ Positioned as a developer-first alternative to platforms like **Lovable** and **
 - **Framework**: Next.js 16.2.4 with App Router (Turbopack)
 - **Language**: TypeScript (strict mode)
 - **Styling**: Vanilla CSS with custom design system (`globals.css`)
+- **Logging**: Pino (structured JSON)
 - **Database**: Supabase (PostgreSQL) — custom `initra` schema
-- **Auth**: Supabase Auth (planned)
-- **Deployment**: Vercel (planned)
+- **Auth**: Supabase Auth (implemented)
+- **Deployment**: Vercel (implemented)
 
 ## Architecture
 
@@ -48,6 +49,15 @@ A **pure, deterministic TypeScript pipeline** — no LLM calls:
 | `prompt-composer.ts` | Custom template engine with `{{variable}}`, `{{#if}}`, `{{#unless}}` |
 | `ide-formatter.ts` | Transforms composed content into IDE-specific file formats |
 | `index.ts` | Main entry: `generateAgentFiles()` and `.env.example` synthesis |
+
+### AI & Credits (`src/lib/ai/` & `src/lib/credits/`)
+
+| File | Purpose |
+|------|---------|
+| `models.ts` | Centralized AI Model Registry (pricing, context, slugs) |
+| `openrouter.ts` | Tiered model selection and OpenRouter API client |
+| `service.ts` | Credit management, deduction, and transaction logging |
+| `logger.ts` | Structured Pino logging for usage and auditability |
 
 ### Supported IDEs
 
@@ -619,9 +629,16 @@ We implement frameworks **one at a time** to ensure maximum accuracy and deep he
 
 ### 🚀 Phase 30: Advanced Orchestration & Community Marketplace
 
-96. **Advanced Full-Stack Authentication Templates**: Automatically inject fully working Login/Register UIs for Next.js configured with Supabase Auth into hatched ventures.
-97. **Deep Venture Telemetry Dashboard**: Dedicated "Venture Detail" view in the Command Center showing live provisioning logs, webhook status, Vercel builds, and health scorecards.
-98. **The Community Blueprint Marketplace**: Upgrade the Community Hub to allow users to "Fork & Tweak Blueprint", loading a community project's `generated_config` directly back into the project wizard.
+96. **Advanced Full-Stack Authentication Templates (Complete)**: Automatically inject fully working Login/Register UIs for Next.js configured with Supabase Auth. (Done 2026-04-23)
+97. **Deep Venture Telemetry Dashboard (Complete)**: Dedicated "Venture Detail" view in the Command Center showing live provisioning logs and health scorecards. (Done 2026-04-23)
+98. **The Community Blueprint Marketplace**: Upgrade the Community Hub to allow users to "Fork & Tweak Blueprint".
+
+### 🚀 Phase 31: Financial Transparency & Orchestration (Complete)
+
+99. **Integrated Model Selector (Complete)**: Dynamic model selection in the Command Center with real-time credit pricing indicators. (Done 2026-04-23)
+100. **Structured Production Logging (Complete)**: Implementation of Pino for request traceability and credit usage auditability. (Done 2026-04-23)
+101. **Financial Transparency Hub (Complete)**: Billing & Usage section in Account Settings for credit balance and transaction history. (Done 2026-04-23)
+102. **Enhanced Repo Orchestration (Complete)**: Custom modal-based repo management and high-fidelity project switcher. (Done 2026-04-23)
 
 
 ## Autohand — Adaptive Continuous Engineering

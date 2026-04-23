@@ -54,7 +54,7 @@ export async function repairAuditAction(repoId: string, check: AuditCheck, frame
   ];
 
   try {
-    const aiResponse = await callOpenRouter(messages as any, model.slug);
+    const aiResponse = await callOpenRouter(messages as any, model.slug, false);
     const newCode = aiResponse.choices[0].message.content.trim();
 
     return {

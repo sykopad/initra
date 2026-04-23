@@ -90,7 +90,7 @@ export async function POST(req: Request) {
     const aiResult = await callOpenRouter([
       { role: 'system', content: systemPrompt },
       { role: 'user', content: `REQUEST: ${userPrompt}\n\nPRIMARY FILE CONTENT (${segment.file_path}):\n${currentContent}` }
-    ], 'anthropic/claude-3.5-sonnet');
+    ], 'anthropic/claude-3.5-sonnet', true);
 
     // Parse JSON response
     let responseText = aiResult.choices[0].message.content;

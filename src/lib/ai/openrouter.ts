@@ -33,7 +33,8 @@ interface ChatMessage {
 
 export async function callOpenRouter(
   messages: ChatMessage[], 
-  tierOrModel: UserTier | string = 'community'
+  tierOrModel: UserTier | string = 'community',
+  jsonMode: boolean = false
 ) {
   if (!OPENROUTER_API_KEY) {
     throw new Error('OPENROUTER_API_KEY is not configured');
@@ -44,6 +45,15 @@ export async function callOpenRouter(
     ? getModelForTier(tierOrModel as UserTier)
     : tierOrModel;
 
+  const body: any = {
+    "model": model,
+    "messages": messages
+  };
+
+  if (jsonMode) {
+    body.response_format = { "type": "json_object" };
+  }
+
   const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -52,11 +62,7 @@ export async function callOpenRouter(
       "X-Title": "Initra AI", // Optional
       "Content-Type": "application/json"
     },
-    body: JSON.stringify({
-      "model": model,
-      "messages": messages,
-      "response_format": { "type": "json_object" }
-    })
+    body: JSON.stringify(body)
   });
 
   if (!response.ok) {

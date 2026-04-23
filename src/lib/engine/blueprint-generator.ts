@@ -61,7 +61,7 @@ export async function generateDailyBlueprint(): Promise<VentureBlueprint> {
     { role: 'user', content: 'Generate a new daily venture idea for a high-impact web application.' }
   ];
 
-  const response = await callOpenRouter(messages as any, DAILY_IDEA_MODEL);
+  const response = await callOpenRouter(messages as any, DAILY_IDEA_MODEL, true);
   
   try {
     const rawContent = response.choices[0].message.content;
