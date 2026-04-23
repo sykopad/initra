@@ -134,6 +134,9 @@ export default function Navbar() {
                   <Link href="/dashboard" className="dropdown-item">
                     Dashboard
                   </Link>
+                  <Link href="/settings" className="dropdown-item">
+                    Account Settings
+                  </Link>
                   <button onClick={handleLogout} className="dropdown-item logout">
                     Sign Out
                   </button>
