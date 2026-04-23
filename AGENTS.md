@@ -12,8 +12,8 @@ This is NOT the Next.js you know. This version has breaking changes — APIs, co
 
 Positioned as a developer-first alternative to platforms like **Lovable** and **Base44**, Initra eliminates vendor lock-in by:
 1. **Deep Repository Analysis**: Scans existing GitHub repos to identify UI segments (Headers, Pages, Layouts).
-2. **SaaS Builder Mode**: Interactive interface to customize individual components via targeted AI prompts.
-3. **Credit-Based Economy**: Tiered model registry (Claude Opus 4.7, GPT-5 Codex) with performance-optimized pricing.
+2. **SaaS Builder Mode (Creative Studio)**: Centralized command center to select and refine individual UI/Logic segments via high-fidelity AI prompts.
+3. **Credit-Based Economy**: Tiered model registry (Claude Opus 4.7, GPT-5 Codex) with performance-optimized pricing and structured production logging.
 4. **Git Infrastructure Ownership**: All changes are pushed directly to the user's own repository, ensuring 100% code ownership.
 5. **Multi-Agent Orchestration**: Synthesis of high-fidelity objectives into specialized IDE rules and agent workflows.
 6. **Community Ecosystem**: Suggestions, voting, and agent contributions for open-source venture blueprints.
@@ -491,12 +491,20 @@ const supabase = createBrowserClient(url, key, {
 
 30. **Guided Service Reasoning**: Business-friendly explanations for suggested infrastructure (e.g., "Why Supabase?"). (Done 2026-04-21)
 
-### 🚀 Phase 9: The Autonomous SaaS Pivot (Complete)
+### 🚀 Phase 32: The Creative Studio & Multi-File Repairs (Complete)
 
-31. **Deep Repository Segmentation**: Heuristic analyzer for framework-specific landmarks (Header, Navbar, Layout, Pages).
-32. **Targeted AI Editing**: Multi-file prompt engineering for high-fidelity code patching (JSON-based).
-33. **Live Preview Orchestration**: Side-by-side editing workspace with branch-based Vercel deployments.
-34. **Profit-Driven Model Hub**: Integrated registry for 7+ premium models with credit-based monetization.
+103. **Multi-File AI Repair Engine**: Upgraded the auto-repair pipeline to support multi-file generation (via JSON mode), enabling comprehensive fixes (e.g., both robots.txt and sitemap.ts) in a single pass. (Done 2026-04-23)
+104. **Centralized Creative Studio**: Implementation of a unified command center for UI refinement, replacing per-card buttons with a high-fidelity editor and segment selector. (Done 2026-04-23)
+105. **Context-Aware Studio**: Dynamic metadata injection into the studio (file paths, landmark roles, descriptions) to give the AI (and user) deep technical context during edits. (Done 2026-04-23)
+106. **Automated Re-validation**: Event-driven repository re-analysis and audit refresh triggered immediately upon successful GitHub push. (Done 2026-04-23)
+
+### 🔮 Future Roadmap: Intelligence & Evolution
+
+1. **Autonomous ADR Auto-Push (Complete)**: Programmatically commit Architectural Decision Records (ADRs) alongside code fixes to maintain a verifiable AI decision trail. (Done 2026-04-23)
+2. **Logic-Deep Repairs (In Progress)**: Expand the repair engine to handle complex business logic failures (e.g., state management sync, auth edge cases) beyond UI/SEO foundations.
+3. **Venture Telemetry 2.0**: Real-time performance monitoring and error tracking for birthed ventures, piped directly into the dashboard.
+4. **Community Skill Publishing**: Allow users to "publish" successful AI repair sequences as reusable **Agent Skills** in the Community Hub.
+5. **Multi-Venture Orchestration**: Unified view for managing multiple parallel ventures with shared credit pools and cross-project knowledge sharing.
 
 ### ⚡ Phase 10: Hatching 2.0 — The Fully Orchestrated Venture (Complete)
 

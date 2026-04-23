@@ -59,6 +59,13 @@ TECHNICAL DIRECTIVE:
 
     case 'perf-lock':
       return `${baseContext} Run the appropriate package manager command (npm install, pnpm install, or yarn install) to generate and commit a deterministic lockfile for the project.`;
+    
+    case 'logic-hooks':
+      return `${baseContext}
+1. Analyze existing components for repeated or complex useState/useEffect patterns.
+2. Create a 'src/hooks' or 'src/lib/store' directory.
+3. Extract logic into a reusable custom hook or a centralized store (e.g. using Zustand or React Context).
+4. Update the primary component to consume this new logic layer.`;
 
     default:
       return `${baseContext} Please analyze the issue and implement the most robust fix following ${framework} best practices.`;

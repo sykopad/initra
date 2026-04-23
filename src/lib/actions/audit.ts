@@ -65,6 +65,15 @@ export async function repairAuditAction(repoId: string, check: AuditCheck, frame
 
     const files = JSON.parse(content);
 
+    // 7. Inject Autonomous ADR into the file set
+    if (adr) {
+      files.push({
+        path: adr.filePath,
+        content: adr.content,
+        explanation: `Architectural Decision Record for: ${check.title}`
+      });
+    }
+
     return {
       success: true,
       files, // Array of {path, content, explanation}

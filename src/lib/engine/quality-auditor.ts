@@ -123,10 +123,20 @@ export async function performQualityAudit(files: string[], framework: string): P
     });
   }
 
-  if (framework === "nextjs" || framework === "nuxt") {
-    const usingModernImage = files.some(f => f.includes("components/") && (f.endsWith(".tsx") || f.endsWith(".vue")));
-    // Heuristic: Projects with components usually benefit from next/image or nuxt-img
-    checks.push({ id: 'perf-images', title: 'Asset Optimization', status: 'pass', category: 'Performance', message: 'Modern image optimization targets detected.' });
+  // 5. Logic & State Audits (Deep Repairs)
+  const hasComplexHooks = files.some(f => f.includes("hooks/") || f.includes("store/"));
+  if (hasComplexHooks) {
+    checks.push({ id: 'logic-hooks', title: 'Client State Hygiene', status: 'pass', category: 'Logic', message: 'Structured state management or custom hooks detected.' });
+  } else if (framework === 'nextjs' || framework === 'react') {
+    score -= 10;
+    checks.push({
+      id: 'logic-hooks',
+      title: 'Client State Hygiene',
+      status: 'warning',
+      category: 'Logic',
+      message: 'No centralized state or custom hooks detected. Interaction logic might be scattered.',
+      actionable_repair: 'Refactor complex interaction logic into custom hooks or a lightweight store (Zustand/Context) to improve testability and state hygiene.'
+    });
   }
 
   // Clamp score
