@@ -245,6 +245,8 @@ export default function Navbar() {
           transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
           z-index: 100;
           overflow: hidden;
+          display: flex;
+          flex-direction: column;
         }
 
         .user-profile:hover .user-dropdown {
@@ -254,18 +256,18 @@ export default function Navbar() {
         }
 
         .dropdown-header {
-          padding: 1rem;
+          padding: 1.25rem 1rem;
         }
 
         .user-name {
           font-weight: 600;
-          font-size: 0.875rem;
+          font-size: 0.9375rem;
           margin-bottom: 0.125rem;
           color: var(--text-primary);
         }
 
         .user-email {
-          font-size: 0.75rem;
+          font-size: 0.8125rem;
           color: var(--text-muted);
         }
 
@@ -275,15 +277,18 @@ export default function Navbar() {
         }
 
         .dropdown-item {
+          display: block;
           width: 100%;
           text-align: left;
-          padding: 0.875rem 1rem;
+          padding: 1rem 1.25rem;
           background: none;
           border: none;
           color: var(--text-secondary);
-          font-size: 0.875rem;
+          font-size: 0.9375rem;
+          font-weight: 500;
           cursor: pointer;
           transition: all 0.2s;
+          text-decoration: none !important;
         }
 
         .dropdown-item:hover {
