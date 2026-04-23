@@ -7,21 +7,17 @@ const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 
 export type UserTier = 'community' | 'pro' | 'elite';
 
-/**
- * Maps user tier to specific model IDs
- * - Community: fast, cheap (gpt-4o-mini / gpt-5.4-mini)
- * - Pro: reliable coding model (gpt-5.3-codex / claude-3.5-sonnet)
- * - Elite: top tier (opus / o1)
- */
+import { AI_MODELS } from "./models";
+
 export function getModelForTier(tier: UserTier = 'community'): string {
   switch (tier) {
     case 'elite':
-      return 'anthropic/claude-3-opus'; // Standard Elite
+      return AI_MODELS.find(m => m.id === 'opus-4-7')?.slug || 'anthropic/claude-3-opus';
     case 'pro':
-      return 'anthropic/claude-3.5-sonnet'; // Reliable Sonnet
+      return AI_MODELS.find(m => m.id === 'gpt-5-3-codex')?.slug || 'openai/gpt-4o';
     case 'community':
     default:
-      return 'openai/gpt-4o-mini';
+      return AI_MODELS.find(m => m.id === 'gpt-5-mini')?.slug || 'openai/gpt-4o-mini';
   }
 }
 

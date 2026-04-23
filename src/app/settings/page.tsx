@@ -14,8 +14,11 @@ export default function SettingsPage() {
   const [profile, setProfile] = useState({
     display_name: "",
     github_username: "",
-    email: ""
+    email: "",
+    credits: 0
   });
+
+  const [transactions, setTransactions] = useState<any[]>([]);
 
   const [security, setSecurity] = useState({
     newPassword: "",
@@ -37,9 +40,21 @@ export default function SettingsPage() {
         setProfile({
           display_name: prof.display_name || "",
           github_username: prof.github_username || "",
-          email: user.email || ""
+          email: user.email || "",
+          credits: prof.credits || 0
         });
       }
+
+      // Fetch Transactions
+      const { data: txs } = await supabase
+        .from('credit_transactions')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(10);
+      
+      if (txs) setTransactions(txs);
+
       setLoading(false);
     }
     loadData();
@@ -191,6 +206,55 @@ export default function SettingsPage() {
                 {saving ? "Updating..." : "Change Password"}
               </button>
             </form>
+          </section>
+
+          {/* Billing & Usage Section */}
+          <section className="settings-section glass-panel" style={{ gridColumn: 'span 2' }}>
+            <div className="section-header">
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="2" y="5" width="20" height="14" rx="2" />
+                <line x1="2" y1="10" x2="22" y2="10" />
+              </svg>
+              <h2>Billing & Usage</h2>
+            </div>
+
+            <div className="billing-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '2rem' }}>
+              <div className="balance-box" style={{ background: 'rgba(139, 92, 246, 0.05)', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(139, 92, 246, 0.2)', textAlign: 'center' }}>
+                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Current Balance</span>
+                <div style={{ fontSize: '2.5rem', fontWeight: 800, margin: '0.5rem 0', color: 'var(--accent-primary)' }}>
+                  {profile.credits || 0}
+                </div>
+                <span style={{ fontSize: '0.9rem', opacity: 0.8 }}>Credits Available</span>
+                <button 
+                  className="btn btn-primary" 
+                  style={{ width: '100%', marginTop: '1.5rem' }}
+                  onClick={() => window.location.href = '/dashboard'}
+                >
+                  Top up Credits
+                </button>
+              </div>
+
+              <div className="transaction-history">
+                <h3 style={{ fontSize: '1rem', marginBottom: '1rem' }}>Recent Activity</h3>
+                <div className="tx-list" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                  {transactions.length > 0 ? (
+                    transactions.map(tx => (
+                      <div key={tx.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid var(--border-light)' }}>
+                        <div>
+                          <div style={{ fontSize: '0.85rem', fontWeight: 600 }}>{tx.description}</div>
+                          <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{new Date(tx.created_at).toLocaleDateString()}</div>
+                        </div>
+                        <div style={{ fontWeight: 700, color: tx.amount > 0 ? 'var(--accent-emerald)' : 'var(--accent-rose)' }}>
+                          {tx.amount > 0 ? '+' : ''}{tx.amount}
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>No recent transactions.</p>
+                  )}
+                </div>
+              </div>
+            </div>
           </section>
         </div>
 

@@ -76,8 +76,14 @@ export async function deductCredits(
 
   if (logError) {
     console.error(`[Credits] Failed to log transaction for ${userId}:`, logError);
-    // We don't rollback here because credits were already deducted, 
-    // but in a production app you'd want an atomic SQL transaction.
+  }
+
+  // 4. Structured logging with Pino
+  try {
+    const { logCreditUsage } = await import("@/lib/logger");
+    logCreditUsage(userId, amount, "unknown-model", description);
+  } catch (e) {
+    console.error("Pino logging failed:", e);
   }
 
   return { success: true, newBalance: profile.credits };

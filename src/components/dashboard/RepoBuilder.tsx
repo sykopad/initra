@@ -8,6 +8,7 @@ import { AuditResult } from "@/lib/engine/types";
 import { disconnectRepo } from "@/lib/actions/projects";
 import { repairAuditAction } from "@/lib/actions/audit";
 import { AuditCheck } from "@/lib/engine/types";
+import { AI_MODELS } from "@/lib/ai/models";
 
 interface Repo {
   id: string;
@@ -37,6 +38,7 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
   const [activeRepo, setActiveRepo] = useState<Repo | null>(initialRepos?.[0] || null);
   const [segments, setSegments] = useState<Segment[]>([]);
   const [audit, setAudit] = useState<AuditResult | null>(null);
+  const [selectedModel, setSelectedModel] = useState<string>("openai/gpt-4o-mini");
   
   // Load segments for the first repo automatically if available
   useEffect(() => {
@@ -155,7 +157,7 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
   const handleRepair = async (check: AuditCheck) => {
     if (!activeRepo) return;
     try {
-      const res = await repairAuditAction(activeRepo.id, check, activeRepo.framework);
+      const res = await repairAuditAction(activeRepo.id, check, activeRepo.framework, selectedModel);
       if (res.success) {
         setPendingChanges({ code: res.newCode, filePath: res.filePath });
         // NOTE: In a future iteration, we will also push the ADR file automatically.
@@ -302,6 +304,31 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
               <button className="close-btn" onClick={() => setError(null)}>×</button>
             </div>
           )}
+          
+          <div className="builder-controls" style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.02)', padding: '1rem', borderRadius: '12px' }}>
+            <div className="model-switcher-dashboard">
+              <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '8px', display: 'block', fontWeight: 600, textTransform: 'uppercase' }}>Reasoning Engine</label>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <select 
+                  className="model-select-dashboard"
+                  value={selectedModel}
+                  onChange={(e) => setSelectedModel(e.target.value)}
+                >
+                  {AI_MODELS.map(m => (
+                    <option key={m.slug} value={m.slug}>{m.name} ({m.creditCost} cr)</option>
+                  ))}
+                </select>
+                <div className="model-price-tag">
+                  <span className="price-pill">
+                    {AI_MODELS.find(m => m.slug === selectedModel)?.creditCost || 0} Credits
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="sync-status-indicator">
+               {/* existing sync info could go here if moved */}
+            </div>
+          </div>
           
           {audit && <AuditScorecard audit={audit} onRepair={handleRepair} />}
 
@@ -515,6 +542,29 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
         @keyframes fade-in {
           from { opacity: 0; }
           to { opacity: 1; }
+        }
+        .model-select-dashboard {
+          background: rgba(255,255,255,0.05);
+          border: 1px solid var(--border-medium);
+          color: white;
+          padding: 8px 12px;
+          border-radius: 8px;
+          font-size: 0.9rem;
+          outline: none;
+          min-width: 240px;
+        }
+        .model-select-dashboard:focus {
+          border-color: var(--accent-primary);
+        }
+        .price-pill {
+          background: rgba(139, 92, 246, 0.1);
+          color: var(--accent-primary);
+          padding: 8px 12px;
+          border-radius: 8px;
+          font-size: 0.8rem;
+          font-weight: 700;
+          border: 1px solid rgba(139, 92, 246, 0.2);
+          display: inline-block;
         }
         .repo-builder {
           grid-column: span 2;

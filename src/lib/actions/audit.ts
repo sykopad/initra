@@ -10,7 +10,7 @@ import { Octokit } from "octokit";
 /**
  * Orchestrates an AI-driven repair for a specific audit failure.
  */
-export async function repairAuditAction(repoId: string, check: AuditCheck, framework: string) {
+export async function repairAuditAction(repoId: string, check: AuditCheck, framework: string, modelSlug?: string) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -25,35 +25,44 @@ export async function repairAuditAction(repoId: string, check: AuditCheck, frame
 
   if (!repo) throw new Error("Repository not found");
 
-  // 2. Determine target file (heuristic for now based on check type)
+  // 2. Determine target model and cost
+  const { AI_MODELS } = await import("@/lib/ai/models");
+  const model = AI_MODELS.find(m => m.slug === modelSlug) || AI_MODELS[0];
+  
+  // 3. Deduct Credits
+  const { deductCredits } = await import("@/lib/credits/service");
+  const deduction = await deductCredits(user.id, model.creditCost, `AI Repair: ${check.name} using ${model.name}`);
+  if (!deduction.success) {
+    throw new Error(deduction.error || "Insufficient credits.");
+  }
+
+  // 4. Determine target file (heuristic for now based on check type)
   let targetFile = "README.md"; // Default
   if (check.id === 'seo-basics') targetFile = framework === 'nextjs' ? 'src/app/sitemap.ts' : 'public/robots.txt';
   if (check.id === 'seo-og') targetFile = framework === 'nextjs' ? 'src/app/layout.tsx' : 'nuxt.config.ts';
   if (check.id === 'sec-middleware') targetFile = 'middleware.ts';
   if (check.id === 'acc-landmarks') targetFile = framework === 'nextjs' ? 'src/app/layout.tsx' : 'app.vue';
   
-  // 3. Generate Repair Instructions
+  // 5. Generate Repair Instructions
   const prompt = generateRepairPrompt(check, framework);
   const adr = generateAuditADR(check, framework);
 
-  // 4. Call AI to generate the fix
-  // For a real implementation, we might fetch the actual file content from GitHub first
-  // But for the pro version, we'll ask the AI to generate the COMPLETE file content based on the prompt.
-  
+  // 6. Call AI to generate the fix
   const messages = [
     { role: 'system', content: "You are an expert developer. Return only the code content for the requested file, no explanation, no markdown blocks." },
     { role: 'user', content: `${prompt}\n\nTarget File: ${targetFile}\nProvide the full source code for this file to resolve the issue.` }
   ];
 
   try {
-    const aiResponse = await callOpenRouter(messages as any, 'pro');
+    const aiResponse = await callOpenRouter(messages as any, model.slug);
     const newCode = aiResponse.choices[0].message.content.trim();
 
     return {
       success: true,
       newCode,
       filePath: targetFile,
-      adr: adr
+      adr: adr,
+      newBalance: deduction.newBalance
     };
   } catch (err: any) {
     console.error("Repair Action Failed:", err);
