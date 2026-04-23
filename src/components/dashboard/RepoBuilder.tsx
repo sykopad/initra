@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import LivePreviewModal from "./LivePreviewModal";
 
 import SegmentCard from "./SegmentCard";
 import AuditScorecard from "./AuditScorecard";
@@ -78,6 +79,10 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
   const [isPushing, setIsPushing] = useState(false);
   const [showReconnect, setShowReconnect] = useState(false);
   const [showDisconnectConfirm, setShowDisconnectConfirm] = useState(false);
+  const [studioSegmentId, setStudioSegmentId] = useState<string>("");
+  const [studioPrompt, setStudioPrompt] = useState("");
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const studioRef = useRef<HTMLDivElement>(null);
 
   const handleReconnect = async () => {
     const { createClient } = await import("@/lib/supabase/client");
@@ -165,6 +170,16 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
     } catch (err: any) {
       alert("Repair failed: " + err.message);
     }
+  };
+
+  const handleStudioGenerate = () => {
+    if (!studioSegmentId || !studioPrompt) return;
+    setIsPreviewOpen(true);
+  };
+
+  const handleSelectSegmentForStudio = (segmentId: string) => {
+    setStudioSegmentId(segmentId);
+    studioRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
@@ -353,6 +368,146 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
           
           {audit && <AuditScorecard audit={audit} onRepair={handleRepair} />}
 
+          {/* Creative Studio (Centralized Editor) */}
+          <div ref={studioRef} className="creative-studio animate-fade-in" style={{ marginBottom: '2.5rem' }}>
+            <div className="studio-inner glass-panel">
+              <div className="studio-header">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div className="studio-icon">✨</div>
+                  <div>
+                    <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800 }}>Creative Studio</h3>
+                    <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-muted)' }}>Autonomous interface refinement & feature expansion</p>
+                  </div>
+                </div>
+                <div className="model-badge">
+                  {AI_MODELS.find(m => m.slug === selectedModel)?.name}
+                </div>
+              </div>
+
+              <div className="studio-grid">
+                <div className="studio-field">
+                  <label>Target Segment</label>
+                  <select 
+                    value={studioSegmentId} 
+                    onChange={(e) => setStudioSegmentId(e.target.value)}
+                    className="studio-select"
+                  >
+                    <option value="" disabled>Select a section to customize...</option>
+                    {segments.map(s => (
+                      <option key={s.id} value={s.id}>{s.name} ({s.domain})</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="studio-field">
+                  <label>AI Modification Prompt</label>
+                  <div className="studio-prompt-wrapper">
+                    <textarea 
+                      value={studioPrompt}
+                      onChange={(e) => setStudioPrompt(e.target.value)}
+                      placeholder="Describe the changes you want... e.g. 'Add a sleek dark mode toggle to the navbar' or 'Make the hero section use a vibrant mesh gradient background'"
+                      className="studio-textarea"
+                    />
+                    <button 
+                      className="btn btn-primary studio-btn"
+                      onClick={handleStudioGenerate}
+                      disabled={!studioSegmentId || !studioPrompt}
+                    >
+                      Generate Preview
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <style jsx>{`
+            .creative-studio {
+              position: relative;
+            }
+            .studio-inner {
+              padding: 2rem;
+              border-radius: 24px;
+              background: linear-gradient(135deg, rgba(139, 92, 246, 0.05), rgba(16, 185, 129, 0.05));
+              border: 1px solid rgba(255, 255, 255, 0.1);
+              box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            }
+            .studio-header {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 2rem;
+            }
+            .studio-icon {
+              font-size: 1.5rem;
+              background: var(--accent-primary);
+              width: 40px;
+              height: 40px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              border-radius: 12px;
+              box-shadow: 0 0 15px rgba(139, 92, 246, 0.5);
+            }
+            .model-badge {
+              font-size: 0.7rem;
+              font-weight: 700;
+              padding: 4px 10px;
+              background: rgba(255, 255, 255, 0.05);
+              border-radius: 20px;
+              color: var(--text-muted);
+            }
+            .studio-grid {
+              display: flex;
+              flex-direction: column;
+              gap: 1.5rem;
+            }
+            .studio-field label {
+              display: block;
+              font-size: 0.75rem;
+              font-weight: 700;
+              color: var(--text-muted);
+              margin-bottom: 8px;
+              text-transform: uppercase;
+              letter-spacing: 0.05em;
+            }
+            .studio-select {
+              width: 100%;
+              background: rgba(255, 255, 255, 0.05);
+              border: 1px solid rgba(255, 255, 255, 0.1);
+              padding: 12px;
+              border-radius: 12px;
+              color: white;
+              outline: none;
+            }
+            .studio-prompt-wrapper {
+              display: flex;
+              gap: 12px;
+              align-items: flex-end;
+            }
+            .studio-textarea {
+              flex: 1;
+              background: rgba(255, 255, 255, 0.05);
+              border: 1px solid rgba(255, 255, 255, 0.1);
+              padding: 16px;
+              border-radius: 16px;
+              color: white;
+              min-height: 100px;
+              resize: none;
+              font-size: 0.95rem;
+              outline: none;
+              transition: border-color 0.2s;
+            }
+            .studio-textarea:focus {
+              border-color: var(--accent-primary);
+            }
+            .studio-btn {
+              padding: 16px 24px !important;
+              border-radius: 16px !important;
+              height: auto !important;
+              min-width: 180px;
+            }
+          `}</style>
+
           {/* Grouped Segments View */}
           <div className="domains-container">
             {Object.entries(
@@ -372,6 +527,7 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
                       segment={seg} 
                       repoId={activeRepo.id} 
                       onEditSuccess={handleEditSuccess}
+                      onSelect={() => handleSelectSegmentForStudio(seg.id)}
                     />
                   ))}
                 </div>
@@ -400,6 +556,20 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
                 </div>
               </div>
             </div>
+          )}
+          {/* Centralized Preview Modal */}
+          {isPreviewOpen && studioSegmentId && (
+            <LivePreviewModal 
+              isOpen={isPreviewOpen}
+              onClose={() => setIsPreviewOpen(false)}
+              segment={segments.find(s => s.id === studioSegmentId)}
+              repoId={activeRepo.id}
+              initialPrompt={studioPrompt}
+              onFinalize={() => {
+                setIsPreviewOpen(false);
+                fetchSegments(activeRepo.id);
+              }}
+            />
           )}
         </div>
       )}

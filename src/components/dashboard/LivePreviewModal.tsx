@@ -13,11 +13,12 @@ interface LivePreviewModalProps {
   onClose: () => void;
   segment: any;
   repoId: string;
+  initialPrompt?: string;
   onFinalize: (files: FileUpdate[], branch: string) => void;
 }
 
-export default function LivePreviewModal({ isOpen, onClose, segment, repoId, onFinalize }: LivePreviewModalProps) {
-  const [prompt, setPrompt] = useState("");
+export default function LivePreviewModal({ isOpen, onClose, segment, repoId, initialPrompt = "", onFinalize }: LivePreviewModalProps) {
+  const [prompt, setPrompt] = useState(initialPrompt);
   const [status, setStatus] = useState<"idle" | "generating" | "deploying" | "ready" | "error">("idle");
   const [fileUpdates, setFileUpdates] = useState<FileUpdate[]>([]);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);

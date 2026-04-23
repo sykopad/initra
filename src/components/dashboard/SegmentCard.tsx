@@ -18,40 +18,12 @@ interface SegmentCardProps {
   segment: Segment;
   repoId: string;
   onEditSuccess?: (newCode: string, filePath: string) => void;
+  onSelect?: () => void;
 }
 
-export default function SegmentCard({ segment, repoId, onEditSuccess }: SegmentCardProps) {
-  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-
-  const handleFinalize = async (files: any[], branch: string) => {
-    try {
-      const res = await fetch("/api/builder/merge", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ repoId, branchName: branch })
-      });
-
-      if (!res.ok) throw new Error("Merge failed");
-
-      setIsPreviewOpen(false);
-      // Optional: Trigger a refresh of segments
-    } catch (err: any) {
-      alert("Error finalizing: " + err.message);
-    }
-  };
-
-  const getIcon = (type: string) => {
-    switch (type) {
-      case 'navigation': return '🧭';
-      case 'layout': return '🏗️';
-      case 'page': return '📄';
-      case 'style': return '🎨';
-      default: return '🧩';
-    }
-  };
-
+export default function SegmentCard({ segment, repoId, onEditSuccess, onSelect }: SegmentCardProps) {
   return (
-    <div className="segment-card glass-panel">
+    <div className="segment-card glass-panel" onClick={onSelect} style={{ cursor: onSelect ? 'pointer' : 'default' }}>
       <div className="segment-header">
         <span className="segment-icon">{getIcon(segment.type)}</span>
         <div className="segment-info">
@@ -67,22 +39,10 @@ export default function SegmentCard({ segment, repoId, onEditSuccess }: SegmentC
       </div>
       
       <p className="segment-desc">{segment.description}</p>
-
-      <button 
-        className="btn btn-ghost btn-sm" 
-        onClick={() => setIsPreviewOpen(true)}
-        style={{ width: '100%', marginTop: '1rem' }}
-      >
-        Customize with AI
-      </button>
-
-      <LivePreviewModal 
-        isOpen={isPreviewOpen}
-        onClose={() => setIsPreviewOpen(false)}
-        segment={segment}
-        repoId={repoId}
-        onFinalize={handleFinalize}
-      />
+      
+      <div className="card-footer" style={{ marginTop: '1rem', display: 'flex', justifyContent: 'flex-end' }}>
+        <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>Click to customize in Studio</span>
+      </div>
 
       <style jsx>{`
         .segment-card {
