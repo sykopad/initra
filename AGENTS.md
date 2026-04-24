@@ -5,7 +5,30 @@
 <!-- BEGIN:nextjs-agent-rules -->
 ## Next.js 16 (Turbopack)
 
-This is NOT the Next.js you know. This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
+This is NOT the Next.js you know. This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. 
+
+### Proxy (formerly Middleware)
+
+Starting with Next.js 16, **Middleware is now called Proxy**. 
+- Create a `proxy.ts` (or `.js`) file in the project root or `src/`.
+- Export a `proxy` function (or default export).
+- Use `NextResponse` to modify requests/responses.
+
+Example:
+```ts
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
+
+export function proxy(request: NextRequest) {
+  return NextResponse.redirect(new URL('/home', request.url))
+}
+
+export const config = {
+  matcher: '/about/:path*',
+}
+```
+
+Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
 <!-- END:nextjs-agent-rules -->
 
 **Initra** (Initiate Infrastructure) is a high-performance **Autonomous SaaS Builder** that empowers developers to create and manage applications on their own Git infrastructure. 

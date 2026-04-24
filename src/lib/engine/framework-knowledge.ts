@@ -27,6 +27,7 @@ export const FRAMEWORK_KNOWLEDGE: Record<string, VersionedKnowledge[]> = {
         "Use 'use client' directive only at the leaf component level.",
         "Server Components by default (no directive needed).",
         "Use 'loading.tsx', 'error.tsx', and 'layout.tsx' file-based conventions.",
+        "Starting with Next.js 16, Middleware is now called Proxy (use 'proxy.ts' instead of 'middleware.ts').",
         "Prefer 'fetch' with built-in Next.js caching over external libraries like axios where possible."
       ],
       documentationUrls: [

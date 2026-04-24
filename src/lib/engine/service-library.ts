@@ -71,9 +71,9 @@ export const SERVICE_LIBRARY: ApiService[] = [
     },
     boilerplateFiles: [
       {
-        path: 'src/middleware.ts',
+        path: 'src/{{middlewareFilename}}.ts',
         targetTemplate: 'nextjs',
-        content: `import { clerkMiddleware } from "@clerk/nextjs/server";\n\nexport default clerkMiddleware();\n\nexport const config = {\n  matcher: [\n    '/((?!_next|[^?]*\\\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',\n    '/(api|trpc)(.*)',\n  ],\n};`
+        content: `import { clerkMiddleware } from "@clerk/nextjs/server";\n\n{{middlewareExport}} clerkMiddleware();\n\nexport const config = {\n  matcher: [\n    '/((?!_next|[^?]*\\\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',\n    '/(api|trpc)(.*)',\n  ],\n};`
       },
       {
         path: 'package.json',

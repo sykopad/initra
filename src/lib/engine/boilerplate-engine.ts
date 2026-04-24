@@ -100,6 +100,8 @@ function resolveFileConflicts(files: BoilerplateFile[], config: WizardConfig): G
   const variables = collectInterpolationVariables(config);
   return Object.values(fileMap).map(file => ({
     ...file,
+    filePath: interpolate(file.filePath, variables),
+    filename: interpolate(file.filename, variables),
     content: interpolate(file.content, variables)
   }));
 }
@@ -162,5 +164,7 @@ function collectInterpolationVariables(config: WizardConfig): Record<string, str
     templateSlug: config.templateSlug,
     templateVersion: config.templateVersion,
     packageManager: (config.stackConfig.packageManager as string) || 'npm',
+    middlewareFilename: config.templateVersion === '16.2.4' ? 'proxy' : 'middleware',
+    middlewareExport: config.templateVersion === '16.2.4' ? 'export function proxy' : 'export default',
   };
 }

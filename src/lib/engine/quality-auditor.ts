@@ -46,7 +46,10 @@ export async function performQualityAudit(files: string[], framework: string): P
   }
 
   // 2. Security Audits
-  const hasMiddleware = files.some(f => f.includes("middleware.ts") || f.includes("middleware.js") || f.includes("_middleware.ts"));
+  const hasMiddleware = files.some(f => 
+    f.includes("middleware.ts") || f.includes("middleware.js") || f.includes("_middleware.ts") ||
+    f.includes("proxy.ts") || f.includes("proxy.js")
+  );
   if (hasMiddleware) {
     checks.push({ id: 'sec-middleware', title: 'Request Shielding', status: 'pass', category: 'Security', message: 'Auth/Security middleware detected.' });
   } else {

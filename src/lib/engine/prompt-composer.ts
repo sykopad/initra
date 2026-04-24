@@ -132,6 +132,8 @@ Your primary goal is to implement: "${goal}"
     vars.isNext16 = templateVersion.startsWith('16');
     vars.isNext15 = templateVersion.startsWith('15');
     vars.isNext14 = templateVersion.startsWith('14');
+    vars.middlewareFilename = vars.isNext16 ? 'proxy' : 'middleware';
+    vars.middlewareExport = vars.isNext16 ? 'export function proxy' : 'export default';
   }
   // Django logic
   if (templateSlug === 'django') {

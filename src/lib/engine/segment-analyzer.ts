@@ -73,14 +73,23 @@ export async function analyzeRepository(
         });
       }
 
-      // C. Logic (API Routes & Server Actions)
-      else if (file.endsWith("route.ts") || file.endsWith("route.js") || lowerFile.includes("actions.ts") || lowerFile.includes("actions.js")) {
+      // C. Logic (API Routes, Server Actions & Proxy)
+      else if (
+        file.endsWith("route.ts") || file.endsWith("route.js") || 
+        lowerFile.includes("actions.ts") || lowerFile.includes("actions.js") ||
+        file.endsWith("proxy.ts") || file.endsWith("proxy.js") ||
+        file.endsWith("middleware.ts") || file.endsWith("middleware.js")
+      ) {
         let logicName = "Backend Logic";
         if (lowerFile.includes("actions")) {
           logicName = `Action: ${formatComponentName(file)}`;
         } else if (file.includes("api/")) {
           const route = file.split('api/')[1].replace('/route.ts', '').replace('/route.js', '');
           logicName = `API: /${route}`;
+        } else if (file.endsWith("proxy.ts") || file.endsWith("proxy.js")) {
+          logicName = "Proxy (Middleware)";
+        } else if (file.endsWith("middleware.ts") || file.endsWith("middleware.js")) {
+          logicName = "Middleware";
         }
 
         segments.push({

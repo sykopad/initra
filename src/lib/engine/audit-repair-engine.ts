@@ -39,9 +39,10 @@ TECHNICAL DIRECTIVE:
     case 'sec-middleware':
       if (framework === 'nextjs') {
         return `${baseContext}
-1. Create a middleware.ts file in the root or src directory (following Next.js 16 conventions).
+1. Create a proxy.ts file (Next.js 16+) or middleware.ts file (Next.js 15-) in the root or src directory.
 2. Implement a matcher that excludes static assets and public routes.
-3. Add a logic block that redirects unauthenticated requests (check for session cookie) to the login page.`;
+3. Add a logic block that redirects unauthenticated requests (check for session cookie) to the login page.
+4. Export the function as 'proxy' (for Next.js 16) or as a default export.`;
       }
       return `${baseContext} Implement a global request interceptor or middleware for session protection in ${framework}.`;
 

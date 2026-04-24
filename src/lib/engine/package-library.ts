@@ -524,7 +524,7 @@ export { GET, POST } from "@/auth";`,
         'Use `auth()` from `@/auth` in Server Components — never `getServerSession()` (deprecated)',
         'Use `SessionProvider` only in Client Component subtrees that need `useSession()`',
         'Store the `AUTH_SECRET` env var — required in production',
-        'Use `middleware.ts` with `auth` export to protect routes declaratively',
+        'Use `{{middlewareFilename}}.ts` with `auth` export to protect routes declaratively',
       ],
     },
   },
@@ -541,21 +541,21 @@ export { GET, POST } from "@/auth";`,
     documentationUrls: ['https://clerk.com/docs/quickstarts/nextjs'],
     knowledge: {
       installCommand: 'npm install @clerk/nextjs',
-      setupSnippet: `// middleware.ts
+      setupSnippet: `// {{middlewareFilename}}.ts
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 
 const isPublicRoute = createRouteMatcher(['/', '/sign-in(.*)', '/sign-up(.*)']);
 
-export default clerkMiddleware(async (auth, request) => {
+{{middlewareExport}} clerkMiddleware(async (auth, request) => {
   if (!isPublicRoute(request)) await auth.protect();
 });
 
 export const config = { matcher: ['/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)', '/(api|trpc)(.*)'] };`,
       conventions: [
-        'Use `clerkMiddleware` in `middleware.ts` for route protection',
-        'Use `auth()` server-side, `useAuth()` client-side',
-        'Use `<ClerkProvider>` at the root layout',
-        'Use `currentUser()` in Server Actions and Route Handlers',
+        'Use \`clerkMiddleware\` in \`{{middlewareFilename}}.ts\` for route protection',
+        'Use \`auth()\` server-side, \`useAuth()\` client-side',
+        'Use \`<ClerkProvider>\` at the root layout',
+        'Use \`currentUser()\` in Server Actions and Route Handlers',
       ],
     },
   },
