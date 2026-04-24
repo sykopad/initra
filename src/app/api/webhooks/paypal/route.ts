@@ -20,21 +20,27 @@ export async function POST(req: Request) {
   console.log(`Processing PayPal event: ${eventType}`);
 
   // 2. Handle relevant events
-  if (eventType === 'CHECKOUT.ORDER.APPROVED' || eventType === 'PAYMENT.CAPTURE.COMPLETED') {
+  if (
+    eventType === 'CHECKOUT.ORDER.APPROVED' || 
+    eventType === 'PAYMENT.CAPTURE.COMPLETED' ||
+    eventType === 'BILLING.SUBSCRIPTION.CREATED' ||
+    eventType === 'BILLING.SUBSCRIPTION.ACTIVATED'
+  ) {
     const resource = body.resource;
     
     const rawCustomId = resource.custom_id || resource.purchase_units?.[0]?.custom_id;
-    const amount = Number(resource.amount?.value || resource.purchase_units?.[0]?.amount?.value);
+    const amount = Number(resource.amount?.value || resource.purchase_units?.[0]?.amount?.value || 0);
 
-    if (!rawCustomId) {
-      console.error("No userId found in PayPal metadata (custom_id)");
-      return NextResponse.json({ error: "No userId in metadata" }, { status: 400 });
-    }
-
-    const { addCredits } = await import("@/lib/credits/service");
     const supabase = await createClient();
 
-    // Handle "pro_upgrade:USER_ID" format for Pro tier
+    // Handle "pro_subscription:USER_ID" format
+    if (rawCustomId?.startsWith('pro_subscription:')) {
+      const userId = rawCustomId.replace('pro_subscription:', '');
+      await supabase.from('profiles').update({ is_pro: true, tier: 'pro' }).eq('id', userId);
+      return NextResponse.json({ success: true, isPro: true });
+    }
+
+    // Handle "pro_upgrade:USER_ID" format for Pro tier (Legacy/One-time)
     if (rawCustomId.startsWith('pro_upgrade:')) {
       const userId = rawCustomId.replace('pro_upgrade:', '');
       
@@ -103,6 +109,17 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({ success: true, tier: newTier });
+  }
+
+  // Handle Cancellation
+  if (eventType === 'BILLING.SUBSCRIPTION.CANCELLED' || eventType === 'BILLING.SUBSCRIPTION.EXPIRED') {
+    const resource = body.resource;
+    const rawCustomId = resource.custom_id;
+    if (rawCustomId?.startsWith('pro_subscription:')) {
+      const userId = rawCustomId.replace('pro_subscription:', '');
+      const supabase = await createClient();
+      await supabase.from('profiles').update({ is_pro: false, tier: 'community' }).eq('id', userId);
+    }
   }
 
   return NextResponse.json({ received: true });

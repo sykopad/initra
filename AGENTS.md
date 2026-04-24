@@ -513,9 +513,14 @@ const supabase = createBrowserClient(url, key, {
 2. **Venture Telemetry 2.0 (Complete - v1)**: Real-time autonomous health monitoring (SSL, Uptime, 500-errors) and Vercel deployment status tracking for birthed ventures. (Done 2026-04-23)
 3. **Community Skill Publishing (Complete - v1)**: Infrastructure to "Save as Skill" in the Command Center, allowing users to share successful AI prompt/repair templates as reusable Agent Skills. (Done 2026-04-23)
 4. **Sovereign Infrastructure Mode (Complete)**: Decentralized hosting ownership where users bring their own Vercel/GitHub tokens via secure Settings. (Done 2026-04-23)
-5. **Infrastructure Guardrails (In Progress)**: Implementation of the "Sovereign-First" policy. Standard hatching requires user tokens; Managed Hatching (on Initra infra) is restricted to verified/Pro users to protect against Hobby account overflow.
-6. **Adaptive Credit Orchestration**: Dynamic credit deduction based on model context and performance (GPT-4o-mini vs Claude 3.7) and infrastructure mode (Sovereign vs Managed).
-7. **Multi-Venture Knowledge Sharing**: Cross-repository intelligence where agents learn from previous repairs across all projects in a user's portfolio.
+5. **Infrastructure Guardrails (Complete)**: Implementation of the "Sovereign-First" policy. Standard hatching requires user tokens; Managed Hatching (on Initra infra) is restricted to Pro users. (Done 2026-04-23)
+6. **Automated Billing (Complete)**: PayPal-powered $19/mo subscription engine with automated activation/revocation. (Done 2026-04-23)
+7. **Creative Studio 2.0 (In Progress)**: Overhaul of the Command Center to support semantic segment naming (no more duplicate logic names), intelligent grouping (UI vs Logic vs API), and AI-guided prompting for both Layman and Advanced users.
+8. **Venture Economy Expansion**: 
+    - **Automated Monthly Stipend**: Supabase Edge Function to auto-refill Pro credits on billing anniversaries.
+    - **Referral Leaderboard**: Social gamification in the Community Hub to reward top referrers.
+    - **Team Subscriptions**: $99/mo plans for organizations to manage shared infrastructure and credits.
+9. **Multi-Venture Knowledge Sharing**: Cross-repository intelligence where agents learn from previous repairs across all projects in a user's portfolio.
 
 ### ⚡ Phase 10: Hatching 2.0 — The Fully Orchestrated Venture (Complete)
 

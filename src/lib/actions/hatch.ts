@@ -83,6 +83,12 @@ export async function hatchVenture(projectId: string, userGithubToken?: string) 
     throw new Error(creditResult.error || "Insufficient credits for hatching.");
   }
 
+  // Record hatch mode for admin analytics
+  await supabase
+    .from('community_projects')
+    .update({ hatch_mode: isSovereign ? 'sovereign' : 'managed' })
+    .eq('id', projectId);
+
   const octokit = new Octokit({ auth: GITHUB_TOKEN_TO_USE });
 
   const config = project.blueprint_config as WizardConfig;

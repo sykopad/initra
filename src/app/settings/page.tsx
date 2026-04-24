@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { updateProfile, getProfile, updateSovereignConfig } from "@/lib/actions/profiles";
-import ProUpgrade from "@/components/wizard/ProUpgrade";
+import ProSubscription from "@/components/wizard/ProSubscription";
 import Navbar from "@/components/Navbar";
 
 export default function SettingsPage() {
@@ -322,10 +322,10 @@ export default function SettingsPage() {
                 </button>
                 {!profile.is_pro && (
                   <div style={{ marginTop: '1.5rem' }}>
-                    <ProUpgrade 
+                    <ProSubscription 
                       userId={user.id} 
                       onSuccess={() => {
-                        setToast("🎉 Upgrade successful! Refreshing status...");
+                        setToast("🎉 Subscription active! Refreshing status...");
                         setTimeout(() => window.location.reload(), 2000);
                       }} 
                     />

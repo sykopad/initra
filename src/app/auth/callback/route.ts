@@ -31,6 +31,41 @@ export async function GET(request: Request) {
         console.warn("[Auth Callback] No provider_token found in session");
       }
 
+      // 3. Handle Referrals
+      const refCode = requestUrl.searchParams.get("ref") || cookies().get("initra_ref")?.value;
+      if (refCode) {
+        const { data: referrer } = await supabase
+          .from('profiles')
+          .select('id, credits')
+          .eq('referral_code', refCode)
+          .single();
+
+        if (referrer) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('credits, referred_by')
+            .eq('id', data.session.user.id)
+            .single();
+
+          // Only reward if they haven't been referred yet (new user)
+          if (profile && !profile.referred_by) {
+            const { addCredits } = await import("@/lib/credits/service");
+            
+            // Reward Referrer: 50 credits
+            await addCredits(referrer.id, 50, `Referral Reward: Invited ${data.session.user.email}`);
+            
+            // Reward Referee: 25 credits
+            await addCredits(data.session.user.id, 25, `Referral Welcome: Invited by ${refCode}`);
+            
+            // Link the relationship
+            await supabase
+              .from('profiles')
+              .update({ referred_by: referrer.id })
+              .eq('id', data.session.user.id);
+          }
+        }
+      }
+
       return response;
     }
   }

@@ -32,6 +32,13 @@ export default function RootLayout({
                   const theme = localStorage.getItem('initra-theme') || 
                                 (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
                   document.documentElement.setAttribute('data-theme', theme);
+
+                  // Referral Capture
+                  const urlParams = new URLSearchParams(window.location.search);
+                  const ref = urlParams.get('ref');
+                  if (ref) {
+                    document.cookie = 'initra_ref=' + ref + '; path=/; max-age=2592000; samesite=lax';
+                  }
                 } catch (e) {}
               })()
             `,
