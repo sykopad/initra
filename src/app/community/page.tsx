@@ -203,6 +203,58 @@ export default function CommunityPage() {
             </p>
           </div>
 
+          {/* Economy & Social Loop */}
+          <div className="economy-row" style={{ display: 'grid', gridTemplateColumns: '1fr 350px', gap: '2.5rem', marginBottom: '5rem' }}>
+            <div className="referral-portal glass-panel" style={{ padding: '2.5rem', borderRadius: '24px', background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.05) 0%, rgba(16, 185, 129, 0.05) 100%)', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+               <div style={{ marginBottom: '2rem' }}>
+                  <h2 style={{ fontSize: '1.75rem', fontWeight: 800, marginBottom: '0.5rem' }}>🤝 Citizen Rewards</h2>
+                  <p style={{ color: 'var(--text-secondary)', fontSize: '1rem' }}>Expand the Initra ecosystem and earn <strong>50 Credits</strong> for every new architect you onboard.</p>
+               </div>
+               
+               <div className="referral-link-box" style={{ background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                  <code style={{ flex: 1, color: 'var(--accent-primary)', fontSize: '0.9rem' }}>initra.com/join?ref= faiz_architect</code>
+                  <button className="btn btn-sm btn-ghost" onClick={() => alert("Link Copied!")}>Copy Link</button>
+               </div>
+
+               <div className="referral-stats" style={{ display: 'flex', gap: '2rem', marginTop: '2rem' }}>
+                  <div className="stat">
+                     <span style={{ display: 'block', fontSize: '1.5rem', fontWeight: 800 }}>12</span>
+                     <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Architects Invited</span>
+                  </div>
+                  <div className="stat">
+                     <span style={{ display: 'block', fontSize: '1.5rem', fontWeight: 800, color: 'var(--accent-success)' }}>600</span>
+                     <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Credits Earned</span>
+                  </div>
+               </div>
+            </div>
+
+            <div className="leaderboard-sidebar glass-panel" style={{ padding: '1.5rem', borderRadius: '24px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+               <h3 style={{ fontSize: '1rem', fontWeight: 800, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  🏆 Top Referrers
+               </h3>
+               <div className="leaderboard-list" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  {[
+                    { name: 'Alex K.', count: 42, avatar: '👤', tier: 'Pro' },
+                    { name: 'Sarah M.', count: 38, avatar: '👤', tier: 'Sovereign' },
+                    { name: 'David L.', count: 25, avatar: '👤', tier: 'Pro' },
+                    { name: 'Elena R.', count: 19, avatar: '👤', tier: 'Pro' },
+                    { name: 'Mark T.', count: 12, avatar: '👤', tier: 'Sovereign' }
+                  ].map((user, i) => (
+                    <div key={i} className="leaderboard-item" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                       <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-muted)', width: '20px' }}>{i + 1}</span>
+                       <div style={{ width: '32px', height: '32px', background: 'rgba(255,255,255,0.05)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyItems: 'center', fontSize: '1rem', justifyContent: 'center' }}>{user.avatar}</div>
+                       <div style={{ flex: 1 }}>
+                          <span style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600 }}>{user.name}</span>
+                          <span style={{ fontSize: '0.65rem', color: user.tier === 'Pro' ? 'var(--accent-primary)' : 'var(--text-muted)' }}>{user.tier}</span>
+                       </div>
+                       <span style={{ fontSize: '0.85rem', fontWeight: 800 }}>{user.count}</span>
+                    </div>
+                  ))}
+               </div>
+               <button className="btn btn-ghost btn-sm" style={{ width: '100%', marginTop: '1.5rem', fontSize: '0.75rem' }}>View Full Leaderboard</button>
+            </div>
+          </div>
+
           {/* Filtering Hub */}
           <div className="filter-pill-container" style={{ display: 'flex', justifyContent: 'center', gap: '0.75rem', marginBottom: '4rem', flexWrap: 'wrap' }}>
             {filterOptions.map(opt => (

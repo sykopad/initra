@@ -515,12 +515,14 @@ const supabase = createBrowserClient(url, key, {
 4. **Sovereign Infrastructure Mode (Complete)**: Decentralized hosting ownership where users bring their own Vercel/GitHub tokens via secure Settings. (Done 2026-04-23)
 5. **Infrastructure Guardrails (Complete)**: Implementation of the "Sovereign-First" policy. Standard hatching requires user tokens; Managed Hatching (on Initra infra) is restricted to Pro users. (Done 2026-04-23)
 6. **Automated Billing (Complete)**: PayPal-powered $19/mo subscription engine with automated activation/revocation. (Done 2026-04-23)
-7. **Creative Studio 2.0 (In Progress)**: Overhaul of the Command Center to support semantic segment naming (no more duplicate logic names), intelligent grouping (UI vs Logic vs API), and AI-guided prompting for both Layman and Advanced users.
-8. **Venture Economy Expansion**: 
+7. **Creative Studio 2.0 (Complete)**: Overhaul of the Command Center with semantic segment naming, intelligent grouping, and AI-guided prompting. (Done 2026-04-23)
+8. **Dashboard v3 (Complete)**: Separation of Command Center (Technical Monitoring) and Creative Studio (AI Lab) into distinct tabs with a universal, sticky Project Switcher for seamless multi-venture management. (Done 2026-04-23)
+9. **Studio Preview v2 (In Progress)**: Enhancement of the LivePreviewModal to support "Side-by-Side" diff viewing, allowing users to review AI changes line-by-line before pushing.
+10. **Venture Economy Expansion (In Progress)**: 
     - **Automated Monthly Stipend**: Supabase Edge Function to auto-refill Pro credits on billing anniversaries.
     - **Referral Leaderboard**: Social gamification in the Community Hub to reward top referrers.
     - **Team Subscriptions**: $99/mo plans for organizations to manage shared infrastructure and credits.
-9. **Multi-Venture Knowledge Sharing**: Cross-repository intelligence where agents learn from previous repairs across all projects in a user's portfolio.
+11. **Multi-Venture Knowledge Sharing**: Cross-repository intelligence where agents learn from previous repairs across all projects in a user's portfolio.
 
 ### ⚡ Phase 10: Hatching 2.0 — The Fully Orchestrated Venture (Complete)
 

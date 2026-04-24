@@ -85,6 +85,7 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
   const [studioPrompt, setStudioPrompt] = useState("");
   const [successfullyRepairedIds, setSuccessfullyRepairedIds] = useState<string[]>([]);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<'command' | 'studio'>('command');
   const studioRef = useRef<HTMLDivElement>(null);
 
   const handleReconnect = async () => {
@@ -282,259 +283,280 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
           )}
         </div>
       ) : (
-        <div className="builder-view animate-fade-in">
-          <div className="repo-status" style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: '12px', border: '1px solid var(--border-light)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <div className="repo-icon-wrapper">
-                <span className="dot pulse"></span>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <select 
-                    className="repo-select-minimal"
-                    value={activeRepo.id}
-                    onChange={(e) => {
-                      const repo = initialRepos?.find(r => r.id === e.target.value);
-                      if (repo) setActiveRepo(repo);
-                    }}
-                  >
-                    {initialRepos?.map((repo, idx) => (
-                      <option key={repo.id || idx} value={repo.id}>{repo.owner}/{repo.repo_name}</option>
-                    ))}
-                  </select>
-                  <button 
-                    className={`btn-icon ${isLoading ? 'spinning' : ''}`} 
-                    onClick={() => fetchSegments(activeRepo.id)}
-                    title="Refresh Analysis"
-                    disabled={isLoading}
-                  >
-                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
-                    </svg>
-                  </button>
-                </div>
-                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '2px' }}>
-                  Last synced {new Date(activeRepo.last_synced_at).toLocaleString()}
-                </div>
-              </div>
-            </div>
-            <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-              {showReconnect && (
-                <button 
-                  className="btn btn-secondary btn-sm" 
-                  onClick={handleReconnect}
-                  style={{ background: '#24292e', color: 'white', border: 'none' }}
-                >
-                  Reconnect GitHub
-                </button>
-              )}
-              <button 
-                className="btn btn-ghost btn-sm" 
-                style={{ color: 'var(--accent-rose)', opacity: 0.8 }}
-                onClick={() => setShowDisconnectConfirm(true)}
-              >
-                Disconnect
-              </button>
-              <button className="btn btn-primary btn-sm" onClick={() => setActiveRepo(null)}>+ New</button>
-            </div>
-          </div>
-
-          {error && (
-            <div className="error-banner animate-slide-down">
-              <span className="error-icon">⚠️</span>
-              <p>{error}</p>
-              {error.includes("expired") && (
-                <button className="btn btn-link btn-sm" onClick={handleReconnect}>Fix Now</button>
-              )}
-              <button className="close-btn" onClick={() => setError(null)}>×</button>
-            </div>
-          )}
-
-          {pendingChanges && (
-            <div className="changes-bar animate-slide-down" style={{ marginBottom: '1.5rem' }}>
-              <div className="bar-inner">
-                <div className="changes-info">
-                  <span className="sparkle">✨</span>
-                  <span>AI has generated changes for <strong>{pendingChanges.files.length} file{pendingChanges.files.length > 1 ? 's' : ''}</strong></span>
-                </div>
-                <div style={{ display: 'flex', gap: '1rem' }}>
-                  <button className="btn btn-ghost btn-sm" onClick={() => setPendingChanges(null)}>Discard</button>
-                  <button 
-                    className="btn btn-primary btn-sm" 
-                    onClick={handlePush}
-                    disabled={isPushing}
-                  >
-                    {isPushing ? "Pushing..." : "Push to GitHub"}
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-          
-          <div className="builder-controls" style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.02)', padding: '1rem', borderRadius: '12px' }}>
-            <div className="model-switcher-dashboard">
-              <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '8px', display: 'block', fontWeight: 600, textTransform: 'uppercase' }}>Reasoning Engine</label>
-              <div style={{ display: 'flex', gap: '8px' }}>
+        <div className="builder-wrapper">
+          {/* Universal Project Switcher (Sticky Header) */}
+          <div className="universal-project-header animate-slide-down">
+            <div className="header-left">
+              <div className="repo-switcher-pill">
+                <span className="pill-icon">📦</span>
                 <select 
-                  className="model-select-dashboard"
-                  value={selectedModel}
-                  onChange={(e) => setSelectedModel(e.target.value)}
+                  className="repo-select-minimal"
+                  value={activeRepo.id}
+                  onChange={(e) => {
+                    const selected = initialRepos?.find(r => r.id === e.target.value);
+                    if (selected) setActiveRepo(selected);
+                  }}
                 >
-                  {AI_MODELS.map(m => (
-                    <option key={m.slug} value={m.slug}>{m.name} ({m.creditCost} cr)</option>
+                  {initialRepos?.map((repo, idx) => (
+                    <option key={repo.id || idx} value={repo.id}>{repo.owner}/{repo.repo_name}</option>
                   ))}
                 </select>
-                <div className="model-price-tag">
-                  <span className="price-pill">
-                    {AI_MODELS.find(m => m.slug === selectedModel)?.creditCost || 0} Credits
-                  </span>
-                </div>
+              </div>
+              <div className="sync-status">
+                <span className="dot pulse"></span>
+                Synced {new Date(activeRepo.last_synced_at).toLocaleDateString()}
               </div>
             </div>
-            <div className="sync-status-indicator">
-               {/* existing sync info could go here if moved */}
+
+            <div className="header-center">
+              <div className="tab-switcher">
+                <button 
+                  className={`tab-btn ${activeTab === 'command' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('command')}
+                >
+                  🛡️ Command Center
+                </button>
+                <button 
+                  className={`tab-btn ${activeTab === 'studio' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('studio')}
+                >
+                  ✨ Creative Studio
+                </button>
+              </div>
+            </div>
+
+            <div className="header-right">
+              {showReconnect && (
+                <button className="btn btn-secondary btn-xs" onClick={handleReconnect}>Reconnect GitHub</button>
+              )}
+              <button className="btn-icon" onClick={() => fetchSegments(activeRepo.id)} title="Refresh Analysis">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+                </svg>
+              </button>
             </div>
           </div>
-          
-          {audit && (
-            <AuditScorecard 
-              audit={audit} 
-              onRepair={handleRepair} 
-              successfullyRepairedIds={successfullyRepairedIds}
-              onSaveSkill={handleSaveSkill}
-            />
-          )}
 
-          {/* Creative Studio 2.0 (Centralized Editor) */}
-          <div ref={studioRef} className="creative-studio animate-fade-in" style={{ marginBottom: '2.5rem' }}>
-            <div className="studio-inner glass-panel">
-              <div className="studio-header">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <div className="studio-icon">✨</div>
-                  <div>
-                    <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800 }}>Creative Studio <span style={{ fontSize: '0.7rem', verticalAlign: 'middle', background: 'var(--accent-primary)', padding: '2px 6px', borderRadius: '4px', marginLeft: '8px' }}>v2.0</span></h3>
-                    <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-muted)' }}>Autonomous interface refinement & feature expansion</p>
+          <div className="tab-content-area">
+            {error && (
+              <div className="error-banner animate-slide-down">
+                <span className="error-icon">⚠️</span>
+                <p>{error}</p>
+                <button className="close-btn" onClick={() => setError(null)}>×</button>
+              </div>
+            )}
+
+            {pendingChanges && (
+              <div className="changes-bar animate-slide-down">
+                <div className="bar-inner">
+                  <div className="changes-info">
+                    <span className="sparkle">✨</span>
+                    <span>AI has generated changes for <strong>{pendingChanges.files.length} file{pendingChanges.files.length > 1 ? 's' : ''}</strong></span>
+                  </div>
+                  <div style={{ display: 'flex', gap: '1rem' }}>
+                    <button className="btn btn-ghost btn-sm" onClick={() => setPendingChanges(null)}>Discard</button>
+                    <button className="btn btn-primary btn-sm" onClick={handlePush} disabled={isPushing}>{isPushing ? "Pushing..." : "Push to GitHub"}</button>
                   </div>
                 </div>
-                <div className="model-badge">
-                  {AI_MODELS.find(m => m.slug === selectedModel)?.name}
-                </div>
               </div>
+            )}
 
-              <div className="studio-grid">
-                <div className="studio-field">
-                  <label>1. Select Venture Segment</label>
-                  <select 
-                    value={studioSegmentId} 
-                    onChange={(e) => setStudioSegmentId(e.target.value)}
-                    className="studio-select"
-                  >
-                    <option value="" disabled>Choose a part of your venture to evolve...</option>
-                    {/* Semantic Grouping */}
-                    <optgroup label="Layouts & Structure" style={{ background: '#1a1a1a', color: 'var(--accent-primary)' }}>
-                      {segments.filter(s => s.type === 'layout').map(s => (
-                        <option key={s.id} value={s.id} style={{ background: '#1a1a1a', color: 'white' }}>{s.name}</option>
-                      ))}
-                    </optgroup>
-                    <optgroup label="User Interface (UI)" style={{ background: '#1a1a1a', color: 'var(--accent-primary)' }}>
-                      {segments.filter(s => s.type === 'page' || s.type === 'component').map(s => (
-                        <option key={s.id} value={s.id} style={{ background: '#1a1a1a', color: 'white' }}>{s.name}</option>
-                      ))}
-                    </optgroup>
-                    <optgroup label="Backend & Business Logic" style={{ background: '#1a1a1a', color: 'var(--accent-primary)' }}>
-                      {segments.filter(s => s.type === 'logic').map(s => (
-                        <option key={s.id} value={s.id} style={{ background: '#1a1a1a', color: 'white' }}>{s.name}</option>
-                      ))}
-                    </optgroup>
-                  </select>
-
-                  {studioSegmentId && segments.find(s => s.id === studioSegmentId) && (
-                    <div className="segment-context-box animate-fade-in" style={{ marginTop: '1rem' }}>
-                      <div className="context-header">
-                        <span className="context-badge">{(segments.find(s => s.id === studioSegmentId)?.type || 'unknown').toUpperCase()}</span>
-                        <span className="context-path">{segments.find(s => s.id === studioSegmentId)?.file_path}</span>
+            {activeTab === 'command' && (
+              <div className="tab-pane command-pane animate-fade-in">
+                <div className="command-grid">
+                  <div className="command-main">
+                    <VentureTelemetry repoId={activeRepo.id} repoName={activeRepo.repo_name} owner={activeRepo.owner} />
+                    
+                    {audit && (
+                      <AuditScorecard 
+                        audit={audit} 
+                        onRepair={handleRepair} 
+                        successfullyRepairedIds={successfullyRepairedIds}
+                        onSaveSkill={handleSaveSkill}
+                      />
+                    )}
+                  </div>
+                  
+                  <div className="command-sidebar">
+                    <div className="glass-panel" style={{ padding: '1.5rem' }}>
+                       <h3 style={{ fontSize: '1rem', marginBottom: '1rem' }}>Domain Distribution</h3>
+                       <div className="domains-container-mini">
+                        {Object.entries(
+                          (segments || []).reduce((acc, seg) => {
+                            const domain = seg.domain || "Core Application";
+                            if (!acc[domain]) acc[domain] = [];
+                            acc[domain].push(seg);
+                            return acc;
+                          }, {} as Record<string, Segment[]>)
+                        ).sort().map(([domain, domainSegments]) => (
+                          <div key={domain} className="domain-item-mini">
+                            <span className="domain-dot"></span>
+                            <span className="domain-name">{domain}</span>
+                            <span className="domain-count">{domainSegments.length}</span>
+                          </div>
+                        ))}
                       </div>
-                      <p className="context-desc">{segments.find(s => s.id === studioSegmentId)?.description}</p>
                     </div>
-                  )}
+                  </div>
+                </div>
+                
+                <div className="domains-container" style={{ marginTop: '2.5rem' }}>
+                  {Object.entries(
+                    (segments || []).reduce((acc, seg) => {
+                      const domain = seg.domain || "Core Application";
+                      if (!acc[domain]) acc[domain] = [];
+                      acc[domain].push(seg);
+                      return acc;
+                    }, {} as Record<string, Segment[]>)
+                  ).sort().map(([domain, domainSegments]) => (
+                    <div key={domain} className="domain-section">
+                      <h4 className="domain-title">{domain}</h4>
+                      <div className="segments-grid">
+                        {domainSegments.map((seg, idx) => (
+                          <SegmentCard 
+                            key={seg.id || `${seg.file_path}-${seg.name}-${idx}`} 
+                            segment={seg} 
+                            repoId={activeRepo.id} 
+                            onEditSuccess={handleEditSuccess}
+                            onSelect={() => handleSelectSegmentForStudio(seg.id)}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+            {activeTab === 'studio' && (
+              <div className="tab-pane studio-pane animate-fade-in">
+                <div className="builder-controls" style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.02)', padding: '1rem', borderRadius: '12px' }}>
+                  <div className="model-switcher-dashboard">
+                    <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '8px', display: 'block', fontWeight: 600, textTransform: 'uppercase' }}>Reasoning Engine</label>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <select 
+                        className="model-select-dashboard"
+                        value={selectedModel}
+                        onChange={(e) => setSelectedModel(e.target.value)}
+                      >
+                        {AI_MODELS.map(m => (
+                          <option key={m.slug} value={m.slug}>{m.name} ({m.creditCost} cr/op)</option>
+                        ))}
+                      </select>
+                      <div className="model-price-tag">
+                        <span className="price-pill">
+                          {AI_MODELS.find(m => m.slug === selectedModel)?.creditCost || 0} Credits
+                        </span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
-                <div className="studio-field">
-                  <label>2. Describe Your Objective</label>
-                  <div className="studio-prompt-wrapper">
-                    {/* Quick Suggestions for Layman/Advanced users */}
-                    {studioSegmentId && (
-                      <div className="prompt-suggestions animate-fade-in" style={{ marginBottom: '1rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                        {segments.find(s => s.id === studioSegmentId)?.type === 'logic' ? (
-                          <>
-                            <button className="suggestion-chip" onClick={() => setStudioPrompt("Add validation to this logic and handle error states.")}>🛡️ Add Validation</button>
-                            <button className="suggestion-chip" onClick={() => setStudioPrompt("Connect this to the database and implement CRUD operations.")}>🗄️ Database Hookup</button>
-                            <button className="suggestion-chip" onClick={() => setStudioPrompt("Refactor this for performance and readability.")}>⚡ Optimize</button>
-                          </>
-                        ) : (
-                          <>
-                            <button className="suggestion-chip" onClick={() => setStudioPrompt("Make this look more modern with glassmorphism and vibrant colors.")}>🎨 Modernize UI</button>
-                            <button className="suggestion-chip" onClick={() => setStudioPrompt("Add a responsive dark mode toggle for this section.")}>🌙 Dark Mode</button>
-                            <button className="suggestion-chip" onClick={() => setStudioPrompt("Improve the mobile layout and accessibility of this component.")}>📱 Mobile Optimization</button>
-                          </>
+                {/* Creative Studio 2.0 (Centralized Editor) */}
+                <div ref={studioRef} className="creative-studio animate-fade-in" style={{ marginTop: '1.5rem' }}>
+                  <div className="studio-inner glass-panel">
+                    <div className="studio-header">
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div className="studio-icon">✨</div>
+                        <div>
+                          <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800 }}>Creative Studio <span style={{ fontSize: '0.7rem', verticalAlign: 'middle', background: 'var(--accent-primary)', padding: '2px 6px', borderRadius: '4px', marginLeft: '8px' }}>v2.0</span></h3>
+                          <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-muted)' }}>Autonomous interface refinement & feature expansion</p>
+                        </div>
+                      </div>
+                      <div className="model-badge">
+                        {AI_MODELS.find(m => m.slug === selectedModel)?.name}
+                      </div>
+                    </div>
+
+                    <div className="studio-grid">
+                      <div className="studio-field">
+                        <label>1. Select Venture Segment</label>
+                        <select 
+                          value={studioSegmentId} 
+                          onChange={(e) => setStudioSegmentId(e.target.value)}
+                          className="studio-select"
+                        >
+                          <option value="" disabled>Choose a part of your venture to evolve...</option>
+                          <optgroup label="Layouts & Structure" style={{ background: '#1a1a1a', color: 'var(--accent-primary)' }}>
+                            {segments.filter(s => s.type === 'layout').map(s => (
+                              <option key={s.id} value={s.id} style={{ background: '#1a1a1a', color: 'white' }}>{s.name}</option>
+                            ))}
+                          </optgroup>
+                          <optgroup label="User Interface (UI)" style={{ background: '#1a1a1a', color: 'var(--accent-primary)' }}>
+                            {segments.filter(s => s.type === 'page' || s.type === 'component').map(s => (
+                              <option key={s.id} value={s.id} style={{ background: '#1a1a1a', color: 'white' }}>{s.name}</option>
+                            ))}
+                          </optgroup>
+                          <optgroup label="Backend & Business Logic" style={{ background: '#1a1a1a', color: 'var(--accent-primary)' }}>
+                            {segments.filter(s => s.type === 'logic').map(s => (
+                              <option key={s.id} value={s.id} style={{ background: '#1a1a1a', color: 'white' }}>{s.name}</option>
+                            ))}
+                          </optgroup>
+                        </select>
+
+                        {studioSegmentId && segments.find(s => s.id === studioSegmentId) && (
+                          <div className="segment-context-box animate-fade-in" style={{ marginTop: '1rem' }}>
+                            <div className="context-header">
+                              <span className="context-badge">{(segments.find(s => s.id === studioSegmentId)?.type || 'unknown').toUpperCase()}</span>
+                              <span className="context-path">{segments.find(s => s.id === studioSegmentId)?.file_path}</span>
+                            </div>
+                            <p className="context-desc">{segments.find(s => s.id === studioSegmentId)?.description}</p>
+                          </div>
                         )}
                       </div>
-                    )}
-                    
-                    <textarea 
-                      value={studioPrompt}
-                      onChange={(e) => setStudioPrompt(e.target.value)}
-                      placeholder={studioSegmentId ? "e.g. 'Add a login button that redirects to /dashboard' or 'Secure this API with an API key check'" : "Select a segment first..."}
-                      className="studio-textarea"
-                    />
-                    
-                    <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                       <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                         Approximate Cost: <strong>{AI_MODELS.find(m => m.slug === selectedModel)?.creditCost || 0} Credits</strong>
-                       </p>
-                       <button 
-                        className="btn btn-primary studio-btn"
-                        onClick={handleStudioGenerate}
-                        disabled={!studioSegmentId || !studioPrompt}
-                        style={{ padding: '12px 32px' }}
-                      >
-                        🚀 Generate Refinement
-                      </button>
+
+                      <div className="studio-field">
+                        <label>2. Describe Your Objective</label>
+                        <div className="studio-prompt-wrapper">
+                          {studioSegmentId && (
+                            <div className="prompt-suggestions animate-fade-in" style={{ marginBottom: '1rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                              {segments.find(s => s.id === studioSegmentId)?.type === 'logic' ? (
+                                <>
+                                  <button className="suggestion-chip" onClick={() => setStudioPrompt("Add validation to this logic and handle error states.")}>🛡️ Add Validation</button>
+                                  <button className="suggestion-chip" onClick={() => setStudioPrompt("Connect this to the database and implement CRUD operations.")}>🗄️ Database Hookup</button>
+                                  <button className="suggestion-chip" onClick={() => setStudioPrompt("Refactor this for performance and readability.")}>⚡ Optimize</button>
+                                </>
+                              ) : (
+                                <>
+                                  <button className="suggestion-chip" onClick={() => setStudioPrompt("Make this look more modern with glassmorphism and vibrant colors.")}>🎨 Modernize UI</button>
+                                  <button className="suggestion-chip" onClick={() => setStudioPrompt("Add a responsive dark mode toggle for this section.")}>🌙 Dark Mode</button>
+                                  <button className="suggestion-chip" onClick={() => setStudioPrompt("Improve the mobile layout and accessibility of this component.")}>📱 Mobile Optimization</button>
+                                </>
+                              )}
+                            </div>
+                          )}
+                          
+                          <textarea 
+                            value={studioPrompt}
+                            onChange={(e) => setStudioPrompt(e.target.value)}
+                            placeholder={studioSegmentId ? "e.g. 'Add a login button that redirects to /dashboard' or 'Secure this API with an API key check'" : "Select a segment first..."}
+                            className="studio-textarea"
+                          />
+                          
+                          <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                             <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                               Approximate Cost: <strong>{AI_MODELS.find(m => m.slug === selectedModel)?.creditCost || 0} Credits</strong>
+                             </p>
+                             <button 
+                              className="btn btn-primary studio-btn"
+                              onClick={handleStudioGenerate}
+                              disabled={!studioSegmentId || !studioPrompt}
+                              style={{ padding: '12px 32px' }}
+                            >
+                              🚀 Generate Refinement
+                            </button>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
-
-
-
-          {/* Grouped Segments View */}
-          <div className="domains-container">
-            {Object.entries(
-              (segments || []).reduce((acc, seg) => {
-                const domain = seg.domain || "Core Application";
-                if (!acc[domain]) acc[domain] = [];
-                acc[domain].push(seg);
-                return acc;
-              }, {} as Record<string, Segment[]>)
-            ).sort().map(([domain, domainSegments]) => (
-              <div key={domain} className="domain-section">
-                <h4 className="domain-title">{domain}</h4>
-                <div className="segments-grid">
-                  {domainSegments.map((seg, idx) => (
-                    <SegmentCard 
-                      key={seg.id || `${seg.file_path}-${seg.name}-${idx}`} 
-                      segment={seg} 
-                      repoId={activeRepo.id} 
-                      onEditSuccess={handleEditSuccess}
-                      onSelect={() => handleSelectSegmentForStudio(seg.id)}
-                    />
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
+        </div>
+      )}
 
           {/* Custom Disconnect Modal */}
           {showDisconnectConfirm && (
@@ -572,8 +594,6 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
               }}
             />
           )}
-        </div>
-      )}
 
       <style jsx>{`
             .creative-studio {
@@ -682,9 +702,10 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
               display: flex;
               gap: 12px;
               align-items: flex-end;
+              flex-direction: column;
             }
             .studio-textarea {
-              flex: 1;
+              width: 100%;
               background: rgba(255, 255, 255, 0.05);
               border: 1px solid rgba(255, 255, 255, 0.1);
               padding: 16px;

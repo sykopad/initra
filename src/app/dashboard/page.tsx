@@ -1,7 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import CreditPurchase from "@/components/wizard/CreditPurchase";
 import RepoBuilder from "@/components/dashboard/RepoBuilder";
 import ProjectItem from "@/components/dashboard/ProjectItem";
 import Navbar from "@/components/Navbar";
@@ -144,11 +143,7 @@ export default async function DashboardPage() {
             )}
           </div>
         </section>
-
-        </section>
-      </div>
-
-
+        </div>
       </div>
     </>
   );

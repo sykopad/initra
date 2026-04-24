@@ -102,7 +102,10 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       success: true,
-      fileUpdates,
+      fileUpdates: fileUpdates.map((f: any) => ({
+        ...f,
+        originalContent: f.path === segment.file_path ? currentContent : "" // Simplification for now
+      })),
       primaryFilePath: segment.file_path,
       primarySha: fileData.sha
     });
