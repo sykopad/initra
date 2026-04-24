@@ -13,6 +13,7 @@ export default function SettingsPage() {
   const [success, setSuccess] = useState<string | null>(null);
   
   const [profile, setProfile] = useState({
+    id: "",
     display_name: "",
     github_username: "",
     email: "",
@@ -24,6 +25,7 @@ export default function SettingsPage() {
   });
 
   const [transactions, setTransactions] = useState<any[]>([]);
+  const [toast, setToast] = useState<string | null>(null);
 
   const [security, setSecurity] = useState({
     newPassword: "",
@@ -43,13 +45,15 @@ export default function SettingsPage() {
       const prof = await getProfile();
       if (prof) {
         setProfile({
+          id: user.id,
           display_name: prof.display_name || "",
           github_username: prof.github_username || "",
           email: user.email || "",
           credits: prof.credits || 0,
           vercel_token: prof.vercel_token || "",
           vercel_team_id: prof.vercel_team_id || "",
-          github_personal_token: prof.github_personal_token || ""
+          github_personal_token: prof.github_personal_token || "",
+          is_pro: prof.tier === 'pro'
         });
       }
 
@@ -150,215 +154,221 @@ export default function SettingsPage() {
           <p>Manage your profile and security preferences</p>
         </header>
 
-        <div className="settings-grid">
-          {/* Profile Section */}
-          <section className="settings-section glass-panel">
-            <div className="section-header">
-              <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                <circle cx="12" cy="7" r="4" />
-              </svg>
-              <h2>Profile Information</h2>
-            </div>
-            
-            <form onSubmit={handleProfileUpdate} className="settings-form">
-              <div className="form-group">
-                <label>Email Address (read-only)</label>
-                <input type="text" value={profile.email} readOnly className="form-input read-only" />
-              </div>
-
-              <div className="form-group">
-                <label>Display Name</label>
-                <input 
-                  type="text" 
-                  value={profile.display_name} 
-                  onChange={(e) => setProfile({...profile, display_name: e.target.value})}
-                  className="form-input"
-                  placeholder="e.g. John Doe"
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label>GitHub Username</label>
-                <input 
-                  type="text" 
-                  value={profile.github_username} 
-                  onChange={(e) => setProfile({...profile, github_username: e.target.value})}
-                  className="form-input"
-                  placeholder="e.g. jdoe88"
-                />
-              </div>
-
-              <button type="submit" className="btn btn-primary" disabled={saving}>
-                {saving ? "Saving..." : "Update Profile"}
-              </button>
-            </form>
-          </section>
-
-          {/* Sovereign Infrastructure Section */}
-          <section className="settings-section glass-panel">
-            <div className="section-header">
-              <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-              </svg>
-              <h2>Sovereign Infrastructure</h2>
-            </div>
-
-            <div className="sovereign-guidance" style={{ marginBottom: '1.5rem', padding: '1rem', background: 'rgba(139, 92, 246, 0.05)', borderRadius: '12px', border: '1px solid rgba(139, 92, 246, 0.1)' }}>
-              <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: 0 }}>
-                Bring your own infrastructure for 100% ownership. By providing your own tokens, Initra will hatch ventures directly onto <strong>your</strong> Vercel and GitHub accounts.
-              </p>
-              <ul style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.5rem', paddingLeft: '1.2rem' }}>
-                <li><strong>Vercel:</strong> Create a <a href="https://vercel.com/account/tokens" target="_blank" rel="noreferrer" style={{ color: 'var(--accent-primary)' }}>Personal Access Token</a>. Select "Full Access" scope to allow project creation.</li>
-                <li><strong>GitHub:</strong> Provide a <a href="https://github.com/settings/tokens" target="_blank" rel="noreferrer" style={{ color: 'var(--accent-primary)' }}>Classic Token</a> with <code>repo</code> and <code>workflow</code> scopes.</li>
-              </ul>
-            </div>
-
-            <form onSubmit={handleSovereignUpdate} className="settings-form">
-              <div className="form-group">
-                <label>Vercel Access Token</label>
-                <input 
-                  type="password" 
-                  value={profile.vercel_token} 
-                  onChange={(e) => setProfile({...profile, vercel_token: e.target.value})}
-                  className="form-input"
-                  placeholder="v1_..."
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Vercel Team ID (Optional)</label>
-                <input 
-                  type="text" 
-                  value={profile.vercel_team_id} 
-                  onChange={(e) => setProfile({...profile, vercel_team_id: e.target.value})}
-                  className="form-input"
-                  placeholder="team_..."
-                />
-              </div>
-
-              <div className="form-group">
-                <label>GitHub Personal Access Token (Optional)</label>
-                <input 
-                  type="password" 
-                  value={profile.github_personal_token} 
-                  onChange={(e) => setProfile({...profile, github_personal_token: e.target.value})}
-                  className="form-input"
-                  placeholder="ghp_..."
-                />
-                <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>Only required if you want to bypass platform-wide GitHub limits.</span>
-              </div>
-
-              <button type="submit" className="btn btn-primary" disabled={saving}>
-                {saving ? "Saving Config..." : "Save Sovereign Config"}
-              </button>
-            </form>
-          </section>
-
-          {/* Security Section */}
-          <section className="settings-section glass-panel">
-            <div className="section-header">
-              <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-              </svg>
-              <h2>Security</h2>
-            </div>
-
-            <form onSubmit={handlePasswordUpdate} className="settings-form">
-              <div className="form-group">
-                <label>New Password</label>
-                <input 
-                  type="password" 
-                  value={security.newPassword} 
-                  onChange={(e) => setSecurity({...security, newPassword: e.target.value})}
-                  className="form-input"
-                  placeholder="••••••••"
-                  minLength={6}
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Confirm Password</label>
-                <input 
-                  type="password" 
-                  value={security.confirmPassword} 
-                  onChange={(e) => setSecurity({...security, confirmPassword: e.target.value})}
-                  className="form-input"
-                  placeholder="••••••••"
-                />
-              </div>
-
-              <button type="submit" className="btn btn-secondary" disabled={saving}>
-                {saving ? "Updating..." : "Change Password"}
-              </button>
-            </form>
-          </section>
-
-          {/* Billing & Usage Section */}
-          <section className="settings-section glass-panel" style={{ gridColumn: 'span 2' }}>
+        <div className="settings-stack">
+          {/* Billing & Usage Section (Top Priority) */}
+          <section className="settings-section glass-panel economy-hero">
             <div className="section-header">
               <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
                 <rect x="2" y="5" width="20" height="14" rx="2" />
                 <line x1="2" y1="10" x2="22" y2="10" />
               </svg>
-              <h2>Billing & Usage</h2>
+              <h2>Venture Economy</h2>
             </div>
 
-            <div className="billing-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '2rem' }}>
-              <div className="balance-box" style={{ background: 'rgba(139, 92, 246, 0.05)', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(139, 92, 246, 0.2)', textAlign: 'center' }}>
-                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Current Balance</span>
-                <div style={{ fontSize: '2.5rem', fontWeight: 800, margin: '0.5rem 0', color: 'var(--accent-primary)' }}>
+            <div className="billing-grid">
+              <div className="balance-box">
+                <span className="balance-label">Current Balance</span>
+                <div className="balance-amount">
                   {profile.credits || 0}
                 </div>
-                <span style={{ fontSize: '0.9rem', opacity: 0.8 }}>Credits Available</span>
-                <button 
-                  className="btn btn-primary" 
-                  style={{ width: '100%', marginTop: '1.5rem' }}
-                  onClick={() => window.location.href = '/dashboard'}
-                >
-                  Top up Credits
-                </button>
-                {!profile.is_pro && (
-                  <div style={{ marginTop: '1.5rem' }}>
+                <span className="balance-subtext">Credits Available</span>
+                <div className="balance-actions">
+                  <button 
+                    className="btn btn-primary" 
+                    onClick={() => window.location.href = '/dashboard'}
+                  >
+                    Top up Credits
+                  </button>
+                  {!profile.is_pro && (
                     <ProSubscription 
-                      userId={user.id} 
+                      userId={profile.id} 
                       onSuccess={() => {
                         setToast("🎉 Subscription active! Refreshing status...");
                         setTimeout(() => window.location.reload(), 2000);
                       }} 
                     />
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
 
               <div className="transaction-history">
-                <h3 style={{ fontSize: '1rem', marginBottom: '1rem' }}>Recent Activity</h3>
-                <div className="tx-list" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <h3 className="history-title">Recent Activity</h3>
+                <div className="tx-list">
                   {transactions.length > 0 ? (
                     transactions.map(tx => (
-                      <div key={tx.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid var(--border-light)' }}>
-                        <div>
-                          <div style={{ fontSize: '0.85rem', fontWeight: 600 }}>{tx.description}</div>
-                          <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{new Date(tx.created_at).toLocaleDateString()}</div>
+                      <div key={tx.id} className="tx-item">
+                        <div className="tx-info">
+                          <div className="tx-desc">{tx.description}</div>
+                          <div className="tx-date">{new Date(tx.created_at).toLocaleDateString()}</div>
                         </div>
-                        <div style={{ fontWeight: 700, color: tx.amount > 0 ? 'var(--accent-emerald)' : 'var(--accent-rose)' }}>
+                        <div className={`tx-amount ${tx.amount > 0 ? 'positive' : 'negative'}`}>
                           {tx.amount > 0 ? '+' : ''}{tx.amount}
                         </div>
                       </div>
                     ))
                   ) : (
-                    <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>No recent transactions.</p>
+                    <p className="empty-tx">No recent transactions.</p>
                   )}
                 </div>
               </div>
             </div>
           </section>
+
+          <div className="settings-columns">
+            <div className="settings-col-main">
+              {/* Profile Section */}
+              <section className="settings-section glass-panel">
+                <div className="section-header">
+                  <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                  </svg>
+                  <h2>Identity</h2>
+                </div>
+                
+                <form onSubmit={handleProfileUpdate} className="settings-form">
+                  <div className="form-group">
+                    <label>Email Address (read-only)</label>
+                    <input type="text" value={profile.email} readOnly className="form-input read-only" />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Display Name</label>
+                    <input 
+                      type="text" 
+                      value={profile.display_name} 
+                      onChange={(e) => setProfile({...profile, display_name: e.target.value})}
+                      className="form-input"
+                      placeholder="e.g. John Doe"
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>GitHub Username</label>
+                    <input 
+                      type="text" 
+                      value={profile.github_username} 
+                      onChange={(e) => setProfile({...profile, github_username: e.target.value})}
+                      className="form-input"
+                      placeholder="e.g. jdoe88"
+                    />
+                  </div>
+
+                  <button type="submit" className="btn btn-primary" disabled={saving}>
+                    {saving ? "Saving..." : "Update Profile"}
+                  </button>
+                </form>
+              </section>
+
+              {/* Security Section */}
+              <section className="settings-section glass-panel" style={{ marginTop: '2rem' }}>
+                <div className="section-header">
+                  <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                  </svg>
+                  <h2>Security</h2>
+                </div>
+
+                <form onSubmit={handlePasswordUpdate} className="settings-form">
+                  <div className="form-group">
+                    <label>New Password</label>
+                    <input 
+                      type="password" 
+                      value={security.newPassword} 
+                      onChange={(e) => setSecurity({...security, newPassword: e.target.value})}
+                      className="form-input"
+                      placeholder="••••••••"
+                      minLength={6}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Confirm Password</label>
+                    <input 
+                      type="password" 
+                      value={security.confirmPassword} 
+                      onChange={(e) => setSecurity({...security, confirmPassword: e.target.value})}
+                      className="form-input"
+                      placeholder="••••••••"
+                    />
+                  </div>
+
+                  <button type="submit" className="btn btn-secondary" disabled={saving}>
+                    {saving ? "Updating..." : "Change Password"}
+                  </button>
+                </form>
+              </section>
+            </div>
+
+            <div className="settings-col-sidebar">
+              {/* Sovereign Infrastructure Section */}
+              <section className="settings-section glass-panel">
+                <div className="section-header">
+                  <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                  </svg>
+                  <h2>Infrastructure</h2>
+                </div>
+
+                <div className="sovereign-guidance">
+                  <p>
+                    Bring your own infrastructure for 100% ownership. By providing your own tokens, Initra will hatch ventures directly onto <strong>your</strong> accounts.
+                  </p>
+                  <ul className="guidance-list">
+                    <li><a href="https://vercel.com/account/tokens" target="_blank" rel="noreferrer">Vercel Token</a> (Full Access)</li>
+                    <li><a href="https://github.com/settings/tokens" target="_blank" rel="noreferrer">GitHub Token</a> (Repo, Workflow)</li>
+                  </ul>
+                </div>
+
+                <form onSubmit={handleSovereignUpdate} className="settings-form">
+                  <div className="form-group">
+                    <label>Vercel Access Token</label>
+                    <input 
+                      type="password" 
+                      value={profile.vercel_token} 
+                      onChange={(e) => setProfile({...profile, vercel_token: e.target.value})}
+                      className="form-input"
+                      placeholder="v1_..."
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Vercel Team ID (Optional)</label>
+                    <input 
+                      type="text" 
+                      value={profile.vercel_team_id} 
+                      onChange={(e) => setProfile({...profile, vercel_team_id: e.target.value})}
+                      className="form-input"
+                      placeholder="team_..."
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>GitHub Personal Access Token (Optional)</label>
+                    <input 
+                      type="password" 
+                      value={profile.github_personal_token} 
+                      onChange={(e) => setProfile({...profile, github_personal_token: e.target.value})}
+                      className="form-input"
+                      placeholder="ghp_..."
+                    />
+                    <span className="form-hint">Required for bypassing platform-wide GitHub limits.</span>
+                  </div>
+
+                  <button type="submit" className="btn btn-primary" disabled={saving}>
+                    {saving ? "Saving Config..." : "Save Config"}
+                  </button>
+                </form>
+              </section>
+            </div>
+          </div>
         </div>
 
         {error && <div className="status-message error animate-slide-up">{error}</div>}
         {success && <div className="status-message success animate-slide-up">{success}</div>}
+        {toast && <div className="status-message success animate-slide-up">{toast}</div>}
       </main>
 
       <style jsx>{`
@@ -368,21 +378,177 @@ export default function SettingsPage() {
           padding-top: 100px;
         }
 
+        .settings-stack {
+          display: flex;
+          flex-direction: colum        .economy-hero {
+          border-top: 4px solid var(--accent-primary);
+          padding: 3rem !important;
+        }
+ 
+        .billing-grid {
+          display: grid;
+          grid-template-columns: 1.1fr 1.9fr;
+          gap: 3rem;
+        }
+
+        .balance-box {
+          background: rgba(139, 92, 246, 0.05);
+          padding: 2.5rem;
+          border-radius: 24px;
+          border: 1px solid rgba(139, 92, 246, 0.2);
+          text-align: center;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          box-shadow: inset 0 0 20px rgba(139, 92, 246, 0.05);
+        }
+
+        .balance-label {
+          font-size: 0.85rem;
+          color: var(--text-muted);
+          text-transform: uppercase;
+          letter-spacing: 0.15em;
+          margin-bottom: 0.5rem;
+        }
+
+        .balance-amount {
+          font-size: 4rem;
+          font-weight: 800;
+          margin: 0.5rem 0;
+          color: var(--accent-primary);
+          line-height: 1;
+          filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.3));
+        }
+
+        .balance-subtext {
+          font-size: 0.95rem;
+          opacity: 0.8;
+          margin-bottom: 2.5rem;
+        }
+
+        .balance-actions {
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          gap: 1.25rem;
+        }
+
+        .history-title {
+          font-size: 1.1rem;
+          margin-bottom: 1.75rem;
+          font-weight: 700;
+          letter-spacing: -0.02em;
+        }
+
+        .tx-list {
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+          max-height: 350px;
+          overflow-y: auto;
+          padding-right: 0.75rem;
+        }
+
+        .tx-item {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 1.25rem;
+          background: rgba(255,255,255,0.02);
+          border-radius: 16px;
+          border: 1px solid var(--border-light);
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .tx-item:hover {
+          background: rgba(255,255,255,0.05);
+          border-color: var(--accent-primary);
+          transform: translateX(4px);
+        }
+
+        .tx-desc {
+          font-size: 0.95rem;
+          font-weight: 600;
+          color: var(--text-primary);
+        }
+
+        .tx-date {
+          font-size: 0.8rem;
+          color: var(--text-muted);
+          margin-top: 0.25rem;
+        }
+
+        .tx-amount {
+          font-weight: 800;
+          font-family: var(--font-mono);
+          font-size: 1.1rem;
+        }
+
+        .positive { color: var(--accent-emerald); }
+        .negative { color: var(--accent-rose); }
+
+        .settings-columns {
+          display: grid;
+          grid-template-columns: 1.2fr 0.8fr;
+          gap: 2rem;
+        }
+
+        .sovereign-guidance {
+          margin-bottom: 2rem;
+          padding: 1.25rem;
+          background: rgba(139, 92, 246, 0.03);
+          border-radius: 14px;
+          border: 1px solid rgba(139, 92, 246, 0.1);
+        }
+
+        .sovereign-guidance p {
+          font-size: 0.85rem;
+          color: var(--text-secondary);
+          margin: 0;
+          line-height: 1.6;
+        }
+
+        .guidance-list {
+          font-size: 0.8rem;
+          margin-top: 1rem;
+          padding-left: 1.2rem;
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+        }
+
+        .guidance-list a {
+          color: var(--accent-primary);
+          text-decoration: none;
+          font-weight: 600;
+        }
+
+        .guidance-list a:hover {
+          text-decoration: underline;
+        }
+
+        .form-hint {
+          font-size: 0.7rem;
+          color: var(--text-muted);
+          margin-top: 0.25rem;
+        }
+
         .settings-main {
-          max-width: 1000px;
+          max-width: 1100px;
           margin: 0 auto;
           padding: 0 var(--space-lg) 4rem;
         }
 
         .settings-header {
-          margin-bottom: 3rem;
+          margin-bottom: 4rem;
           text-align: center;
         }
 
         .settings-header h1 {
-          font-size: 2.5rem;
+          font-size: 3rem;
           font-weight: 800;
-          margin-bottom: 0.5rem;
+          margin-bottom: 0.75rem;
           background: var(--gradient-text);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
@@ -390,46 +556,42 @@ export default function SettingsPage() {
 
         .settings-header p {
           color: var(--text-secondary);
-        }
-
-        .settings-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-          gap: 2rem;
+          font-size: 1.1rem;
         }
 
         .settings-section {
-          padding: 2rem;
+          padding: 2.5rem;
         }
 
         .section-header {
           display: flex;
           align-items: center;
-          gap: 1rem;
-          margin-bottom: 2rem;
+          gap: 1.25rem;
+          margin-bottom: 2.5rem;
           color: var(--accent-primary);
         }
 
         .section-header h2 {
-          font-size: 1.25rem;
+          font-size: 1.5rem;
           font-weight: 700;
           color: var(--text-primary);
+          letter-spacing: -0.02em;
         }
 
         .settings-form {
           display: flex;
           flex-direction: column;
-          gap: 1.5rem;
+          gap: 1.75rem;
         }
 
         .form-group {
           display: flex;
           flex-direction: column;
-          gap: 0.5rem;
+          gap: 0.75rem;
         }
 
         .form-group label {
-          font-size: 0.875rem;
+          font-size: 0.95rem;
           font-weight: 600;
           color: var(--text-secondary);
         }
@@ -442,10 +604,10 @@ export default function SettingsPage() {
 
         .status-message {
           position: fixed;
-          bottom: 2rem;
-          right: 2rem;
-          padding: 1rem 2rem;
-          border-radius: 12px;
+          bottom: 2.5rem;
+          right: 2.5rem;
+          padding: 1.25rem 2.5rem;
+          border-radius: 16px;
           font-weight: 600;
           z-index: 1000;
           box-shadow: var(--shadow-lg);
@@ -469,22 +631,41 @@ export default function SettingsPage() {
         }
 
         .spinner {
-          width: 40px;
-          height: 40px;
-          border: 3px solid var(--border-medium);
+          width: 48px;
+          height: 48px;
+          border: 4px solid var(--border-medium);
           border-top-color: var(--accent-primary);
           border-radius: 50%;
-          animation: spin 1s linear infinite;
+          animation: spin 1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
         }
 
         @keyframes spin {
           to { transform: rotate(360deg); }
         }
 
-        @media (max-width: 768px) {
-          .settings-grid {
+        @media (max-width: 992px) {
+          .billing-grid {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+          }
+          
+          .settings-columns {
             grid-template-columns: 1fr;
           }
+        }
+
+        @media (max-width: 768px) {
+          .economy-hero {
+            padding: 2rem !important;
+          }
+
+          .balance-box {
+            padding: 2rem;
+          }
+
+          .balance-amount { font-size: 3rem; }
+          
+          .settings-header h1 { font-size: 2.5rem; }
         }
       `}</style>
     </div>
