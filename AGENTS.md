@@ -28,6 +28,14 @@ Positioned as a developer-first alternative to platforms like **Lovable** and **
 - **Auth**: Supabase Auth (implemented)
 - **Deployment**: Vercel (implemented)
 
+### ⚙️ Vercel Integration Setup
+
+To enable deep Telemetry and Autonomous Hatching, you need to provide a Vercel Access Token:
+1. Go to your **[Vercel Settings > Tokens](https://vercel.com/account/tokens)**.
+2. Click **Create** to generate a new Personal Access Token.
+3. Add it to your `.env.local` as `VERCEL_TOKEN`.
+4. (Optional) If you are part of a team, add your `VERCEL_TEAM_ID` (found in team settings).
+
 ## Architecture
 
 ### Prompt Generation Engine (`src/lib/engine/`)
@@ -497,14 +505,15 @@ const supabase = createBrowserClient(url, key, {
 104. **Centralized Creative Studio**: Implementation of a unified command center for UI refinement, replacing per-card buttons with a high-fidelity editor and segment selector. (Done 2026-04-23)
 105. **Context-Aware Studio**: Dynamic metadata injection into the studio (file paths, landmark roles, descriptions) to give the AI (and user) deep technical context during edits. (Done 2026-04-23)
 106. **Automated Re-validation**: Event-driven repository re-analysis and audit refresh triggered immediately upon successful GitHub push. (Done 2026-04-23)
+107. **Logic-Deep Repairs (Phase 1 Complete)**: Introduced heuristic audits and repair protocols for Hydration Resilience (error boundaries), API Fault Tolerance (centralized services), and State Hygiene (custom hooks). (Done 2026-04-23)
 
 ### 🔮 Future Roadmap: Intelligence & Evolution
 
 1. **Autonomous ADR Auto-Push (Complete)**: Programmatically commit Architectural Decision Records (ADRs) alongside code fixes to maintain a verifiable AI decision trail. (Done 2026-04-23)
-2. **Logic-Deep Repairs (In Progress)**: Expand the repair engine to handle complex business logic failures (e.g., state management sync, auth edge cases) beyond UI/SEO foundations.
-3. **Venture Telemetry 2.0**: Real-time performance monitoring and error tracking for birthed ventures, piped directly into the dashboard.
-4. **Community Skill Publishing**: Allow users to "publish" successful AI repair sequences as reusable **Agent Skills** in the Community Hub.
-5. **Multi-Venture Orchestration**: Unified view for managing multiple parallel ventures with shared credit pools and cross-project knowledge sharing.
+2. **Venture Telemetry 2.0 (Complete - v1)**: Real-time autonomous health monitoring (SSL, Uptime, 500-errors) and Vercel deployment status tracking for birthed ventures. (Done 2026-04-23)
+3. **Community Skill Publishing (Complete - v1)**: Infrastructure to "Save as Skill" in the Command Center, allowing users to share successful AI prompt/repair templates as reusable Agent Skills. (Done 2026-04-23)
+4. **Adaptive Credit Orchestration (In Progress)**: Dynamic credit deduction based on model context and performance (GPT-4o-mini vs Claude 3.7) during autonomous repair cycles.
+5. **Multi-Venture Knowledge Sharing**: Cross-repository intelligence where agents learn from previous repairs across all projects in a user's portfolio.
 
 ### ⚡ Phase 10: Hatching 2.0 — The Fully Orchestrated Venture (Complete)
 

@@ -10,6 +10,8 @@ import { disconnectRepo } from "@/lib/actions/projects";
 import { repairAuditAction } from "@/lib/actions/audit";
 import { AuditCheck } from "@/lib/engine/types";
 import { AI_MODELS } from "@/lib/ai/models";
+import VentureTelemetry from "./VentureTelemetry";
+import { publishSkillAction } from "@/lib/actions/community";
 
 interface Repo {
   id: string;
@@ -81,6 +83,7 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
   const [showDisconnectConfirm, setShowDisconnectConfirm] = useState(false);
   const [studioSegmentId, setStudioSegmentId] = useState<string>("");
   const [studioPrompt, setStudioPrompt] = useState("");
+  const [successfullyRepairedIds, setSuccessfullyRepairedIds] = useState<string[]>([]);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const studioRef = useRef<HTMLDivElement>(null);
 
@@ -166,9 +169,26 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
       const res = await repairAuditAction(activeRepo.id, check, activeRepo.framework, selectedModel);
       if (res.success) {
         setPendingChanges({ files: res.files });
+        setSuccessfullyRepairedIds(prev => [...prev, check.id]);
       }
     } catch (err: any) {
       alert("Repair failed: " + err.message);
+    }
+  };
+
+  const handleSaveSkill = async (check: AuditCheck) => {
+    try {
+      await publishSkillAction({
+        name: check.title,
+        description: check.message,
+        prompt_template: check.actionable_repair || "",
+        category: check.category,
+        target_framework: activeRepo?.framework || "universal"
+      });
+      alert("🌟 Skill published to Community Hub!");
+      setSuccessfullyRepairedIds(prev => prev.filter(id => id !== check.id));
+    } catch (err: any) {
+      alert("Publish failed: " + err.message);
     }
   };
 
@@ -184,9 +204,19 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
 
   return (
     <div className="repo-builder dashboard-card">
-      <div className="card-header">
-        <h3>Autonomous SaaS Builder</h3>
-        {activeRepo && <span className="framework-badge">{activeRepo.framework}</span>}
+      <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <h3>Autonomous SaaS Builder</h3>
+          {activeRepo && <span className="framework-badge">{activeRepo.framework}</span>}
+        </div>
+        
+        {activeRepo && (
+          <VentureTelemetry 
+            repoId={activeRepo.id} 
+            repoName={activeRepo.repo_name}
+            owner={activeRepo.owner}
+          />
+        )}
       </div>
 
       {!activeRepo ? (
@@ -366,7 +396,14 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
             </div>
           </div>
           
-          {audit && <AuditScorecard audit={audit} onRepair={handleRepair} />}
+          {audit && (
+            <AuditScorecard 
+              audit={audit} 
+              onRepair={handleRepair} 
+              successfullyRepairedIds={successfullyRepairedIds}
+              onSaveSkill={handleSaveSkill}
+            />
+          )}
 
           {/* Creative Studio (Centralized Editor) */}
           <div ref={studioRef} className="creative-studio animate-fade-in" style={{ marginBottom: '2.5rem' }}>

@@ -276,3 +276,31 @@ export async function getUserVotes() {
     return acc;
   }, {});
 }
+
+export async function publishSkillAction(skill: {
+  name: string;
+  description: string;
+  prompt_template: string;
+  category: string;
+  target_framework: string;
+}) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) throw new Error("You must be logged in to publish a skill.");
+
+  const { data, error } = await supabase
+    .from("agent_skills")
+    .insert({
+      ...skill,
+      user_id: user.id,
+      vote_score: 1 // Self upvote
+    })
+    .select()
+    .single();
+
+  if (error) throw error;
+
+  revalidatePath("/community");
+  return data;
+}

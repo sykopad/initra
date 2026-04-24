@@ -6,9 +6,11 @@ import { AuditCheck, AuditResult } from "@/lib/engine/types";
 interface AuditScorecardProps {
   audit: AuditResult;
   onRepair?: (check: AuditCheck) => Promise<void>;
+  successfullyRepairedIds?: string[];
+  onSaveSkill?: (check: AuditCheck) => Promise<void>;
 }
 
-export default function AuditScorecard({ audit, onRepair }: AuditScorecardProps) {
+export default function AuditScorecard({ audit, onRepair, successfullyRepairedIds = [], onSaveSkill }: AuditScorecardProps) {
   const [repairingId, setRepairingId] = useState<string | null>(null);
 
   const getStatusColor = (status: AuditCheck['status']) => {
@@ -85,13 +87,21 @@ export default function AuditScorecard({ audit, onRepair }: AuditScorecardProps)
                         <span className="check-title">{check.title}</span>
                         <span className="check-message">{check.message}</span>
                       </div>
-                      {(check.status !== 'pass' && check.actionable_repair) && (
+                      {(check.status !== 'pass' && check.actionable_repair && !successfullyRepairedIds.includes(check.id)) && (
                         <button 
                           className="btn btn-sm btn-ghost repair-btn"
                           onClick={() => handleRepair(check)}
                           disabled={repairingId !== null}
                         >
                           {repairingId === check.id ? "⚙️ Repairing..." : "✨ Fix with AI"}
+                        </button>
+                      )}
+                      {successfullyRepairedIds.includes(check.id) && (
+                        <button 
+                          className="btn btn-sm btn-primary skill-btn animate-pulse"
+                          onClick={() => onSaveSkill?.(check)}
+                        >
+                          🌟 Save as Skill
                         </button>
                       )}
                     </div>
