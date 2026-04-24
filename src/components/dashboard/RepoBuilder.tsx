@@ -205,18 +205,71 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
 
   return (
     <div className="repo-builder dashboard-card">
-      <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <h3>Autonomous SaaS Builder</h3>
-          {activeRepo && <span className="framework-badge">{activeRepo.framework}</span>}
-        </div>
-        
-        {activeRepo && (
-          <VentureTelemetry 
-            repoId={activeRepo.id} 
-            repoName={activeRepo.repo_name}
-            owner={activeRepo.owner}
-          />
+      <div className="card-header" style={{ padding: '0', borderBottom: 'none' }}>
+        {activeRepo ? (
+          <div className="universal-project-header animate-slide-down">
+            <div className="header-left">
+              <div className="repo-switcher-pill">
+                <span className="pill-icon">📦</span>
+                <select 
+                  className="repo-select-minimal"
+                  value={activeRepo.id}
+                  onChange={(e) => {
+                    const selected = initialRepos?.find(r => r.id === e.target.value);
+                    if (selected) setActiveRepo(selected);
+                  }}
+                >
+                  {initialRepos?.map((repo, idx) => (
+                    <option key={repo.id || idx} value={repo.id}>{repo.owner}/{repo.repo_name}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="sync-status">
+                <span className="dot pulse"></span>
+                <span style={{ opacity: 0.7 }}>Synced {new Date(activeRepo.last_synced_at).toLocaleDateString()}</span>
+              </div>
+            </div>
+
+            <div className="header-center">
+              <div className="tab-switcher">
+                <button 
+                  className={`tab-btn ${activeTab === 'command' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('command')}
+                >
+                  🛡️ Command Center
+                </button>
+                <button 
+                  className={`tab-btn ${activeTab === 'studio' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('studio')}
+                >
+                  ✨ Creative Studio
+                </button>
+              </div>
+            </div>
+
+            <div className="header-right">
+              <VentureTelemetry 
+                repoId={activeRepo.id} 
+                repoName={activeRepo.repo_name}
+                owner={activeRepo.owner}
+              />
+              {showReconnect && (
+                <button className="btn btn-secondary btn-xs" onClick={handleReconnect} style={{ padding: '6px 12px', fontSize: '0.7rem' }}>Reconnect GitHub</button>
+              )}
+              <button className="btn-icon" onClick={() => fetchSegments(activeRepo.id)} title="Refresh Analysis">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', padding: '1.25rem 1.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <div className="studio-icon" style={{ width: '32px', height: '32px', fontSize: '1rem' }}>🛠️</div>
+              <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800 }}>Autonomous SaaS Builder</h3>
+            </div>
+          </div>
         )}
       </div>
 
@@ -285,59 +338,7 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
       ) : (
         <div className="builder-wrapper">
           {/* Universal Project Switcher (Sticky Header) */}
-          <div className="universal-project-header animate-slide-down">
-            <div className="header-left">
-              <div className="repo-switcher-pill">
-                <span className="pill-icon">📦</span>
-                <select 
-                  className="repo-select-minimal"
-                  value={activeRepo.id}
-                  onChange={(e) => {
-                    const selected = initialRepos?.find(r => r.id === e.target.value);
-                    if (selected) setActiveRepo(selected);
-                  }}
-                >
-                  {initialRepos?.map((repo, idx) => (
-                    <option key={repo.id || idx} value={repo.id}>{repo.owner}/{repo.repo_name}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="sync-status">
-                <span className="dot pulse"></span>
-                Synced {new Date(activeRepo.last_synced_at).toLocaleDateString()}
-              </div>
-            </div>
-
-            <div className="header-center">
-              <div className="tab-switcher">
-                <button 
-                  className={`tab-btn ${activeTab === 'command' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('command')}
-                >
-                  🛡️ Command Center
-                </button>
-                <button 
-                  className={`tab-btn ${activeTab === 'studio' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('studio')}
-                >
-                  ✨ Creative Studio
-                </button>
-              </div>
-            </div>
-
-            <div className="header-right">
-              {showReconnect && (
-                <button className="btn btn-secondary btn-xs" onClick={handleReconnect}>Reconnect GitHub</button>
-              )}
-              <button className="btn-icon" onClick={() => fetchSegments(activeRepo.id)} title="Refresh Analysis">
-                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
-                </svg>
-              </button>
-            </div>
-          </div>
-
-          <div className="tab-content-area">
+          <div className="tab-content-area" style={{ padding: '1.5rem' }}>
             {error && (
               <div className="error-banner animate-slide-down">
                 <span className="error-icon">⚠️</span>
@@ -478,18 +479,18 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
                         >
                           <option value="" disabled>Choose a part of your venture to evolve...</option>
                           <optgroup label="Layouts & Structure" style={{ background: '#1a1a1a', color: 'var(--accent-primary)' }}>
-                            {segments.filter(s => s.type === 'layout').map(s => (
-                              <option key={s.id} value={s.id} style={{ background: '#1a1a1a', color: 'white' }}>{s.name}</option>
+                            {segments.filter(s => s.type === 'layout').map((s, idx) => (
+                              <option key={`${s.id}-${idx}`} value={s.id} style={{ background: '#1a1a1a', color: 'white' }}>{s.name}</option>
                             ))}
                           </optgroup>
                           <optgroup label="User Interface (UI)" style={{ background: '#1a1a1a', color: 'var(--accent-primary)' }}>
-                            {segments.filter(s => s.type === 'page' || s.type === 'component').map(s => (
-                              <option key={s.id} value={s.id} style={{ background: '#1a1a1a', color: 'white' }}>{s.name}</option>
+                            {segments.filter(s => s.type === 'page' || s.type === 'component').map((s, idx) => (
+                              <option key={`${s.id}-${idx}`} value={s.id} style={{ background: '#1a1a1a', color: 'white' }}>{s.name}</option>
                             ))}
                           </optgroup>
                           <optgroup label="Backend & Business Logic" style={{ background: '#1a1a1a', color: 'var(--accent-primary)' }}>
-                            {segments.filter(s => s.type === 'logic').map(s => (
-                              <option key={s.id} value={s.id} style={{ background: '#1a1a1a', color: 'white' }}>{s.name}</option>
+                            {segments.filter(s => s.type === 'logic').map((s, idx) => (
+                              <option key={`${s.id}-${idx}`} value={s.id} style={{ background: '#1a1a1a', color: 'white' }}>{s.name}</option>
                             ))}
                           </optgroup>
                         </select>
@@ -997,6 +998,92 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
         .animate-slide-up {
           animation: slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
+        .universal-project-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 1rem 1.5rem;
+          background: rgba(255, 255, 255, 0.03);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+          backdrop-filter: blur(20px);
+          position: sticky;
+          top: 0;
+          z-index: 100;
+          margin: -1.5rem -1.5rem 1.5rem -1.5rem;
+          border-radius: 20px 20px 0 0;
+        }
+
+        .header-left, .header-right {
+          display: flex;
+          align-items: center;
+          gap: 1.25rem;
+        }
+
+        .repo-switcher-pill {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          padding: 6px 14px;
+          background: rgba(124, 58, 237, 0.1);
+          border: 1px solid rgba(139, 92, 246, 0.2);
+          border-radius: 99px;
+          transition: all 0.2s;
+        }
+
+        .repo-switcher-pill:hover {
+          background: rgba(124, 58, 237, 0.15);
+          border-color: var(--accent-primary);
+        }
+
+        .pill-icon {
+          font-size: 1rem;
+        }
+
+        .sync-status {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 0.75rem;
+          color: var(--text-muted);
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+        }
+
+        .tab-switcher {
+          display: flex;
+          background: rgba(0, 0, 0, 0.2);
+          padding: 4px;
+          border-radius: 14px;
+          border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .tab-btn {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 8px 18px;
+          border-radius: 10px;
+          font-size: 0.85rem;
+          font-weight: 700;
+          color: var(--text-muted);
+          background: transparent;
+          border: none;
+          cursor: pointer;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .tab-btn:hover {
+          color: white;
+          background: rgba(255, 255, 255, 0.05);
+        }
+
+        .tab-btn.active {
+          color: white;
+          background: var(--accent-primary);
+          box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+        }
+
         @keyframes slide-up {
           from { transform: translate(-50%, 100%); opacity: 0; }
           to { transform: translate(-50%, 0); opacity: 1; }
