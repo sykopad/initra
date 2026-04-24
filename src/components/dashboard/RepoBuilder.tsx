@@ -424,10 +424,9 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
                       </div>
                     </div>
                   ))}
-                    </div>
-                  </div>
                 </div>
-              )}
+              </div>
+            )}
 
             {activeTab === 'studio' && (
               <div className="tab-pane studio-pane animate-fade-in">
