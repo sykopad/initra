@@ -49,16 +49,39 @@ export async function hatchVenture(projectId: string, userGithubToken?: string) 
   if (fetchError || !project) throw new Error('Project not found');
   if (project.is_hatched) throw new Error('Project already hatched');
 
-  // Fetch user profile for sovereign tokens
+  // Fetch user profile for sovereign tokens and Pro status
   const { data: profile } = await supabase
     .from('profiles')
-    .select('vercel_token, vercel_team_id, github_personal_token')
+    .select('vercel_token, vercel_team_id, github_personal_token, is_pro')
     .eq('id', project.user_id)
     .single();
+
+  const isSovereign = !!profile?.vercel_token;
+  const isPro = !!profile?.is_pro;
+
+  // GUARDRAIL: If not sovereign and not pro, block hatching on Initra infra
+  if (!isSovereign && !isPro) {
+    throw new Error(
+      "Infrastructure Guardrail: To protect platform resources, standard users must provide their own Vercel Access Token in 'Settings' to hatch a venture. Alternatively, upgrade to Initra Pro for managed hosting."
+    );
+  }
 
   const VERCEL_TOKEN_TO_USE = profile?.vercel_token || process.env.VERCEL_TOKEN;
   const VERCEL_TEAM_ID_TO_USE = profile?.vercel_team_id || process.env.VERCEL_TEAM_ID;
   const GITHUB_TOKEN_TO_USE = profile?.github_personal_token || userGithubToken || GITHUB_TOKEN;
+
+  // 1.5 Deduct Credits based on Mode
+  const HATCH_COST = isSovereign ? 50 : 250;
+  const { deductCredits } = await import('@/lib/credits/service');
+  const creditResult = await deductCredits(
+    project.user_id, 
+    HATCH_COST, 
+    `Venture Hatch: ${project.title} (${isSovereign ? 'Sovereign' : 'Managed'})`
+  );
+
+  if (!creditResult.success) {
+    throw new Error(creditResult.error || "Insufficient credits for hatching.");
+  }
 
   const octokit = new Octokit({ auth: GITHUB_TOKEN_TO_USE });
 

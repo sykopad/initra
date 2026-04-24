@@ -83,6 +83,8 @@ function WizardContent() {
   const [shareUrl, setShareUrl] = useState<string | null>(null);
   const [modelSlug, setModelSlug] = useState<string | undefined>(AI_MODELS[0].slug);
   const [userCredits, setUserCredits] = useState(0);
+  const [isPro, setIsPro] = useState(false);
+  const [hasVercelToken, setHasVercelToken] = useState(false);
 
   const searchParams = useSearchParams();
   const urlSessionId = searchParams.get("sessionId");
@@ -92,8 +94,12 @@ function WizardContent() {
     supabase.auth.getUser().then(({ data }) => {
       setUser(data.user);
       if (data.user) {
-        supabase.from('profiles').select('credits').eq('id', data.user.id).single().then(({ data: profile }) => {
-          if (profile) setUserCredits(profile.credits || 0);
+        supabase.from('profiles').select('credits, is_pro, vercel_token').eq('id', data.user.id).single().then(({ data: profile }) => {
+          if (profile) {
+            setUserCredits(profile.credits || 0);
+            setIsPro(!!profile.is_pro);
+            setHasVercelToken(!!profile.vercel_token);
+          }
         });
       }
     });
@@ -1886,6 +1892,7 @@ function WizardContent() {
                   onConfirm={handlePushToGitHub}
                   initialName={projectName}
                   isPushing={isPushing}
+                  hatchWarning={(!isPro && !hasVercelToken) ? "Managed Hatching is restricted. Please add your Vercel Token in Settings or upgrade to Pro." : undefined}
                 />
 
                 <div className="wizard-nav" style={{ marginTop: "3rem", display: "flex", gap: "1rem", flexWrap: "wrap" }}>

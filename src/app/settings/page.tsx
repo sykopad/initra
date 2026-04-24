@@ -318,6 +318,18 @@ export default function SettingsPage() {
                 >
                   Top up Credits
                 </button>
+                {!profile.is_pro && (
+                  <button 
+                    className="btn btn-secondary" 
+                    style={{ width: '100%', marginTop: '0.75rem', borderColor: 'var(--accent-primary)', color: 'white' }}
+                    onClick={() => {
+                      setToast("🚀 Your request for Pro Status has been sent for review.");
+                      setTimeout(() => setToast(null), 3000);
+                    }}
+                  >
+                    🚀 Upgrade to Pro
+                  </button>
+                )}
               </div>
 
               <div className="transaction-history">

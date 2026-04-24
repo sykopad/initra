@@ -8,6 +8,7 @@ interface RepoSyncModalProps {
   onConfirm: (settings: RepoSettings) => void;
   initialName: string;
   isPushing: boolean;
+  hatchWarning?: string;
 }
 
 export interface RepoSettings {
@@ -22,7 +23,8 @@ export default function RepoSyncModal({
   onClose, 
   onConfirm, 
   initialName,
-  isPushing 
+  isPushing,
+  hatchWarning
 }: RepoSyncModalProps) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("Project bootstrapped with Initra AI (https://initra.app)");
@@ -88,6 +90,16 @@ export default function RepoSyncModal({
                 : "Anyone on the internet can see this repository."}
             </p>
           </div>
+
+          {hatchWarning && (
+            <div className="warning-box animate-in">
+              <span className="warning-icon">🛡️</span>
+              <div className="warning-content">
+                <p className="warning-text">{hatchWarning}</p>
+                <button className="btn-link" onClick={() => window.location.href = '/settings'}>Go to Settings →</button>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="modal-footer">
@@ -97,7 +109,7 @@ export default function RepoSyncModal({
           <button 
             className={`btn btn-primary ${isPushing ? "loading" : ""}`} 
             onClick={() => onConfirm({ name, description, isPrivate })}
-            disabled={isPushing || !name}
+            disabled={isPushing || !name || !!hatchWarning}
           >
             {isPushing ? "Creating Repository..." : "🚀 Create & Push"}
           </button>
@@ -305,6 +317,38 @@ export default function RepoSyncModal({
 
         @keyframes spin {
           to { transform: rotate(360deg); }
+        }
+
+        .warning-box {
+          margin-top: 2rem;
+          padding: 1rem;
+          background: rgba(245, 158, 11, 0.05);
+          border: 1px solid rgba(245, 158, 11, 0.2);
+          border-radius: 12px;
+          display: flex;
+          gap: 12px;
+          align-items: flex-start;
+        }
+        .warning-icon {
+          font-size: 1.2rem;
+        }
+        .warning-text {
+          font-size: 0.8rem;
+          color: #f59e0b;
+          margin: 0;
+          line-height: 1.4;
+          font-weight: 500;
+        }
+        .btn-link {
+          background: none;
+          border: none;
+          color: var(--primary);
+          font-size: 0.75rem;
+          font-weight: 700;
+          padding: 0;
+          margin-top: 4px;
+          cursor: pointer;
+          text-decoration: underline;
         }
       `}</style>
     </div>

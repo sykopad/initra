@@ -4,7 +4,8 @@
 ALTER TABLE initra.profiles 
 ADD COLUMN IF NOT EXISTS vercel_token TEXT,
 ADD COLUMN IF NOT EXISTS vercel_team_id TEXT,
-ADD COLUMN IF NOT EXISTS github_personal_token TEXT;
+ADD COLUMN IF NOT EXISTS github_personal_token TEXT,
+ADD COLUMN IF NOT EXISTS is_pro BOOLEAN DEFAULT false;
 
 -- Ensure these columns are ONLY readable by the owner
 -- Profiles table should already have RLS, but we'll reinforce it.
