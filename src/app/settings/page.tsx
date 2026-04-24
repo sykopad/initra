@@ -232,37 +232,41 @@ export default function SettingsPage() {
                     <input type="text" value={profile.email} readOnly className="form-input read-only" />
                   </div>
 
-                  <div className="form-group">
-                    <label>Display Name</label>
-                    <input 
-                      type="text" 
-                      value={profile.display_name} 
-                      onChange={(e) => setProfile({...profile, display_name: e.target.value})}
-                      className="form-input"
-                      placeholder="e.g. John Doe"
-                      required
-                    />
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label>Display Name</label>
+                      <input 
+                        type="text" 
+                        value={profile.display_name} 
+                        onChange={(e) => setProfile({...profile, display_name: e.target.value})}
+                        className="form-input"
+                        placeholder="e.g. John Doe"
+                        required
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label>GitHub Username</label>
+                      <input 
+                        type="text" 
+                        value={profile.github_username} 
+                        onChange={(e) => setProfile({...profile, github_username: e.target.value})}
+                        className="form-input"
+                        placeholder="e.g. jdoe88"
+                      />
+                    </div>
                   </div>
 
-                  <div className="form-group">
-                    <label>GitHub Username</label>
-                    <input 
-                      type="text" 
-                      value={profile.github_username} 
-                      onChange={(e) => setProfile({...profile, github_username: e.target.value})}
-                      className="form-input"
-                      placeholder="e.g. jdoe88"
-                    />
+                  <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                    <button type="submit" className="btn btn-primary" disabled={saving}>
+                      {saving ? "Saving..." : "Update Profile"}
+                    </button>
                   </div>
-
-                  <button type="submit" className="btn btn-primary" disabled={saving}>
-                    {saving ? "Saving..." : "Update Profile"}
-                  </button>
                 </form>
               </section>
 
               {/* Security Section */}
-              <section className="settings-section glass-panel" style={{ marginTop: '2rem' }}>
+              <section className="settings-section glass-panel" style={{ marginTop: '3rem' }}>
                 <div className="section-header">
                   <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
                     <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
@@ -272,32 +276,36 @@ export default function SettingsPage() {
                 </div>
 
                 <form onSubmit={handlePasswordUpdate} className="settings-form">
-                  <div className="form-group">
-                    <label>New Password</label>
-                    <input 
-                      type="password" 
-                      value={security.newPassword} 
-                      onChange={(e) => setSecurity({...security, newPassword: e.target.value})}
-                      className="form-input"
-                      placeholder="••••••••"
-                      minLength={6}
-                    />
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label>New Password</label>
+                      <input 
+                        type="password" 
+                        value={security.newPassword} 
+                        onChange={(e) => setSecurity({...security, newPassword: e.target.value})}
+                        className="form-input"
+                        placeholder="••••••••"
+                        minLength={6}
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label>Confirm Password</label>
+                      <input 
+                        type="password" 
+                        value={security.confirmPassword} 
+                        onChange={(e) => setSecurity({...security, confirmPassword: e.target.value})}
+                        className="form-input"
+                        placeholder="••••••••"
+                      />
+                    </div>
                   </div>
 
-                  <div className="form-group">
-                    <label>Confirm Password</label>
-                    <input 
-                      type="password" 
-                      value={security.confirmPassword} 
-                      onChange={(e) => setSecurity({...security, confirmPassword: e.target.value})}
-                      className="form-input"
-                      placeholder="••••••••"
-                    />
+                  <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                    <button type="submit" className="btn btn-secondary" disabled={saving}>
+                      {saving ? "Updating..." : "Change Password"}
+                    </button>
                   </div>
-
-                  <button type="submit" className="btn btn-secondary" disabled={saving}>
-                    {saving ? "Updating..." : "Change Password"}
-                  </button>
                 </form>
               </section>
             </div>
@@ -380,50 +388,57 @@ export default function SettingsPage() {
 
         .settings-stack {
           display: flex;
-          flex-direction: colum        .economy-hero {
+          flex-direction: column;
+          gap: 3rem;
+        }
+
+        .economy-hero {
           border-top: 4px solid var(--accent-primary);
           padding: 3rem !important;
         }
  
         .billing-grid {
-          display: grid;
-          grid-template-columns: 1.1fr 1.9fr;
+          display: flex;
+          flex-direction: column;
           gap: 3rem;
         }
 
         .balance-box {
-          background: rgba(139, 92, 246, 0.05);
-          padding: 2.5rem;
-          border-radius: 24px;
-          border: 1px solid rgba(139, 92, 246, 0.2);
+          background: rgba(139, 92, 246, 0.04);
+          padding: 3rem;
+          border-radius: 28px;
+          border: 1px solid rgba(139, 92, 246, 0.15);
           text-align: center;
           display: flex;
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          box-shadow: inset 0 0 20px rgba(139, 92, 246, 0.05);
+          width: 100%;
+          max-width: 500px;
+          margin: 0 auto;
         }
 
         .balance-label {
-          font-size: 0.85rem;
+          font-size: 0.75rem;
           color: var(--text-muted);
           text-transform: uppercase;
-          letter-spacing: 0.15em;
-          margin-bottom: 0.5rem;
+          letter-spacing: 0.2em;
+          margin-bottom: 0.75rem;
+          font-weight: 700;
         }
 
         .balance-amount {
-          font-size: 4rem;
-          font-weight: 800;
+          font-size: 4.5rem;
+          font-weight: 900;
           margin: 0.5rem 0;
           color: var(--accent-primary);
-          line-height: 1;
-          filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.3));
+          line-height: 0.9;
+          letter-spacing: -0.05em;
         }
 
         .balance-subtext {
-          font-size: 0.95rem;
-          opacity: 0.8;
+          font-size: 0.9rem;
+          color: var(--text-secondary);
           margin-bottom: 2.5rem;
         }
 
@@ -431,40 +446,46 @@ export default function SettingsPage() {
           width: 100%;
           display: flex;
           flex-direction: column;
-          gap: 1.25rem;
+          gap: 1rem;
         }
 
         .history-title {
           font-size: 1.1rem;
-          margin-bottom: 1.75rem;
-          font-weight: 700;
-          letter-spacing: -0.02em;
+          margin-bottom: 2rem;
+          font-weight: 800;
+          color: var(--text-primary);
         }
 
         .tx-list {
           display: flex;
           flex-direction: column;
-          gap: 1rem;
-          max-height: 350px;
+          gap: 0.75rem;
+          max-height: 380px;
           overflow-y: auto;
-          padding-right: 0.75rem;
+          padding-right: 1rem;
         }
 
         .tx-item {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          padding: 1.25rem;
+          padding: 1.25rem 1.5rem;
           background: rgba(255,255,255,0.02);
           border-radius: 16px;
-          border: 1px solid var(--border-light);
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          border: 1px solid var(--border-subtle);
+          transition: all 0.3s ease;
         }
 
         .tx-item:hover {
           background: rgba(255,255,255,0.05);
           border-color: var(--accent-primary);
-          transform: translateX(4px);
+          transform: translateY(-2px);
+        }
+
+        .tx-info {
+          display: flex;
+          flex-direction: column;
+          gap: 0.25rem;
         }
 
         .tx-desc {
@@ -474,9 +495,8 @@ export default function SettingsPage() {
         }
 
         .tx-date {
-          font-size: 0.8rem;
+          font-size: 0.75rem;
           color: var(--text-muted);
-          margin-top: 0.25rem;
         }
 
         .tx-amount {
@@ -490,20 +510,21 @@ export default function SettingsPage() {
 
         .settings-columns {
           display: grid;
-          grid-template-columns: 1.2fr 0.8fr;
-          gap: 2rem;
+          grid-template-columns: 1fr 400px;
+          gap: 3rem;
+          align-items: start;
         }
 
         .sovereign-guidance {
-          margin-bottom: 2rem;
-          padding: 1.25rem;
+          margin-bottom: 2.5rem;
+          padding: 1.5rem;
           background: rgba(139, 92, 246, 0.03);
-          border-radius: 14px;
+          border-radius: 16px;
           border: 1px solid rgba(139, 92, 246, 0.1);
         }
 
         .sovereign-guidance p {
-          font-size: 0.85rem;
+          font-size: 0.875rem;
           color: var(--text-secondary);
           margin: 0;
           line-height: 1.6;
@@ -511,77 +532,91 @@ export default function SettingsPage() {
 
         .guidance-list {
           font-size: 0.8rem;
-          margin-top: 1rem;
-          padding-left: 1.2rem;
+          margin-top: 1.25rem;
+          padding-left: 1.25rem;
           display: flex;
           flex-direction: column;
-          gap: 0.5rem;
+          gap: 0.75rem;
         }
 
         .guidance-list a {
           color: var(--accent-primary);
           text-decoration: none;
-          font-weight: 600;
+          font-weight: 700;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
         }
 
         .guidance-list a:hover {
+          color: var(--accent-primary-light);
           text-decoration: underline;
         }
 
         .form-hint {
-          font-size: 0.7rem;
+          font-size: 0.75rem;
           color: var(--text-muted);
-          margin-top: 0.25rem;
+          margin-top: 0.5rem;
+          line-height: 1.4;
         }
 
         .settings-main {
-          max-width: 1100px;
+          max-width: 1140px;
           margin: 0 auto;
-          padding: 0 var(--space-lg) 4rem;
+          padding: 0 2rem 6rem;
         }
 
         .settings-header {
-          margin-bottom: 4rem;
+          margin-bottom: 5rem;
           text-align: center;
         }
 
         .settings-header h1 {
-          font-size: 3rem;
-          font-weight: 800;
-          margin-bottom: 0.75rem;
+          font-size: 3.5rem;
+          font-weight: 900;
+          margin-bottom: 1rem;
           background: var(--gradient-text);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
+          letter-spacing: -0.05em;
         }
 
         .settings-header p {
           color: var(--text-secondary);
-          font-size: 1.1rem;
+          font-size: 1.125rem;
+          max-width: 600px;
+          margin: 0 auto;
         }
 
         .settings-section {
-          padding: 2.5rem;
+          padding: 3rem;
+          height: 100%;
         }
 
         .section-header {
           display: flex;
           align-items: center;
           gap: 1.25rem;
-          margin-bottom: 2.5rem;
+          margin-bottom: 3rem;
           color: var(--accent-primary);
         }
 
         .section-header h2 {
           font-size: 1.5rem;
-          font-weight: 700;
+          font-weight: 800;
           color: var(--text-primary);
-          letter-spacing: -0.02em;
+          letter-spacing: -0.03em;
         }
 
         .settings-form {
-          display: flex;
-          flex-direction: column;
-          gap: 1.75rem;
+          display: grid;
+          gap: 2rem;
+        }
+
+        .form-row {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 2rem;
         }
 
         .form-group {
@@ -591,36 +626,58 @@ export default function SettingsPage() {
         }
 
         .form-group label {
-          font-size: 0.95rem;
-          font-weight: 600;
+          font-size: 0.875rem;
+          font-weight: 700;
           color: var(--text-secondary);
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+        }
+
+        .form-input {
+          padding: 1rem 1.25rem;
+          background: rgba(255,255,255,0.03);
+          border: 1px solid var(--border-subtle);
+          border-radius: 12px;
+          color: var(--text-primary);
+          font-size: 1rem;
+          transition: all 0.2s ease;
+        }
+
+        .form-input:focus {
+          background: rgba(255,255,255,0.06);
+          border-color: var(--accent-primary);
+          outline: none;
+          box-shadow: 0 0 0 4px rgba(242, 155, 43, 0.1);
         }
 
         .read-only {
-          opacity: 0.6;
+          opacity: 0.5;
           cursor: not-allowed;
-          background: rgba(0,0,0,0.1);
+          background: rgba(0,0,0,0.2);
         }
 
         .status-message {
           position: fixed;
-          bottom: 2.5rem;
-          right: 2.5rem;
+          bottom: 3rem;
+          right: 3rem;
           padding: 1.25rem 2.5rem;
-          border-radius: 16px;
-          font-weight: 600;
+          border-radius: 20px;
+          font-weight: 700;
           z-index: 1000;
           box-shadow: var(--shadow-lg);
+          backdrop-filter: blur(10px);
         }
 
         .error {
-          background: var(--accent-rose);
+          background: rgba(244, 63, 94, 0.9);
           color: white;
+          border: 1px solid rgba(255,255,255,0.2);
         }
 
         .success {
-          background: var(--accent-emerald);
+          background: rgba(16, 185, 129, 0.9);
           color: white;
+          border: 1px solid rgba(255,255,255,0.2);
         }
 
         .settings-loading {
@@ -631,16 +688,22 @@ export default function SettingsPage() {
         }
 
         .spinner {
-          width: 48px;
-          height: 48px;
-          border: 4px solid var(--border-medium);
+          width: 56px;
+          height: 56px;
+          border: 4px solid var(--border-subtle);
           border-top-color: var(--accent-primary);
           border-radius: 50%;
-          animation: spin 1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+          animation: spin 1s cubic-bezier(0.5, 0.1, 0.4, 0.9) infinite;
         }
 
         @keyframes spin {
           to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 1100px) {
+          .settings-columns {
+            grid-template-columns: 1fr;
+          }
         }
 
         @media (max-width: 992px) {
@@ -649,13 +712,14 @@ export default function SettingsPage() {
             gap: 2rem;
           }
           
-          .settings-columns {
+          .form-row {
             grid-template-columns: 1fr;
+            gap: 1.5rem;
           }
         }
 
         @media (max-width: 768px) {
-          .economy-hero {
+          .economy-hero, .settings-section {
             padding: 2rem !important;
           }
 
@@ -663,8 +727,7 @@ export default function SettingsPage() {
             padding: 2rem;
           }
 
-          .balance-amount { font-size: 3rem; }
-          
+          .balance-amount { font-size: 3.5rem; }
           .settings-header h1 { font-size: 2.5rem; }
         }
       `}</style>
