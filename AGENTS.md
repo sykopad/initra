@@ -520,7 +520,8 @@ const supabase = createBrowserClient(url, key, {
 9. **Studio Preview v2 (In Progress)**: Enhancement of the LivePreviewModal to support "Side-by-Side" diff viewing, allowing users to review AI changes line-by-line before pushing.
 10. **Venture Economy Expansion (In Progress)**: 
     - **Automated Monthly Stipend**: Supabase Edge Function to auto-refill Pro credits on billing anniversaries.
-    - **Referral Leaderboard**: Social gamification in the Community Hub to reward top referrers.
+    - **Referral Leaderboard**: Social gamification in the Community Hub to reward top referrers. (Done 2026-04-24)
+    - **Discovery Hub v2**: Implemented "Recent-First" default view and "My Submissions" filtering to ensure AI-architected ideas are easily discoverable. (Done 2026-04-24)
     - **Team Subscriptions**: $99/mo plans for organizations to manage shared infrastructure and credits.
 11. **Multi-Venture Knowledge Sharing**: Cross-repository intelligence where agents learn from previous repairs across all projects in a user's portfolio.
 

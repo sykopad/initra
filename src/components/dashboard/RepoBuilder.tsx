@@ -248,11 +248,6 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
             </div>
 
             <div className="header-right">
-              <VentureTelemetry 
-                repoId={activeRepo.id} 
-                repoName={activeRepo.repo_name}
-                owner={activeRepo.owner}
-              />
               {showReconnect && (
                 <button className="btn btn-secondary btn-xs" onClick={handleReconnect} style={{ padding: '6px 12px', fontSize: '0.7rem' }}>Reconnect GitHub</button>
               )}
@@ -337,8 +332,15 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
         </div>
       ) : (
         <div className="builder-wrapper">
-          {/* Universal Project Switcher (Sticky Header) */}
-          <div className="tab-content-area" style={{ padding: '1.5rem' }}>
+          <div className="telemetry-strip animate-slide-down" style={{ width: '100%' }}>
+            <VentureTelemetry 
+              repoId={activeRepo.id} 
+              repoName={activeRepo.repo_name}
+              owner={activeRepo.owner}
+            />
+          </div>
+          
+          <div className="tab-content-area" style={{ padding: '0' }}>
             {error && (
               <div className="error-banner animate-slide-down">
                 <span className="error-icon">⚠️</span>
@@ -364,10 +366,8 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
 
             {activeTab === 'command' && (
               <div className="tab-pane command-pane animate-fade-in">
-                <div className="command-grid">
-                  <div className="command-main">
-                    <VentureTelemetry repoId={activeRepo.id} repoName={activeRepo.repo_name} owner={activeRepo.owner} />
-                    
+                <div className="command-stack" style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
+                  <div className="command-section-full" style={{ padding: '1.5rem' }}>
                     {audit && (
                       <AuditScorecard 
                         audit={audit} 
@@ -378,30 +378,28 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
                     )}
                   </div>
                   
-                  <div className="command-sidebar">
-                    <div className="glass-panel" style={{ padding: '1.5rem' }}>
-                       <h3 style={{ fontSize: '1rem', marginBottom: '1rem' }}>Domain Distribution</h3>
-                       <div className="domains-container-mini">
-                        {Object.entries(
-                          (segments || []).reduce((acc, seg) => {
-                            const domain = seg.domain || "Core Application";
-                            if (!acc[domain]) acc[domain] = [];
-                            acc[domain].push(seg);
-                            return acc;
-                          }, {} as Record<string, Segment[]>)
-                        ).sort().map(([domain, domainSegments]) => (
-                          <div key={domain} className="domain-item-mini">
-                            <span className="domain-dot"></span>
-                            <span className="domain-name">{domain}</span>
-                            <span className="domain-count">{domainSegments.length}</span>
-                          </div>
-                        ))}
-                      </div>
+                  <div className="command-section-full" style={{ padding: '1.5rem', background: 'rgba(255,255,255,0.01)', borderTop: '1px solid rgba(255,255,255,0.05)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                     <h3 style={{ fontSize: '1rem', marginBottom: '1rem' }}>Domain Distribution</h3>
+                     <div className="domains-container-mini" style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+                      {Object.entries(
+                        (segments || []).reduce((acc, seg) => {
+                          const domain = seg.domain || "Core Application";
+                          if (!acc[domain]) acc[domain] = [];
+                          acc[domain].push(seg);
+                          return acc;
+                        }, {} as Record<string, Segment[]>)
+                      ).sort().map(([domain, domainSegments]) => (
+                        <div key={domain} className="domain-item-mini" style={{ background: 'rgba(255,255,255,0.03)', padding: '8px 16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                          <span className="domain-dot"></span>
+                          <span className="domain-name" style={{ fontWeight: 600 }}>{domain}</span>
+                          <span className="domain-count" style={{ marginLeft: '8px', opacity: 0.6 }}>{domainSegments.length}</span>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </div>
                 
-                <div className="domains-container" style={{ marginTop: '2.5rem' }}>
+                <div className="domains-container" style={{ padding: '2rem 1.5rem' }}>
                   {Object.entries(
                     (segments || []).reduce((acc, seg) => {
                       const domain = seg.domain || "Core Application";
@@ -431,7 +429,7 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
 
             {activeTab === 'studio' && (
               <div className="tab-pane studio-pane animate-fade-in">
-                <div className="builder-controls" style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.02)', padding: '1rem', borderRadius: '12px' }}>
+                <div className="builder-controls" style={{ padding: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.02)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                   <div className="model-switcher-dashboard">
                     <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '8px', display: 'block', fontWeight: 600, textTransform: 'uppercase' }}>Reasoning Engine</label>
                     <div style={{ display: 'flex', gap: '8px' }}>
@@ -453,9 +451,8 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
                   </div>
                 </div>
 
-                {/* Creative Studio 2.0 (Centralized Editor) */}
-                <div ref={studioRef} className="creative-studio animate-fade-in" style={{ marginTop: '1.5rem' }}>
-                  <div className="studio-inner glass-panel">
+                <div className="creative-studio animate-fade-in" ref={studioRef}>
+                  <div className="studio-inner" style={{ borderRadius: '0', border: 'none', background: 'transparent' }}>
                     <div className="studio-header">
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                         <div className="studio-icon">✨</div>
@@ -476,6 +473,7 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
                           value={studioSegmentId} 
                           onChange={(e) => setStudioSegmentId(e.target.value)}
                           className="studio-select"
+                          style={{ width: '100%', background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.05)' }}
                         >
                           <option value="" disabled>Choose a part of your venture to evolve...</option>
                           <optgroup label="Layouts & Structure" style={{ background: '#1a1a1a', color: 'var(--accent-primary)' }}>
@@ -534,15 +532,15 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
                             className="studio-textarea"
                           />
                           
-                          <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                             <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                               Approximate Cost: <strong>{AI_MODELS.find(m => m.slug === selectedModel)?.creditCost || 0} Credits</strong>
+                          <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap' }}>
+                             <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                               Approximate Cost: <strong style={{ color: 'white', marginLeft: '4px' }}>{AI_MODELS.find(m => m.slug === selectedModel)?.creditCost || 0} Credits</strong>
                              </p>
                              <button 
                               className="btn btn-primary studio-btn"
                               onClick={handleStudioGenerate}
                               disabled={!studioSegmentId || !studioPrompt}
-                              style={{ padding: '12px 32px' }}
+                              style={{ padding: '14px 36px', boxShadow: '0 4px 15px rgba(139, 92, 246, 0.3)' }}
                             >
                               🚀 Generate Refinement
                             </button>
@@ -645,25 +643,42 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
               text-transform: uppercase;
               letter-spacing: 0.05em;
             }
-            .studio-select {
+            .studio-select, .model-select-dashboard {
               width: 100%;
-              background: rgba(255, 255, 255, 0.05);
-              border: 1px solid rgba(255, 255, 255, 0.1);
               padding: 14px;
               border-radius: 12px;
               color: white;
+              background: #1a1a1a;
+              border: 1px solid rgba(255, 255, 255, 0.1);
               outline: none;
               font-size: 0.95rem;
               font-weight: 500;
-              transition: border-color 0.2s;
+              transition: all 0.2s;
+              cursor: pointer;
             }
-            .studio-select:focus {
+            .model-select-dashboard {
+              padding: 8px 14px;
+              width: auto;
+              min-width: 280px;
+            }
+            .studio-select:focus, .model-select-dashboard:focus {
               border-color: var(--accent-primary);
+              box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.1);
             }
-            .studio-select option {
+            .studio-select option, .model-select-dashboard option {
               background: #1a1a1a;
               color: white;
               padding: 12px;
+            }
+            .price-pill {
+              font-size: 0.75rem;
+              font-weight: 700;
+              color: var(--accent-primary);
+              background: rgba(139, 92, 246, 0.1);
+              padding: 6px 12px;
+              border-radius: 8px;
+              white-space: nowrap;
+              border: 1px solid rgba(139, 92, 246, 0.2);
             }
             .segment-context-box {
               margin-top: 12px;
@@ -1082,6 +1097,15 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
           color: white;
           background: var(--accent-primary);
           box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+        }
+
+        .telemetry-strip {
+          background: rgba(255, 255, 255, 0.02);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+          padding: 0.75rem 1.5rem;
+          margin: -1.5rem -1.5rem 0 -1.5rem;
+          display: flex;
+          justify-content: stretch;
         }
 
         @keyframes slide-up {

@@ -36,17 +36,15 @@ export default function VentureTelemetry({ repoId, repoName, owner }: VentureTel
 
   return (
     <div className="telemetry-panel glass-panel animate-fade-in">
-      <div className="telemetry-header">
-        <div className="telemetry-title">
-          <span className={`status-dot ${report.status}`}></span>
-          <h4>Venture Telemetry</h4>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          {!report.vercel && (
-            <span className="badge-soft" style={{ fontSize: '0.6rem', color: '#f59e0b', background: 'rgba(245, 158, 11, 0.1)' }}>
-              ⚠️ Vercel Config Missing
-            </span>
-          )}
+      <div className="telemetry-row primary-row">
+        <div className="telemetry-header-group">
+          <div className="telemetry-title">
+            <span className={`status-dot ${report.status}`}></span>
+            <h4>Venture Telemetry</h4>
+          </div>
+          <div className="telemetry-timestamp">
+            {new Date(report.lastChecked).toLocaleTimeString()}
+          </div>
           <button 
             className={`refresh-btn ${isRefreshing ? 'spinning' : ''}`} 
             onClick={refreshHealth}
@@ -55,55 +53,74 @@ export default function VentureTelemetry({ repoId, repoName, owner }: VentureTel
             🔄
           </button>
         </div>
+
+        <div className="telemetry-metrics">
+          <div className="metric-item">
+            <span className="metric-label">Status</span>
+            <span className={`metric-value ${report.status}`}>
+              {report.statusCode > 0 ? `${report.statusCode} ` : ''}{report.status.toUpperCase()}
+            </span>
+          </div>
+          <div className="metric-item">
+            <span className="metric-label">Latency</span>
+            <span className="metric-value">{report.responseTime > 0 ? `${report.responseTime}ms` : '—'}</span>
+          </div>
+          <div className="metric-item">
+            <span className="metric-label">SSL Security</span>
+            <span className="metric-value">
+              {report.statusCode === 0 ? "N/A" : (report.ssl ? "🔐 SECURE" : "🔓 INSECURE")}
+            </span>
+          </div>
+        </div>
       </div>
 
-      <div className="telemetry-stats">
-        <div className="stat-item">
-          <label>Status</label>
-          <span className={`stat-value ${report.status}`}>
-            {report.statusCode} {report.status.toUpperCase()}
-          </span>
-        </div>
-        <div className="stat-item">
-          <label>Latency</label>
-          <span className="stat-value">{report.responseTime}ms</span>
-        </div>
-        <div className="stat-item">
-          <label>SSL</label>
-          <span className="stat-value">{report.ssl ? "🔐 SECURE" : "🔓 INSECURE"}</span>
-        </div>
-        {report.vercel && (
-          <div className="stat-item" style={{ gridColumn: 'span 3', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '10px', marginTop: '5px' }}>
-            <label>Vercel Deployment</label>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span className={`stat-value ${report.vercel.status.toLowerCase() === 'ready' ? 'healthy' : 'unhealthy'}`}>
+      {report.vercel ? (
+        <div className="telemetry-row secondary-row animate-slide-down">
+          <div className="vercel-group">
+            <span className="metric-label">Vercel Infrastructure</span>
+            <div className="vercel-details">
+              <span className={`metric-value ${report.vercel.status.toLowerCase() === 'ready' ? 'healthy' : 'unhealthy'}`}>
                 🚀 {report.vercel.status} ({report.vercel.target})
               </span>
-              <span style={{ fontSize: '0.65rem', fontFamily: 'monospace', color: 'var(--text-muted)' }}>
-                {report.vercel.deploymentId?.slice(0, 12)}...
+              <span className="deployment-id">
+                {report.vercel.deploymentId}
               </span>
             </div>
           </div>
-        )}
-      </div>
-
-      <div className="telemetry-footer">
-        Last checked: {new Date(report.lastChecked).toLocaleTimeString()}
-      </div>
+        </div>
+      ) : (
+        <div className="telemetry-row secondary-row">
+          <span className="metric-label" style={{ color: '#f59e0b' }}>⚠️ Vercel Configuration Missing — Connect to enable deep telemetry</span>
+        </div>
+      )}
 
       <style jsx>{`
         .telemetry-panel {
-          padding: 1.25rem;
-          border-radius: 16px;
-          background: rgba(255, 255, 255, 0.02);
-          border: 1px solid rgba(255, 255, 255, 0.05);
-          min-width: 280px;
-        }
-        .telemetry-header {
+          padding: 0.75rem 1.25rem;
+          background: transparent;
+          width: 100%;
           display: flex;
-          justify-content: space-between;
+          flex-direction: column;
+          gap: 0.75rem;
+        }
+        .telemetry-row {
+          display: flex;
           align-items: center;
-          margin-bottom: 1rem;
+          width: 100%;
+        }
+        .primary-row {
+          justify-content: space-between;
+          gap: 2rem;
+        }
+        .secondary-row {
+          padding-top: 0.5rem;
+          border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .telemetry-header-group {
+          display: flex;
+          align-items: center;
+          gap: 12px;
         }
         .telemetry-title {
           display: flex;
@@ -112,64 +129,100 @@ export default function VentureTelemetry({ repoId, repoName, owner }: VentureTel
         }
         .telemetry-title h4 {
           margin: 0;
-          font-size: 0.85rem;
-          font-weight: 700;
+          font-size: 0.75rem;
+          font-weight: 800;
           color: var(--text-muted);
           text-transform: uppercase;
           letter-spacing: 0.05em;
+          white-space: nowrap;
         }
         .status-dot {
-          width: 8px;
-          height: 8px;
+          width: 6px;
+          height: 6px;
           border-radius: 50%;
-          box-shadow: 0 0 10px currentColor;
+          box-shadow: 0 0 8px currentColor;
         }
         .status-dot.healthy { background: #10b981; color: #10b981; }
         .status-dot.unhealthy { background: #f43f5e; color: #f43f5e; }
         .status-dot.unknown { background: #94a3b8; color: #94a3b8; }
 
-        .telemetry-stats {
-          display: grid;
-          grid-template-columns: 1fr 1fr 1fr;
-          gap: 12px;
+        .telemetry-metrics {
+          display: flex;
+          align-items: center;
+          gap: 2rem;
         }
-        .stat-item label {
-          display: block;
-          font-size: 0.65rem;
+        .metric-item {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        .metric-label {
+          font-size: 0.6rem;
           color: var(--text-muted);
-          margin-bottom: 4px;
+          text-transform: uppercase;
+          font-weight: 700;
+          letter-spacing: 0.02em;
         }
-        .stat-value {
-          font-size: 0.8rem;
-          font-weight: 600;
+        .metric-value {
+          font-size: 0.75rem;
+          font-weight: 700;
           color: white;
+          white-space: nowrap;
         }
-        .stat-value.healthy { color: #10b981; }
-        .stat-value.unhealthy { color: #f43f5e; }
+        .metric-value.healthy { color: #10b981; }
+        .metric-value.unhealthy { color: #f43f5e; }
 
-        .telemetry-footer {
-          margin-top: 1rem;
+        .vercel-group {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          width: 100%;
+        }
+        .vercel-details {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          flex: 1;
+        }
+        .deployment-id {
+          font-size: 0.65rem;
+          font-family: var(--font-mono);
+          color: var(--text-muted);
+          opacity: 0.6;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .telemetry-timestamp {
           font-size: 0.65rem;
           color: var(--text-muted);
-          text-align: right;
+          font-family: var(--font-mono);
+          opacity: 0.5;
         }
 
         .refresh-btn {
           background: transparent;
           border: none;
           cursor: pointer;
-          font-size: 0.9rem;
+          font-size: 0.85rem;
           padding: 4px;
           border-radius: 4px;
           transition: background 0.2s;
+          opacity: 0.6;
         }
-        .refresh-btn:hover { background: rgba(255,255,255,0.05); }
+        .refresh-btn:hover { background: rgba(255,255,255,0.05); opacity: 1; }
         .refresh-btn.spinning {
           animation: spin 1s linear infinite;
         }
         @keyframes spin {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 1100px) {
+          .primary-row { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+          .telemetry-metrics { width: 100%; justify-content: space-between; }
+          .vercel-group { flex-direction: column; align-items: flex-start; gap: 4px; }
         }
       `}</style>
     </div>

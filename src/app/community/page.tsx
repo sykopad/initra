@@ -64,7 +64,7 @@ export default function CommunityPage() {
   const [isPending, startTransition] = useTransition();
   const [hatchingId, setHatchingId] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [activeFilter, setActiveFilter] = useState("Trending");
+  const [activeFilter, setActiveFilter] = useState("Recent");
 
   // New project form state
   const [showSuggestModal, setShowSuggestModal] = useState(false);
@@ -96,6 +96,7 @@ export default function CommunityPage() {
     setIsGenerating(true);
     try {
       await generateVentureBlueprintAction();
+      setActiveFilter("Recent"); // Switch to recent to show the new idea
       await loadData();
     } catch (err: any) {
       alert("Architect failed: " + err.message);
@@ -133,6 +134,7 @@ export default function CommunityPage() {
       setNewCategory("");
       setNewImpact("");
       setNewTags("");
+      setActiveFilter("Recent");
       loadData();
     } catch (err: any) {
       alert("Failed to submit idea: " + err.message);
@@ -185,7 +187,7 @@ export default function CommunityPage() {
   const userSuggestedInitra = projects.filter(p => p.venture_type === 'user-suggested' && p.suggestion_type === 'initra');
   const userSuggestedProjects = projects.filter(p => p.venture_type === 'user-suggested' && (p.suggestion_type === 'project' || !p.suggestion_type));
 
-  const filterOptions = ["Trending", "Recent", "Votes", "Proposed", "Needs Agents", "Completed"];
+  const filterOptions = ["Recent", "Trending", "All", "My Submissions", "Votes", "Proposed", "Needs Agents", "Completed"];
 
   return (
     <>
@@ -198,9 +200,14 @@ export default function CommunityPage() {
             <h1 className="gradient-text" style={{ fontSize: '3.5rem', marginBottom: '1rem', letterSpacing: '-0.02em', background: 'linear-gradient(135deg, #fff 0%, #7c3aed 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
               Discovery Hub
             </h1>
-            <p style={{ fontSize: '1.25rem', color: 'var(--text-secondary)', maxWidth: '700px', margin: '0 auto' }}>
+            <p style={{ fontSize: '1.25rem', color: 'var(--text-secondary)', maxWidth: '700px', margin: '0 auto', marginBottom: '1rem' }}>
               Hatch autonomous ventures or discover community-led blueprints architected by Claude 4.6.
             </p>
+            {!loading && (
+              <div className="discovery-stats animate-fade-in" style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                <span style={{ color: 'var(--accent-primary)' }}>{projects.length}</span> Ventures Architected
+              </div>
+            )}
           </div>
 
           {/* Economy & Social Loop */}

@@ -10,14 +10,21 @@ export async function getCommunityProjects(filter: string = "All") {
     .from("community_projects")
     .select("*");
 
+  const { data: { user } } = await supabase.auth.getUser();
+
   if (filter === "Trending") {
     query = query.order("trending_score", { ascending: false });
   } else if (filter === "Recent") {
     query = query.order("created_at", { ascending: false });
+  } else if (filter === "My Submissions" && user) {
+    query = query.eq("suggested_by", user.id).order("created_at", { ascending: false });
+  } else if (filter === "Votes") {
+    query = query.order("vote_score", { ascending: false });
   } else {
+    // Default / All
     query = query
       .order("venture_type", { ascending: false }) // AI-generated first
-      .order("vote_score", { ascending: false });
+      .order("created_at", { ascending: false });
   }
 
   if (filter !== "All" && filter !== "Trending" && filter !== "Recent") {

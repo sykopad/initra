@@ -37,62 +37,77 @@ export async function checkVentureHealth(repoId: string, repoName?: string, owne
 
   const { data: repo, error } = await query.single();
 
-  if (error || !repo || !repo.live_url) {
-    return {
-      status: 'unknown',
-      responseTime: 0,
-      statusCode: 0,
-      ssl: false,
-      lastChecked: new Date().toISOString()
-    };
+  // 1.5 Fallback to synced_repositories for userId if project not yet in community
+  let liveUrl = repo?.live_url;
+  let userId = repo?.user_id;
+
+  if (!userId) {
+    const { data: syncedRepo } = await supabase
+      .from('synced_repositories')
+      .select('user_id')
+      .eq('id', repoId)
+      .single();
+    if (syncedRepo) userId = syncedRepo.user_id;
   }
 
-  const start = Date.now();
-  try {
-    const response = await fetch(repo.live_url, { 
-      method: 'GET', 
-      cache: 'no-store',
-      next: { revalidate: 0 } 
-    });
-    
-    const responseTime = Date.now() - start;
-    const ssl = repo.live_url.startsWith('https://');
+  // 2. Proactively Fetch Vercel Status & discovery URL if needed
+  let vercelInfo = undefined;
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('vercel_token, vercel_team_id')
+    .eq('id', userId) 
+    .single();
 
-    // 2. Fetch Vercel Status (optional)
-    let vercelInfo = undefined;
-    
-    // Fetch profile for sovereign tokens
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('vercel_token, vercel_team_id')
-      .eq('id', repo.user_id) // We need the user_id from the project
-      .single();
+  const VERCEL_TOKEN = profile?.vercel_token || process.env.VERCEL_TOKEN;
+  const VERCEL_TEAM_ID = profile?.vercel_team_id || process.env.VERCEL_TEAM_ID;
 
-    const VERCEL_TOKEN = profile?.vercel_token || process.env.VERCEL_TOKEN;
-    const VERCEL_TEAM_ID = profile?.vercel_team_id || process.env.VERCEL_TEAM_ID;
+  if (VERCEL_TOKEN && repoName) {
+    try {
+      const vRes = await fetch(`https://api.vercel.com/v9/projects/${repoName}${VERCEL_TEAM_ID ? `?teamId=${VERCEL_TEAM_ID}` : ''}`, {
+        headers: { 'Authorization': `Bearer ${VERCEL_TOKEN}` }
+      });
+      if (vRes.ok) {
+        const vData = await vRes.json();
+        vercelInfo = {
+          status: vData.latestDeployments?.[0]?.readyState || 'READY',
+          deploymentId: vData.latestDeployments?.[0]?.id,
+          target: vData.latestDeployments?.[0]?.target || 'production'
+        };
 
-    if (VERCEL_TOKEN && repoName) {
-      try {
-        const vRes = await fetch(`https://api.vercel.com/v9/projects/${repoName}${VERCEL_TEAM_ID ? `?teamId=${VERCEL_TEAM_ID}` : ''}`, {
-          headers: { 'Authorization': `Bearer ${VERCEL_TOKEN}` }
-        });
-        if (vRes.ok) {
-          const vData = await vRes.json();
-          vercelInfo = {
-            status: vData.latestDeployments?.[0]?.readyState || 'READY',
-            deploymentId: vData.latestDeployments?.[0]?.id,
-            target: vData.latestDeployments?.[0]?.target || 'production'
-          };
+        // Fallback discovery: If we don't have a liveUrl, use Vercel's production alias
+        if (!liveUrl && vData.targets?.production?.alias?.[0]) {
+          liveUrl = `https://${vData.targets.production.alias[0]}`;
         }
-      } catch (vErr) {
-        console.warn("Vercel Telemetry Failed:", vErr);
       }
+    } catch (vErr) {
+      console.warn("Vercel Telemetry Failed:", vErr);
+    }
+  }
+
+  // 3. Perform Health Ping
+  const start = Date.now();
+  let responseStatus: 'healthy' | 'unhealthy' | 'unknown' = 'unknown';
+  let statusCode = 0;
+  let responseTime = 0;
+  let ssl = false;
+
+  try {
+    if (liveUrl) {
+      const response = await fetch(liveUrl, { 
+        method: 'GET', 
+        cache: 'no-store',
+        next: { revalidate: 0 } 
+      });
+      responseTime = Date.now() - start;
+      responseStatus = response.ok ? 'healthy' : 'unhealthy';
+      statusCode = response.status;
+      ssl = liveUrl.startsWith('https://');
     }
 
     return {
-      status: response.ok ? 'healthy' : 'unhealthy',
+      status: responseStatus,
       responseTime,
-      statusCode: response.status,
+      statusCode,
       ssl,
       lastChecked: new Date().toISOString(),
       vercel: vercelInfo
@@ -102,8 +117,9 @@ export async function checkVentureHealth(repoId: string, repoName?: string, owne
       status: 'unhealthy',
       responseTime: Date.now() - start,
       statusCode: 503,
-      ssl: repo.live_url.startsWith('https://'),
-      lastChecked: new Date().toISOString()
+      ssl: liveUrl ? liveUrl.startsWith('https://') : false,
+      lastChecked: new Date().toISOString(),
+      vercel: vercelInfo
     };
   }
 }
