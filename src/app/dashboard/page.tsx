@@ -76,30 +76,6 @@ export default async function DashboardPage() {
         <div className="dashboard-grid">
         <RepoBuilder initialRepos={syncedRepos} />
 
-        {/* Credits & Subscription Section */}
-        <section className="dashboard-card credit-card">
-          <div className="card-header">
-            <div>
-              <h3>Credit Balance</h3>
-              <div className="tier-pill">{profile?.tier || 'Community'} Member</div>
-            </div>
-            <span className="balance-badge">{profile?.credits || 0} Credits</span>
-          </div>
-          
-          <div className="subscription-info">
-            {profile?.tier === 'community' ? (
-              <p className="promo-text">Upgrade to <strong>Pro</strong> for monthly credit refills and automatic <strong>Sovereign DB</strong> provisioning.</p>
-            ) : (
-              <p className="refill-text">Next refill: <strong>{new Date(profile?.next_refill_at).toLocaleDateString()}</strong></p>
-            )}
-          </div>
-          
-          <div className="purchase-section" style={{ marginTop: '1.5rem' }}>
-            <h4 style={{ marginBottom: '1rem', fontSize: '1rem' }}>Top up Credits</h4>
-            <CreditPurchase userId={user.id} />
-          </div>
-        </section>
-
         {/* Hatched Ventures */}
         <section className="dashboard-card projects-card">
           <div className="card-header">
@@ -169,28 +145,6 @@ export default async function DashboardPage() {
           </div>
         </section>
 
-        {/* Transaction History */}
-        <section className="dashboard-card transactions-card">
-           <div className="card-header">
-            <h3>Recent Activity</h3>
-          </div>
-          <div className="transaction-list">
-            {transactions && transactions.length > 0 ? (
-              transactions.map(tx => (
-                <div key={tx.id} className="transaction-item">
-                  <div className="tx-desc">
-                    <span className={`tx-type ${tx.type}`}>{tx.type}</span>
-                    <p>{tx.description}</p>
-                  </div>
-                  <span className={`tx-amount ${tx.amount > 0 ? 'pos' : 'neg'}`}>
-                    {tx.amount > 0 ? '+' : ''}{tx.amount}
-                  </span>
-                </div>
-              ))
-            ) : (
-              <p className="empty-msg">No transactions yet.</p>
-            )}
-          </div>
         </section>
       </div>
 

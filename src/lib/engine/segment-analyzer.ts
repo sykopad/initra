@@ -75,8 +75,16 @@ export async function analyzeRepository(
 
       // C. Logic (API Routes & Server Actions)
       else if (file.endsWith("route.ts") || file.endsWith("route.js") || lowerFile.includes("actions.ts") || lowerFile.includes("actions.js")) {
+        let logicName = "Backend Logic";
+        if (lowerFile.includes("actions")) {
+          logicName = `Action: ${formatComponentName(file)}`;
+        } else if (file.includes("api/")) {
+          const route = file.split('api/')[1].replace('/route.ts', '').replace('/route.js', '');
+          logicName = `API: /${route}`;
+        }
+
         segments.push({
-          name: lowerFile.includes("actions") ? "Server Actions" : "API Endpoint",
+          name: logicName,
           type: "logic",
           isLogic: true,
           domain: detectDomain(file),
@@ -170,8 +178,16 @@ export async function analyzeRepository(
           desc = "Pure helper functions and shared logic.";
         }
 
+        let semanticName = logicType;
+        if (logicType === "Nitro API Endpoint") {
+          const route = file.split('server/api/')[1]?.replace('.ts', '').replace('.js', '') || formatComponentName(file);
+          semanticName = `Nitro: /${route}`;
+        } else {
+          semanticName = `${logicType}: ${formatComponentName(file)}`;
+        }
+
         segments.push({
-          name: logicType,
+          name: semanticName,
           type: "logic",
           isLogic: true,
           domain: detectDomain(file),

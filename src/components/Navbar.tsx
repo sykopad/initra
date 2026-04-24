@@ -13,11 +13,18 @@ export default function Navbar() {
   const supabase = createClient();
 
   const [theme, setTheme] = useState<"light" | "dark">("dark");
+  const [profile, setProfile] = useState<{ credits: number; tier: string } | null>(null);
 
   useEffect(() => {
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
+      
+      if (user) {
+        const { data } = await supabase.from('profiles').select('credits, tier').eq('id', user.id).single();
+        if (data) setProfile(data);
+      }
+      
       setLoading(false);
     };
 
@@ -115,6 +122,20 @@ export default function Navbar() {
             </button>
           </li>
 
+          {user && profile && (
+            <li className="nav-credits">
+              <Link href="/settings" className="credits-badge">
+                <span className="credits-amount">{profile.credits} 🪙</span>
+                <span className="tier-badge" style={{ 
+                  background: profile.tier === 'pro' ? 'var(--accent-primary)' : 'rgba(255,255,255,0.1)',
+                  color: profile.tier === 'pro' ? 'white' : 'var(--text-secondary)'
+                }}>
+                  {profile.tier === 'pro' ? 'PRO' : 'FREE'}
+                </span>
+              </Link>
+            </li>
+          )}
+
           {loading ? (
             <li className="nav-skeleton"></li>
           ) : user ? (
@@ -203,6 +224,35 @@ export default function Navbar() {
         .theme-toggle:hover {
           background: var(--bg-glass-hover);
           color: var(--text-primary);
+        }
+        
+        .credits-badge {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          padding: 0.35rem 0.65rem;
+          border-radius: 99px;
+          text-decoration: none !important;
+          transition: all 0.2s;
+        }
+        .credits-badge:hover {
+          background: rgba(255, 255, 255, 0.08);
+          border-color: rgba(255, 255, 255, 0.2);
+          transform: translateY(-1px);
+        }
+        .credits-amount {
+          font-size: 0.85rem;
+          font-weight: 700;
+          color: white;
+        }
+        .tier-badge {
+          font-size: 0.65rem;
+          font-weight: 800;
+          padding: 0.15rem 0.4rem;
+          border-radius: 4px;
+          letter-spacing: 0.05em;
         }
 
         .nav-skeleton {

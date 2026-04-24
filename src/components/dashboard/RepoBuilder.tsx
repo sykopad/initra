@@ -405,14 +405,14 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
             />
           )}
 
-          {/* Creative Studio (Centralized Editor) */}
+          {/* Creative Studio 2.0 (Centralized Editor) */}
           <div ref={studioRef} className="creative-studio animate-fade-in" style={{ marginBottom: '2.5rem' }}>
             <div className="studio-inner glass-panel">
               <div className="studio-header">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                   <div className="studio-icon">✨</div>
                   <div>
-                    <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800 }}>Creative Studio</h3>
+                    <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800 }}>Creative Studio <span style={{ fontSize: '0.7rem', verticalAlign: 'middle', background: 'var(--accent-primary)', padding: '2px 6px', borderRadius: '4px', marginLeft: '8px' }}>v2.0</span></h3>
                     <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-muted)' }}>Autonomous interface refinement & feature expansion</p>
                   </div>
                 </div>
@@ -423,22 +423,33 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
 
               <div className="studio-grid">
                 <div className="studio-field">
-                  <label>Target Segment</label>
+                  <label>1. Select Venture Segment</label>
                   <select 
                     value={studioSegmentId} 
                     onChange={(e) => setStudioSegmentId(e.target.value)}
                     className="studio-select"
                   >
-                    <option value="" disabled>Select a section to customize...</option>
-                    {segments.map((s, idx) => (
-                      <option key={s.id || `${s.file_path}-${idx}`} value={s.id} style={{ background: '#1a1a1a', color: 'white' }}>
-                        {s.name} — {s.domain}
-                      </option>
-                    ))}
+                    <option value="" disabled>Choose a part of your venture to evolve...</option>
+                    {/* Semantic Grouping */}
+                    <optgroup label="Layouts & Structure" style={{ background: '#1a1a1a', color: 'var(--accent-primary)' }}>
+                      {segments.filter(s => s.type === 'layout').map(s => (
+                        <option key={s.id} value={s.id} style={{ background: '#1a1a1a', color: 'white' }}>{s.name}</option>
+                      ))}
+                    </optgroup>
+                    <optgroup label="User Interface (UI)" style={{ background: '#1a1a1a', color: 'var(--accent-primary)' }}>
+                      {segments.filter(s => s.type === 'page' || s.type === 'component').map(s => (
+                        <option key={s.id} value={s.id} style={{ background: '#1a1a1a', color: 'white' }}>{s.name}</option>
+                      ))}
+                    </optgroup>
+                    <optgroup label="Backend & Business Logic" style={{ background: '#1a1a1a', color: 'var(--accent-primary)' }}>
+                      {segments.filter(s => s.type === 'logic').map(s => (
+                        <option key={s.id} value={s.id} style={{ background: '#1a1a1a', color: 'white' }}>{s.name}</option>
+                      ))}
+                    </optgroup>
                   </select>
 
                   {studioSegmentId && segments.find(s => s.id === studioSegmentId) && (
-                    <div className="segment-context-box animate-fade-in">
+                    <div className="segment-context-box animate-fade-in" style={{ marginTop: '1rem' }}>
                       <div className="context-header">
                         <span className="context-badge">{(segments.find(s => s.id === studioSegmentId)?.type || 'unknown').toUpperCase()}</span>
                         <span className="context-path">{segments.find(s => s.id === studioSegmentId)?.file_path}</span>
@@ -447,22 +458,49 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
                     </div>
                   )}
                 </div>
+
                 <div className="studio-field">
-                  <label>AI Modification Prompt</label>
+                  <label>2. Describe Your Objective</label>
                   <div className="studio-prompt-wrapper">
+                    {/* Quick Suggestions for Layman/Advanced users */}
+                    {studioSegmentId && (
+                      <div className="prompt-suggestions animate-fade-in" style={{ marginBottom: '1rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                        {segments.find(s => s.id === studioSegmentId)?.type === 'logic' ? (
+                          <>
+                            <button className="suggestion-chip" onClick={() => setStudioPrompt("Add validation to this logic and handle error states.")}>🛡️ Add Validation</button>
+                            <button className="suggestion-chip" onClick={() => setStudioPrompt("Connect this to the database and implement CRUD operations.")}>🗄️ Database Hookup</button>
+                            <button className="suggestion-chip" onClick={() => setStudioPrompt("Refactor this for performance and readability.")}>⚡ Optimize</button>
+                          </>
+                        ) : (
+                          <>
+                            <button className="suggestion-chip" onClick={() => setStudioPrompt("Make this look more modern with glassmorphism and vibrant colors.")}>🎨 Modernize UI</button>
+                            <button className="suggestion-chip" onClick={() => setStudioPrompt("Add a responsive dark mode toggle for this section.")}>🌙 Dark Mode</button>
+                            <button className="suggestion-chip" onClick={() => setStudioPrompt("Improve the mobile layout and accessibility of this component.")}>📱 Mobile Optimization</button>
+                          </>
+                        )}
+                      </div>
+                    )}
+                    
                     <textarea 
                       value={studioPrompt}
                       onChange={(e) => setStudioPrompt(e.target.value)}
-                      placeholder="Describe the changes you want... e.g. 'Add a sleek dark mode toggle to the navbar' or 'Make the hero section use a vibrant mesh gradient background'"
+                      placeholder={studioSegmentId ? "e.g. 'Add a login button that redirects to /dashboard' or 'Secure this API with an API key check'" : "Select a segment first..."}
                       className="studio-textarea"
                     />
-                    <button 
-                      className="btn btn-primary studio-btn"
-                      onClick={handleStudioGenerate}
-                      disabled={!studioSegmentId || !studioPrompt}
-                    >
-                      Generate Preview
-                    </button>
+                    
+                    <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                       <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                         Approximate Cost: <strong>{AI_MODELS.find(m => m.slug === selectedModel)?.creditCost || 0} Credits</strong>
+                       </p>
+                       <button 
+                        className="btn btn-primary studio-btn"
+                        onClick={handleStudioGenerate}
+                        disabled={!studioSegmentId || !studioPrompt}
+                        style={{ padding: '12px 32px' }}
+                      >
+                        🚀 Generate Refinement
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -660,6 +698,23 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
             }
             .studio-textarea:focus {
               border-color: var(--accent-primary);
+            }
+            .suggestion-chip {
+              background: rgba(255, 255, 255, 0.05);
+              border: 1px solid rgba(255, 255, 255, 0.1);
+              color: var(--text-secondary);
+              padding: 6px 12px;
+              border-radius: 99px;
+              font-size: 0.7rem;
+              font-weight: 600;
+              cursor: pointer;
+              transition: all 0.2s;
+            }
+            .suggestion-chip:hover {
+              background: rgba(139, 92, 246, 0.1);
+              border-color: var(--accent-primary);
+              color: white;
+              transform: translateY(-1px);
             }
             .studio-btn {
               padding: 16px 24px !important;
