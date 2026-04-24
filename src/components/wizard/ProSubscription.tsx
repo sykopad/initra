@@ -6,9 +6,10 @@ import { useState } from "react";
 interface ProSubscriptionProps {
   userId: string;
   onSuccess?: () => void;
+  layout?: 'portrait' | 'minimal';
 }
 
-export default function ProSubscription({ userId, onSuccess }: ProSubscriptionProps) {
+export default function ProSubscription({ userId, onSuccess, layout = 'portrait' }: ProSubscriptionProps) {
   const [status, setStatus] = useState<'idle' | 'pending' | 'success' | 'error'>('idle');
 
   const clientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
@@ -23,20 +24,22 @@ export default function ProSubscription({ userId, onSuccess }: ProSubscriptionPr
   }
 
   return (
-    <div className="pro-upgrade-container">
-      <div className="pro-benefit-card">
-        <h4>Initra Pro Monthly</h4>
-        <p className="price">$19.00 <span className="period">/ month</span></p>
-        <ul className="benefits">
-          <li>🚀 <strong>Managed Infrastructure</strong>: Hatch ventures on Initra's Vercel account.</li>
-          <li>🛡️ <strong>Private Blueprints</strong>: Save and share ventures privately.</li>
-          <li>🧠 <strong>Elite Models</strong>: Priority access to Claude 3.7 & GPT-4o.</li>
-          <li>⚡ <strong>Advanced Analytics</strong>: Deep telemetry for all birthed ventures.</li>
-          <li>🎁 <strong>Monthly Credits</strong>: 200 free credits every month.</li>
-        </ul>
-      </div>
+    <div className={`pro-upgrade-container ${layout}`}>
+      {layout === 'portrait' && (
+        <div className="pro-benefit-card">
+          <h4>Initra Pro Monthly</h4>
+          <p className="price">$19.00 <span className="period">/ month</span></p>
+          <ul className="benefits">
+            <li>🚀 <strong>Managed Infrastructure</strong>: Hatch ventures on Initra's Vercel account.</li>
+            <li>🛡️ <strong>Private Blueprints</strong>: Save and share ventures privately.</li>
+            <li>🧠 <strong>Elite Models</strong>: Priority access to Claude 3.7 & GPT-4o.</li>
+            <li>⚡ <strong>Advanced Analytics</strong>: Deep telemetry for all birthed ventures.</li>
+            <li>🎁 <strong>Monthly Credits</strong>: 200 free credits every month.</li>
+          </ul>
+        </div>
+      )}
 
-      <div style={{ marginTop: '1.5rem' }}>
+      <div style={{ marginTop: layout === 'minimal' ? '0' : '1.5rem' }}>
         <PayPalScriptProvider options={{ 
           clientId: clientId, 
           currency: "USD",

@@ -6,6 +6,8 @@ import { generateRepairPrompt } from "@/lib/engine/audit-repair-engine";
 import { generateAuditADR } from "@/lib/engine/adr-generator";
 import { callOpenRouter } from "@/lib/ai/openrouter";
 import { Octokit } from "octokit";
+import { cookies } from "next/headers";
+import { getAIContext } from "@/lib/ai/context";
 
 /**
  * Orchestrates an AI-driven repair for a specific audit failure.
@@ -24,6 +26,14 @@ export async function repairAuditAction(repoId: string, check: AuditCheck, frame
     .single();
 
   if (!repo) throw new Error("Repository not found");
+  
+  // 1.5 Get GitHub Token
+  const { data: { session } } = await supabase.auth.getSession();
+  const cookieStore = await cookies();
+  const providerToken = session?.provider_token || cookieStore.get("sb-github-token")?.value;
+
+  if (!providerToken) throw new Error("GitHub token not found. Please reconnect.");
+
 
   // 2. Determine target model and cost
   const { AI_MODELS } = await import("@/lib/ai/models");
@@ -39,6 +49,10 @@ export async function repairAuditAction(repoId: string, check: AuditCheck, frame
   // 4. Generate Repair Instructions
   const prompt = generateRepairPrompt(check, framework);
   const adr = generateAuditADR(check, framework);
+  
+  // 4.5 Fetch AI Context (AGENTS.md + Skills) correlated with the audit category (SEO, Security, etc.)
+  const { agentsContext, skillsContext } = await getAIContext(repo, providerToken, check.category);
+
 
   // 6. Call AI to generate the fix (Multi-file support)
   const messages = [
@@ -46,8 +60,13 @@ export async function repairAuditAction(repoId: string, check: AuditCheck, frame
       role: 'system', 
       content: `You are an expert developer. Resolve the audit failure by providing the necessary file updates.
       RETURN ONLY a JSON array of objects: [{"path": "string", "content": "string", "explanation": "string"}]
-      No markdown blocks, no additional text.` 
+      No markdown blocks, no additional text.
+      
+      ${agentsContext ? `REPOSITORY RULES (AGENTS.md):\n${agentsContext}\n` : ''}
+      
+      AVAILABLE SKILLS (Best Practices):\n${skillsContext}` 
     },
+
     { 
       role: 'user', 
       content: `${prompt}\n\nPlease generate the required files to fix this issue completely.` 

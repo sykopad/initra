@@ -3,6 +3,8 @@ import { createClient } from "@/lib/supabase/server";
 import { Octokit } from "octokit";
 import { cookies } from "next/headers";
 import { callOpenRouter } from "@/lib/ai/openrouter";
+import { getAIContext } from "@/lib/ai/context";
+
 
 export async function POST(req: Request) {
   try {
@@ -68,7 +70,11 @@ export async function POST(req: Request) {
       // Styles not found in src/app, ignore
     }
 
+    // 2.7 Fetch AI Context (AGENTS.md + Skills) correlated with segment type
+    const { agentsContext, skillsContext } = await getAIContext(repo, providerToken, segment.type);
+
     // 3. AI Targeted Edit
+
     const systemPrompt = `
       You are an expert Frontend Engineer. Your task is to modify code files based on a user's request.
       
@@ -85,7 +91,12 @@ export async function POST(req: Request) {
       2. If the change requires updating both the component AND the global CSS, return both files.
       3. Format: [{"path": "string", "content": "string", "explanation": "string"}]
       4. PRESERVE existing functionality. Use Next.js 16 and Vanilla CSS conventions.
+
+      ${agentsContext ? `REPOSIORY RULES (AGENTS.md):\n${agentsContext}\n` : ''}
+      
+      AVAILABLE SKILLS (Best Practices):\n${skillsContext}
     `;
+
 
     const aiResult = await callOpenRouter([
       { role: 'system', content: systemPrompt },

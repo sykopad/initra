@@ -165,51 +165,83 @@ export default function SettingsPage() {
               <h2>Venture Economy</h2>
             </div>
 
-            <div className="billing-grid">
-              <div className="balance-box">
-                <span className="balance-label">Current Balance</span>
-                <div className="balance-amount">
-                  {profile.credits || 0}
+            <div className="economy-landscape">
+              {/* Block 1: Balance */}
+              <div className="economy-card balance-card">
+                <span className="card-label">Current Balance</span>
+                <div className="balance-display">
+                  <span className="balance-number">{profile.credits || 0}</span>
+                  <span className="balance-unit">Credits Available</span>
                 </div>
-                <span className="balance-subtext">Credits Available</span>
-                <div className="balance-actions">
-                  <button 
-                    className="btn btn-primary" 
-                    onClick={() => window.location.href = '/dashboard'}
-                  >
-                    Top up Credits
-                  </button>
-                  {!profile.is_pro && (
+                <button 
+                  className="btn btn-primary topup-btn" 
+                  onClick={() => window.location.href = '/dashboard'}
+                >
+                  Top up Credits
+                </button>
+              </div>
+
+              {/* Block 2: Subscription Tier */}
+              <div className="economy-card subscription-card">
+                <div className="tier-info">
+                  <span className="tier-name">Initra Pro Monthly</span>
+                  <div className="tier-price">
+                    <span className="price-val">$19.00</span>
+                    <span className="price-period">/ month</span>
+                  </div>
+                </div>
+                {!profile.is_pro ? (
+                  <div className="sub-cta">
                     <ProSubscription 
                       userId={profile.id} 
+                      layout="minimal"
                       onSuccess={() => {
                         setToast("🎉 Subscription active! Refreshing status...");
                         setTimeout(() => window.location.reload(), 2000);
                       }} 
                     />
-                  )}
-                </div>
+                  </div>
+                ) : (
+                  <div className="active-badge">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="3">
+                      <path d="M20 6L9 17l-5-5" />
+                    </svg>
+                    Pro Plan Active
+                  </div>
+                )}
               </div>
 
-              <div className="transaction-history">
-                <h3 className="history-title">Recent Activity</h3>
-                <div className="tx-list">
-                  {transactions.length > 0 ? (
-                    transactions.map(tx => (
-                      <div key={tx.id} className="tx-item">
-                        <div className="tx-info">
-                          <div className="tx-desc">{tx.description}</div>
-                          <div className="tx-date">{new Date(tx.created_at).toLocaleDateString()}</div>
-                        </div>
-                        <div className={`tx-amount ${tx.amount > 0 ? 'positive' : 'negative'}`}>
-                          {tx.amount > 0 ? '+' : ''}{tx.amount}
-                        </div>
+              {/* Block 3: Pro Benefits */}
+              <div className="economy-card benefits-card">
+                <span className="card-label">Pro Features</span>
+                <ul className="premium-perks">
+                  <li>🚀 <strong>Managed Infrastructure</strong>: Hatch ventures on Initra's Vercel account.</li>
+                  <li>🛡️ <strong>Private Blueprints</strong>: Save and share ventures privately.</li>
+                  <li>🧠 <strong>Elite Models</strong>: Priority access to Claude 3.7 & GPT-4o.</li>
+                  <li>⚡ <strong>Advanced Analytics</strong>: Deep telemetry for all birthed ventures.</li>
+                  <li>🎁 <strong>Monthly Credits</strong>: 200 free credits every month.</li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="transaction-history">
+              <h3 className="history-title">Recent Activity</h3>
+              <div className="tx-list">
+                {transactions.length > 0 ? (
+                  transactions.map(tx => (
+                    <div key={tx.id} className="tx-item">
+                      <div className="tx-info">
+                        <div className="tx-desc">{tx.description}</div>
+                        <div className="tx-date">{new Date(tx.created_at).toLocaleDateString()}</div>
                       </div>
-                    ))
-                  ) : (
-                    <p className="empty-tx">No recent transactions.</p>
-                  )}
-                </div>
+                      <div className={`tx-amount ${tx.amount > 0 ? 'positive' : 'negative'}`}>
+                        {tx.amount > 0 ? '+' : ''}{tx.amount}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p className="empty-tx">No recent transactions.</p>
+                )}
               </div>
             </div>
           </section>
@@ -396,57 +428,126 @@ export default function SettingsPage() {
           border-top: 4px solid var(--accent-primary);
           padding: 3rem !important;
         }
- 
-        .billing-grid {
-          display: flex;
-          flex-direction: column;
-          gap: 3rem;
+
+        .economy-landscape {
+          display: grid;
+          grid-template-columns: 1fr 1fr 1.2fr;
+          gap: 2rem;
+          margin-bottom: 3rem;
         }
 
-        .balance-box {
-          background: rgba(139, 92, 246, 0.04);
-          padding: 3rem;
-          border-radius: 28px;
-          border: 1px solid rgba(139, 92, 246, 0.15);
-          text-align: center;
+        .economy-card {
+          background: rgba(255, 255, 255, 0.02);
+          border: 1px solid var(--border-subtle);
+          border-radius: 24px;
+          padding: 2.5rem;
           display: flex;
           flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          width: 100%;
-          max-width: 500px;
-          margin: 0 auto;
+          justify-content: space-between;
+          transition: all 0.3s ease;
         }
 
-        .balance-label {
-          font-size: 0.75rem;
-          color: var(--text-muted);
+        .economy-card:hover {
+          background: rgba(255, 255, 255, 0.04);
+          border-color: rgba(242, 155, 43, 0.3);
+          transform: translateY(-4px);
+        }
+
+        .card-label {
+          font-size: 0.7rem;
+          font-weight: 800;
           text-transform: uppercase;
-          letter-spacing: 0.2em;
-          margin-bottom: 0.75rem;
-          font-weight: 700;
+          letter-spacing: 0.15em;
+          color: var(--text-muted);
+          margin-bottom: 1.5rem;
+          display: block;
         }
 
-        .balance-amount {
-          font-size: 4.5rem;
-          font-weight: 900;
-          margin: 0.5rem 0;
-          color: var(--accent-primary);
-          line-height: 0.9;
-          letter-spacing: -0.05em;
-        }
-
-        .balance-subtext {
-          font-size: 0.9rem;
-          color: var(--text-secondary);
+        .balance-display {
           margin-bottom: 2.5rem;
         }
 
-        .balance-actions {
-          width: 100%;
+        .balance-number {
+          display: block;
+          font-size: 4rem;
+          font-weight: 950;
+          line-height: 1;
+          color: var(--accent-primary);
+          letter-spacing: -0.05em;
+        }
+
+        .balance-unit {
+          font-size: 0.9rem;
+          color: var(--text-secondary);
+          margin-top: 0.5rem;
+          display: block;
+        }
+
+        .tier-info {
+          margin-bottom: 2rem;
+        }
+
+        .tier-name {
+          font-size: 1.25rem;
+          font-weight: 800;
+          color: white;
+          display: block;
+          margin-bottom: 0.5rem;
+        }
+
+        .tier-price {
+          display: flex;
+          align-items: baseline;
+          gap: 0.25rem;
+        }
+
+        .price-val {
+          font-size: 2.5rem;
+          font-weight: 900;
+          color: var(--text-primary);
+        }
+
+        .price-period {
+          font-size: 0.9rem;
+          color: var(--text-muted);
+        }
+
+        .active-badge {
+          background: rgba(16, 185, 129, 0.1);
+          color: var(--accent-emerald);
+          padding: 1rem;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.75rem;
+          font-weight: 700;
+          border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .premium-perks {
+          list-style: none;
+          padding: 0;
+          margin: 0;
           display: flex;
           flex-direction: column;
-          gap: 1rem;
+          gap: 0.75rem;
+        }
+
+        .premium-perks li {
+          font-size: 0.8rem;
+          color: var(--text-secondary);
+          line-height: 1.4;
+        }
+
+        .premium-perks strong {
+          color: var(--text-primary);
+        }
+
+        .transaction-history {
+          margin-top: 2rem;
+          padding-top: 3rem;
+          border-top: 1px solid var(--border-subtle);
         }
 
         .history-title {
