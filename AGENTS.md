@@ -512,8 +512,9 @@ const supabase = createBrowserClient(url, key, {
 1. **Autonomous ADR Auto-Push (Complete)**: Programmatically commit Architectural Decision Records (ADRs) alongside code fixes to maintain a verifiable AI decision trail. (Done 2026-04-23)
 2. **Venture Telemetry 2.0 (Complete - v1)**: Real-time autonomous health monitoring (SSL, Uptime, 500-errors) and Vercel deployment status tracking for birthed ventures. (Done 2026-04-23)
 3. **Community Skill Publishing (Complete - v1)**: Infrastructure to "Save as Skill" in the Command Center, allowing users to share successful AI prompt/repair templates as reusable Agent Skills. (Done 2026-04-23)
-4. **Adaptive Credit Orchestration (In Progress)**: Dynamic credit deduction based on model context and performance (GPT-4o-mini vs Claude 3.7) during autonomous repair cycles.
-5. **Multi-Venture Knowledge Sharing**: Cross-repository intelligence where agents learn from previous repairs across all projects in a user's portfolio.
+4. **Sovereign Infrastructure Mode (Complete)**: Decentralized hosting ownership where users bring their own Vercel/GitHub tokens via secure Settings. (Done 2026-04-23)
+5. **Adaptive Credit Orchestration (In Progress)**: Dynamic credit deduction based on model context and performance (GPT-4o-mini vs Claude 3.7) during autonomous repair cycles.
+6. **Multi-Venture Knowledge Sharing**: Cross-repository intelligence where agents learn from previous repairs across all projects in a user's portfolio.
 
 ### ⚡ Phase 10: Hatching 2.0 — The Fully Orchestrated Venture (Complete)
 

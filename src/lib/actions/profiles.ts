@@ -53,3 +53,30 @@ export async function getProfile() {
 
   return profile;
 }
+
+export async function updateSovereignConfig(data: {
+  vercel_token?: string;
+  vercel_team_id?: string;
+  github_personal_token?: string;
+}) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) throw new Error("Unauthorized");
+
+  const { error } = await supabase
+    .from("profiles")
+    .update({
+      ...data,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", user.id);
+
+  if (error) {
+    console.error("Config update error:", error);
+    throw new Error(error.message);
+  }
+
+  revalidatePath("/settings");
+  return { success: true };
+}

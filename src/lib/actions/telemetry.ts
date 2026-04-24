@@ -27,7 +27,7 @@ export async function checkVentureHealth(repoId: string, repoName?: string, owne
   const supabase = await createClient();
   
   // 1. Fetch the live URL from the database
-  let query = supabase.from('community_projects').select('live_url, id');
+  let query = supabase.from('community_projects').select('live_url, id, user_id');
   
   if (repoName && owner) {
     query = query.ilike('github_url', `%${owner}/${repoName}%`);
@@ -60,8 +60,16 @@ export async function checkVentureHealth(repoId: string, repoName?: string, owne
 
     // 2. Fetch Vercel Status (optional)
     let vercelInfo = undefined;
-    const VERCEL_TOKEN = process.env.VERCEL_TOKEN;
-    const VERCEL_TEAM_ID = process.env.VERCEL_TEAM_ID;
+    
+    // Fetch profile for sovereign tokens
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('vercel_token, vercel_team_id')
+      .eq('id', repo.user_id) // We need the user_id from the project
+      .single();
+
+    const VERCEL_TOKEN = profile?.vercel_token || process.env.VERCEL_TOKEN;
+    const VERCEL_TEAM_ID = profile?.vercel_team_id || process.env.VERCEL_TEAM_ID;
 
     if (VERCEL_TOKEN && repoName) {
       try {

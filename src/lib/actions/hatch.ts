@@ -38,8 +38,6 @@ function getVercelFramework(templateSlug: string): string | null {
 
 export async function hatchVenture(projectId: string, userGithubToken?: string) {
   const supabase = await createClient();
-  const tokenToUse = userGithubToken || GITHUB_TOKEN;
-  const octokit = new Octokit({ auth: tokenToUse });
 
   // 1. Fetch Project Data
   const { data: project, error: fetchError } = await supabase
@@ -50,6 +48,19 @@ export async function hatchVenture(projectId: string, userGithubToken?: string) 
 
   if (fetchError || !project) throw new Error('Project not found');
   if (project.is_hatched) throw new Error('Project already hatched');
+
+  // Fetch user profile for sovereign tokens
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('vercel_token, vercel_team_id, github_personal_token')
+    .eq('id', project.user_id)
+    .single();
+
+  const VERCEL_TOKEN_TO_USE = profile?.vercel_token || process.env.VERCEL_TOKEN;
+  const VERCEL_TEAM_ID_TO_USE = profile?.vercel_team_id || process.env.VERCEL_TEAM_ID;
+  const GITHUB_TOKEN_TO_USE = profile?.github_personal_token || userGithubToken || GITHUB_TOKEN;
+
+  const octokit = new Octokit({ auth: GITHUB_TOKEN_TO_USE });
 
   const config = project.blueprint_config as WizardConfig;
   const repoName = project.title.toLowerCase().replace(/[^a-z0-9]/g, '-');
@@ -72,10 +83,10 @@ export async function hatchVenture(projectId: string, userGithubToken?: string) 
     await updateProvisioningStatus(projectId, { vercel: 'processing' });
     const vercelFramework = getVercelFramework(config.templateSlug);
     
-    const vercelRes = await fetch(`https://api.vercel.com/v9/projects${VERCEL_TEAM_ID ? `?teamId=${VERCEL_TEAM_ID}` : ''}`, {
+    const vercelRes = await fetch(`https://api.vercel.com/v9/projects${VERCEL_TEAM_ID_TO_USE ? `?teamId=${VERCEL_TEAM_ID_TO_USE}` : ''}`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${VERCEL_TOKEN}`,
+        'Authorization': `Bearer ${VERCEL_TOKEN_TO_USE}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -102,10 +113,10 @@ export async function hatchVenture(projectId: string, userGithubToken?: string) 
     const domain = `${repoName}.initra.ai`; // Standardize
     console.log(`[Hatch] Assigning domain: ${domain}`);
     await updateProvisioningStatus(projectId, { dns: 'processing' });
-    await fetch(`https://api.vercel.com/v10/projects/${vercelData.id}/domains${VERCEL_TEAM_ID ? `?teamId=${VERCEL_TEAM_ID}` : ''}`, {
+    await fetch(`https://api.vercel.com/v10/projects/${vercelData.id}/domains${VERCEL_TEAM_ID_TO_USE ? `?teamId=${VERCEL_TEAM_ID_TO_USE}` : ''}`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${VERCEL_TOKEN}`,
+        'Authorization': `Bearer ${VERCEL_TOKEN_TO_USE}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ name: domain }),
@@ -145,7 +156,7 @@ export async function hatchVenture(projectId: string, userGithubToken?: string) 
       await injectVercelEnv(vercelData.id, {
         'NEXT_PUBLIC_SUPABASE_URL': supabaseUrl,
         'NEXT_PUBLIC_SUPABASE_ANON_KEY': supabaseAnonKey,
-      });
+      }, VERCEL_TOKEN_TO_USE, VERCEL_TEAM_ID_TO_USE);
 
       // 6.1 Inject GitHub Secrets
       console.log(`[Hatch] Provisioning GitHub Secrets for CI...`);
@@ -303,12 +314,12 @@ async function generateInitialSchema(config: WizardConfig, description: string) 
 /**
  * Injects environment variables into a Vercel project
  */
-async function injectVercelEnv(projectId: string, env: Record<string, string>) {
+async function injectVercelEnv(projectId: string, env: Record<string, string>, token: string, teamId?: string) {
   for (const [key, value] of Object.entries(env)) {
-    await fetch(`https://api.vercel.com/v10/projects/${projectId}/env${VERCEL_TEAM_ID ? `?teamId=${VERCEL_TEAM_ID}` : ''}`, {
+    await fetch(`https://api.vercel.com/v10/projects/${projectId}/env${teamId ? `?teamId=${teamId}` : ''}`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${VERCEL_TOKEN}`,
+        'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({

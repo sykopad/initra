@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { updateProfile, getProfile } from "@/lib/actions/profiles";
+import { updateProfile, getProfile, updateSovereignConfig } from "@/lib/actions/profiles";
 import Navbar from "@/components/Navbar";
 
 export default function SettingsPage() {
@@ -15,7 +15,10 @@ export default function SettingsPage() {
     display_name: "",
     github_username: "",
     email: "",
-    credits: 0
+    credits: 0,
+    vercel_token: "",
+    vercel_team_id: "",
+    github_personal_token: ""
   });
 
   const [transactions, setTransactions] = useState<any[]>([]);
@@ -41,7 +44,10 @@ export default function SettingsPage() {
           display_name: prof.display_name || "",
           github_username: prof.github_username || "",
           email: user.email || "",
-          credits: prof.credits || 0
+          credits: prof.credits || 0,
+          vercel_token: prof.vercel_token || "",
+          vercel_team_id: prof.vercel_team_id || "",
+          github_personal_token: prof.github_personal_token || ""
         });
       }
 
@@ -97,6 +103,26 @@ export default function SettingsPage() {
       if (error) throw error;
       setSuccess("Password updated successfully!");
       setSecurity({ newPassword: "", confirmPassword: "" });
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSovereignUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      await updateSovereignConfig({
+        vercel_token: profile.vercel_token,
+        vercel_team_id: profile.vercel_team_id,
+        github_personal_token: profile.github_personal_token
+      });
+      setSuccess("Infrastructure configuration updated!");
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -164,6 +190,66 @@ export default function SettingsPage() {
 
               <button type="submit" className="btn btn-primary" disabled={saving}>
                 {saving ? "Saving..." : "Update Profile"}
+              </button>
+            </form>
+          </section>
+
+          {/* Sovereign Infrastructure Section */}
+          <section className="settings-section glass-panel">
+            <div className="section-header">
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+              </svg>
+              <h2>Sovereign Infrastructure</h2>
+            </div>
+
+            <div className="sovereign-guidance" style={{ marginBottom: '1.5rem', padding: '1rem', background: 'rgba(139, 92, 246, 0.05)', borderRadius: '12px', border: '1px solid rgba(139, 92, 246, 0.1)' }}>
+              <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: 0 }}>
+                Bring your own infrastructure for 100% ownership. By providing your own tokens, Initra will hatch ventures directly onto <strong>your</strong> Vercel and GitHub accounts.
+              </p>
+              <ul style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.5rem', paddingLeft: '1.2rem' }}>
+                <li><strong>Vercel:</strong> Create a <a href="https://vercel.com/account/tokens" target="_blank" rel="noreferrer" style={{ color: 'var(--accent-primary)' }}>Personal Access Token</a>. Select "Full Access" scope to allow project creation.</li>
+                <li><strong>GitHub:</strong> Provide a <a href="https://github.com/settings/tokens" target="_blank" rel="noreferrer" style={{ color: 'var(--accent-primary)' }}>Classic Token</a> with <code>repo</code> and <code>workflow</code> scopes.</li>
+              </ul>
+            </div>
+
+            <form onSubmit={handleSovereignUpdate} className="settings-form">
+              <div className="form-group">
+                <label>Vercel Access Token</label>
+                <input 
+                  type="password" 
+                  value={profile.vercel_token} 
+                  onChange={(e) => setProfile({...profile, vercel_token: e.target.value})}
+                  className="form-input"
+                  placeholder="v1_..."
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Vercel Team ID (Optional)</label>
+                <input 
+                  type="text" 
+                  value={profile.vercel_team_id} 
+                  onChange={(e) => setProfile({...profile, vercel_team_id: e.target.value})}
+                  className="form-input"
+                  placeholder="team_..."
+                />
+              </div>
+
+              <div className="form-group">
+                <label>GitHub Personal Access Token (Optional)</label>
+                <input 
+                  type="password" 
+                  value={profile.github_personal_token} 
+                  onChange={(e) => setProfile({...profile, github_personal_token: e.target.value})}
+                  className="form-input"
+                  placeholder="ghp_..."
+                />
+                <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>Only required if you want to bypass platform-wide GitHub limits.</span>
+              </div>
+
+              <button type="submit" className="btn btn-primary" disabled={saving}>
+                {saving ? "Saving Config..." : "Save Sovereign Config"}
               </button>
             </form>
           </section>
