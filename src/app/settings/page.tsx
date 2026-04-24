@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { updateProfile, getProfile, updateSovereignConfig } from "@/lib/actions/profiles";
+import ProUpgrade from "@/components/wizard/ProUpgrade";
 import Navbar from "@/components/Navbar";
 
 export default function SettingsPage() {
@@ -18,7 +19,8 @@ export default function SettingsPage() {
     credits: 0,
     vercel_token: "",
     vercel_team_id: "",
-    github_personal_token: ""
+    github_personal_token: "",
+    is_pro: false
   });
 
   const [transactions, setTransactions] = useState<any[]>([]);
@@ -319,16 +321,15 @@ export default function SettingsPage() {
                   Top up Credits
                 </button>
                 {!profile.is_pro && (
-                  <button 
-                    className="btn btn-secondary" 
-                    style={{ width: '100%', marginTop: '0.75rem', borderColor: 'var(--accent-primary)', color: 'white' }}
-                    onClick={() => {
-                      setToast("🚀 Your request for Pro Status has been sent for review.");
-                      setTimeout(() => setToast(null), 3000);
-                    }}
-                  >
-                    🚀 Upgrade to Pro
-                  </button>
+                  <div style={{ marginTop: '1.5rem' }}>
+                    <ProUpgrade 
+                      userId={user.id} 
+                      onSuccess={() => {
+                        setToast("🎉 Upgrade successful! Refreshing status...");
+                        setTimeout(() => window.location.reload(), 2000);
+                      }} 
+                    />
+                  </div>
                 )}
               </div>
 

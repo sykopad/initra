@@ -34,6 +34,26 @@ export async function POST(req: Request) {
     const { addCredits } = await import("@/lib/credits/service");
     const supabase = await createClient();
 
+    // Handle "pro_upgrade:USER_ID" format for Pro tier
+    if (rawCustomId.startsWith('pro_upgrade:')) {
+      const userId = rawCustomId.replace('pro_upgrade:', '');
+      
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ 
+          is_pro: true,
+          tier: 'pro'
+        })
+        .eq('id', userId);
+
+      if (updateError) {
+        console.error("Error upgrading user to Pro:", updateError);
+        return NextResponse.json({ error: "Failed to upgrade profile" }, { status: 500 });
+      }
+
+      return NextResponse.json({ success: true, isPro: true });
+    }
+
     // Handle "credits:USER_ID" format for credit purchases
     if (rawCustomId.startsWith('credits:')) {
       const userId = rawCustomId.replace('credits:', '');
