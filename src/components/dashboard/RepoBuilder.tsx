@@ -579,7 +579,7 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
             </div>
           )}
           {/* Centralized Preview Modal */}
-          {isPreviewOpen && studioSegmentId && (
+          {isPreviewOpen && studioSegmentId && segments.find(s => s.id === studioSegmentId) && (
             <LivePreviewModal 
               isOpen={isPreviewOpen}
               onClose={() => setIsPreviewOpen(false)}

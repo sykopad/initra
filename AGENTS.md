@@ -540,7 +540,7 @@ const supabase = createBrowserClient(url, key, {
 6. **Automated Billing (Complete)**: PayPal-powered $19/mo subscription engine with automated activation/revocation. (Done 2026-04-23)
 7. **Creative Studio 2.0 (Complete)**: Overhaul of the Command Center with semantic segment naming, intelligent grouping, and AI-guided prompting. (Done 2026-04-23)
 8. **Dashboard v3 (Complete)**: Separation of Command Center (Technical Monitoring) and Creative Studio (AI Lab) into distinct tabs with a universal, sticky Project Switcher for seamless multi-venture management. (Done 2026-04-23)
-9. **Studio Preview v2 (In Progress)**: Enhancement of the LivePreviewModal to support "Side-by-Side" diff viewing, allowing users to review AI changes line-by-line before pushing.
+9. **Studio Preview v2 (Complete)**: Enhancement of the LivePreviewModal to support "Side-by-Side" diff viewing, allowing users to review AI changes line-by-line before pushing. (Done 2026-04-24)
 10. **Venture Economy Expansion (In Progress)**: 
     - **Automated Monthly Stipend**: Supabase Edge Function to auto-refill Pro credits on billing anniversaries.
     - **Referral Leaderboard**: Social gamification in the Community Hub to reward top referrers. (Done 2026-04-24)

@@ -1,11 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import * as Diff from "diff";
 
 interface FileUpdate {
   path: string;
   content: string;
   explanation: string;
+  originalContent?: string;
 }
 
 interface LivePreviewModalProps {
@@ -18,9 +20,60 @@ interface LivePreviewModalProps {
 }
 
 function DiffView({ original, modified, filename }: { original: string, modified: string, filename: string }) {
-  const originalLines = original.split('\n');
-  const modifiedLines = modified.split('\n');
+  const diff = Diff.diffLines(original, modified);
   
+  // Prepare lines for side-by-side view
+  // This is a simplified side-by-side implementation
+  const leftLines: { num: number | null, content: string, type: 'normal' | 'removed' | 'empty' }[] = [];
+  const rightLines: { num: number | null, content: string, type: 'normal' | 'added' | 'empty' }[] = [];
+  
+  let leftLineNum = 1;
+  let rightLineNum = 1;
+
+  for (let i = 0; i < diff.length; i++) {
+    const part = diff[i];
+    const nextPart = diff[i + 1];
+    const lines = part.value.split('\n');
+    if (lines[lines.length - 1] === '') lines.pop();
+
+    if (part.removed && nextPart?.added) {
+      // Align removals and additions side-by-side
+      const addedLines = nextPart.value.split('\n');
+      if (addedLines[addedLines.length - 1] === '') addedLines.pop();
+
+      const maxLines = Math.max(lines.length, addedLines.length);
+      for (let j = 0; j < maxLines; j++) {
+        if (j < lines.length) {
+          leftLines.push({ num: leftLineNum++, content: lines[j], type: 'removed' });
+        } else {
+          leftLines.push({ num: null, content: '', type: 'empty' });
+        }
+
+        if (j < addedLines.length) {
+          rightLines.push({ num: rightLineNum++, content: addedLines[j], type: 'added' });
+        } else {
+          rightLines.push({ num: null, content: '', type: 'empty' });
+        }
+      }
+      i++; // Skip nextPart as we've already processed it
+    } else if (part.added) {
+      lines.forEach((line) => {
+        rightLines.push({ num: rightLineNum++, content: line, type: 'added' });
+        leftLines.push({ num: null, content: '', type: 'empty' });
+      });
+    } else if (part.removed) {
+      lines.forEach((line) => {
+        leftLines.push({ num: leftLineNum++, content: line, type: 'removed' });
+        rightLines.push({ num: null, content: '', type: 'empty' });
+      });
+    } else {
+      lines.forEach((line) => {
+        leftLines.push({ num: leftLineNum++, content: line, type: 'normal' });
+        rightLines.push({ num: rightLineNum++, content: line, type: 'normal' });
+      });
+    }
+  }
+
   return (
     <div className="diff-view">
       <div className="diff-header">
@@ -28,23 +81,20 @@ function DiffView({ original, modified, filename }: { original: string, modified
       </div>
       <div className="diff-grid">
         <div className="diff-side original">
-          {originalLines.map((line, i) => (
-            <div key={i} className="diff-line">
-              <span className="line-num">{i + 1}</span>
-              <pre>{line || ' '}</pre>
+          {leftLines.map((line, i) => (
+            <div key={i} className={`diff-line ${line.type}`}>
+              <span className="line-num">{line.num || ''}</span>
+              <pre>{line.content || (line.type === 'empty' ? '' : ' ')}</pre>
             </div>
           ))}
         </div>
         <div className="diff-side modified">
-          {modifiedLines.map((line, i) => {
-            const isNew = !originalLines.includes(line);
-            return (
-              <div key={i} className={`diff-line ${isNew ? 'line-added' : ''}`}>
-                <span className="line-num">{i + 1}</span>
-                <pre>{line || ' '}</pre>
-              </div>
-            );
-          })}
+          {rightLines.map((line, i) => (
+            <div key={i} className={`diff-line ${line.type}`}>
+              <span className="line-num">{line.num || ''}</span>
+              <pre>{line.content || (line.type === 'empty' ? '' : ' ')}</pre>
+            </div>
+          ))}
         </div>
       </div>
     </div>
@@ -61,7 +111,7 @@ export default function LivePreviewModal({ isOpen, onClose, segment, repoId, ini
   const [viewMode, setViewMode] = useState<"live" | "diff">("live");
   const [selectedFileIndex, setSelectedFileIndex] = useState(0);
 
-  if (!isOpen) return null;
+  if (!isOpen || !segment) return null;
 
   const handleGenerate = async () => {
     if (!prompt) return;
@@ -279,34 +329,42 @@ export default function LivePreviewModal({ isOpen, onClose, segment, repoId, ini
         .status-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255, 255, 255, 0.1); }
         .status-dot.loading { background: var(--accent-primary); animation: pulse 1.5s infinite; }
         .status-dot.done { background: var(--accent-success); }
-        .preview-viewer { flex: 1; display: flex; flex-direction: column; background: #000; }
+        .preview-viewer { flex: 1; display: flex; flex-direction: column; background: #000; overflow: hidden; }
         .viewer-header {
-          padding: 12px 24px; background: #0a0a0a; border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-          display: flex; justify-content: space-between; align-items: center;
+          padding: 12px 24px; background: rgba(10, 10, 10, 0.8); border-bottom: 1px solid var(--border-subtle);
+          display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(8px);
         }
-        .mode-toggle { display: flex; background: rgba(255, 255, 255, 0.03); padding: 4px; border-radius: 8px; }
-        .mode-btn { padding: 6px 16px; border-radius: 6px; border: none; background: transparent; color: var(--text-muted); font-size: 0.75rem; font-weight: 600; cursor: pointer; }
-        .mode-btn.active { background: rgba(255, 255, 255, 0.08); color: white; }
-        .viewer-content { flex: 1; position: relative; overflow: hidden; }
+        .mode-toggle { display: flex; background: var(--bg-input); padding: 4px; border-radius: 8px; border: 1px solid var(--border-subtle); }
+        .mode-btn { padding: 6px 16px; border-radius: 6px; border: none; background: transparent; color: var(--text-muted); font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .mode-btn.active { background: var(--bg-glass-hover); color: var(--text-primary); box-shadow: var(--shadow-sm); }
+        .viewer-content { flex: 1; position: relative; overflow: hidden; display: flex; flex-direction: column; }
         iframe { width: 100%; height: 100%; border: none; background: white; }
-        .diff-container { height: 100%; background: #0d1117; overflow-y: auto; font-family: var(--font-mono); }
-        .diff-view { display: flex; flex-direction: column; height: 100%; }
-        .diff-header { padding: 8px 16px; background: rgba(0, 0, 0, 0.3); border-bottom: 1px solid rgba(255, 255, 255, 0.05); color: var(--text-muted); font-size: 0.7rem; }
-        .diff-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: rgba(255, 255, 255, 0.05); flex: 1; }
-        .diff-side { background: #0d1117; overflow-x: auto; }
-        .diff-line { display: flex; font-size: 0.75rem; line-height: 1.6; white-space: pre; }
-        .line-num {
-          width: 40px; text-align: right; padding-right: 12px; color: rgba(255, 255, 255, 0.2);
-          user-select: none; border-right: 1px solid rgba(255, 255, 255, 0.05); margin-right: 8px;
+        .diff-container { flex: 1; background: #0d1117; overflow-y: auto; font-family: var(--font-mono); scrollbar-width: thin; scrollbar-color: var(--border-medium) transparent; }
+        .diff-view { display: flex; flex-direction: column; min-height: 100%; }
+        .diff-header { 
+          padding: 10px 20px; background: rgba(0, 0, 0, 0.4); border-bottom: 1px solid var(--border-subtle); 
+          color: var(--text-muted); font-size: 0.7rem; display: flex; align-items: center; gap: 10px;
+          position: sticky; top: 0; z-index: 10; backdrop-filter: blur(4px);
         }
-        .line-added { background: rgba(46, 160, 67, 0.15); }
-        .line-added pre { color: #7ee787; }
-        pre { margin: 0; font-family: inherit; }
-        .loading-state { display: flex; flex-direction: column; align-items: center; gap: 16px; margin-top: 100px; }
+        .diff-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border-subtle); flex: 1; }
+        .diff-side { background: #0d1117; min-width: 0; }
+        .diff-line { display: flex; font-size: 0.75rem; line-height: 1.6; white-space: pre; border-left: 2px solid transparent; }
+        .line-num {
+          width: 44px; text-align: right; padding-right: 12px; color: rgba(255, 255, 255, 0.15);
+          user-select: none; border-right: 1px solid rgba(255, 255, 255, 0.05); margin-right: 8px;
+          background: rgba(0, 0, 0, 0.1);
+        }
+        .line-added { background: rgba(16, 185, 129, 0.1); border-left-color: var(--accent-emerald); }
+        .line-added pre { color: var(--accent-emerald-light); }
+        .line-removed { background: rgba(244, 63, 94, 0.1); border-left-color: var(--accent-rose); }
+        .line-removed pre { color: var(--accent-rose); }
+        .diff-line.empty { background: rgba(255, 255, 255, 0.01); }
+        pre { margin: 0; font-family: inherit; min-height: 1.6em; padding-right: 16px; }
+        .loading-state { display: flex; flex-direction: column; align-items: center; gap: 16px; margin: auto; }
         .spinner { width: 40px; height: 40px; border: 3px solid rgba(255, 255, 255, 0.1); border-top-color: var(--accent-primary); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes pulse { 0% { opacity: 0.4; transform: scale(0.9); } 50% { opacity: 1; transform: scale(1.1); } 100% { opacity: 0.4; transform: scale(0.9); } }
-        .error-alert { background: rgba(244, 63, 94, 0.1); color: var(--accent-rose); padding: 12px; border-radius: 8px; font-size: 0.85rem; border: 1px solid rgba(244, 63, 94, 0.2); }
+        .error-alert { background: rgba(244, 63, 94, 0.1); color: var(--accent-rose); padding: 12px; border-radius: 8px; font-size: 0.85rem; border: 1px solid rgba(244, 63, 94, 0.2); margin: 20px; }
       `}</style>
     </div>
   );
