@@ -1,32 +1,50 @@
-import { NextResponse } from 'next/server';
+import { MetadataRoute } from 'next'
 
-export async function GET() {
-  const pages = [
-    { path: '/', lastModified: new Date() },
-    { path: '/about', lastModified: new Date() },
-    { path: '/contact', lastModified: new Date() },
-    // Add more paths as necessary
-  ];
-
-  const sitemap = `
-    <?xml version="1.0" encoding="UTF-8"?>
-    <urlset xmlns="http://www.sitemaps.org/schemas/sitemap-image/1.1">
-      ${pages
-        .map(({ path, lastModified }) => {
-          return `
-            <url>
-              <loc>${process.env.NEXT_PUBLIC_SITE_URL}${path}</loc>
-              <lastmod>${lastModified.toISOString()}</lastmod>
-            </url>
-          `;
-        })
-        .join('')}
-    </urlset>
-  `;
-
-  return NextResponse.text(sitemap, {
-    headers: {
-      'Content-Type': 'application/xml',
+export default function sitemap(): MetadataRoute.Sitemap {
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://initra.ai'
+  
+  return [
+    {
+      url: baseUrl,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 1,
     },
-  });
+    {
+      url: `${baseUrl}/about`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/contact`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.5,
+    },
+    {
+      url: `${baseUrl}/community`,
+      lastModified: new Date(),
+      changeFrequency: 'always',
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/dashboard`,
+      lastModified: new Date(),
+      changeFrequency: 'always',
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/privacy`,
+      lastModified: new Date(),
+      changeFrequency: 'yearly',
+      priority: 0.3,
+    },
+    {
+      url: `${baseUrl}/terms`,
+      lastModified: new Date(),
+      changeFrequency: 'yearly',
+      priority: 0.3,
+    },
+  ]
 }
