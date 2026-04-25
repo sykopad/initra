@@ -12,6 +12,7 @@ import { AuditCheck } from "@/lib/engine/types";
 import { AI_MODELS } from "@/lib/ai/models";
 import VentureTelemetry from "./VentureTelemetry";
 import { publishSkillAction } from "@/lib/actions/community";
+import StrategistView from "./StrategistView";
 
 interface Repo {
   id: string;
@@ -85,8 +86,19 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
   const [studioPrompt, setStudioPrompt] = useState("");
   const [successfullyRepairedIds, setSuccessfullyRepairedIds] = useState<string[]>([]);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'command' | 'studio'>('command');
+  const [activeTab, setActiveTab] = useState<'command' | 'studio' | 'strategist'>('command');
   const studioRef = useRef<HTMLDivElement>(null);
+  const strategistRef = useRef<HTMLDivElement>(null);
+  const [suggestionPrompt, setSuggestionPrompt] = useState<string | null>(null);
+
+  const handleActOnSuggestion = (prompt: string) => {
+    setStudioPrompt(prompt);
+    setActiveTab('studio');
+    // Scroll to studio after a short delay to allow tab change
+    setTimeout(() => {
+      studioRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
+  };
 
   const handleReconnect = async () => {
     const { createClient } = await import("@/lib/supabase/client");
@@ -243,6 +255,12 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
                   onClick={() => setActiveTab('studio')}
                 >
                   ✨ Creative Studio
+                </button>
+                <button 
+                  className={`tab-btn ${activeTab === 'strategist' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('strategist')}
+                >
+                  🧠 Strategist
                 </button>
               </div>
             </div>
@@ -550,6 +568,14 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
                     </div>
                   </div>
                 </div>
+              </div>
+            {activeTab === 'strategist' && (
+              <div className="tab-pane strategist-pane animate-fade-in" ref={strategistRef}>
+                <StrategistView 
+                  repoId={activeRepo.id} 
+                  selectedModel={selectedModel}
+                  onActOnSuggestion={handleActOnSuggestion}
+                />
               </div>
             )}
           </div>
