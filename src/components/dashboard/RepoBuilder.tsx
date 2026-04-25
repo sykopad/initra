@@ -569,6 +569,7 @@ export default function RepoBuilder({ initialRepos }: RepoBuilderProps) {
                   </div>
                 </div>
               </div>
+            )}
             {activeTab === 'strategist' && (
               <div className="tab-pane strategist-pane animate-fade-in" ref={strategistRef}>
                 <StrategistView 
