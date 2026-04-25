@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { addCredits } from "@/lib/credits/service";
 
 const PAYPAL_API_URL = process.env.PAYPAL_MODE === 'live' 
   ? 'https://api-m.paypal.com' 
