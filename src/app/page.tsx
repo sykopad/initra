@@ -70,7 +70,7 @@ export default function HomePage() {
           </div>
 
           {/* Terminal Teaser */}
-          <div className="terminal-teaser" style={{ marginTop: '4rem', textAlign: 'left' }}>
+          <div className="terminal-teaser">
             <div className="terminal-header">
               <div className="terminal-dot red"></div>
               <div className="terminal-dot yellow"></div>
@@ -81,20 +81,20 @@ export default function HomePage() {
               <span className="terminal-output">initra hatch --blueprint "SaaS Analytics Dashboard"</span>
             </div>
             <div className="terminal-line">
-              <span className="terminal-output" style={{ color: 'var(--accent-secondary-light)' }}>[SYSTEM]</span>
+              <span className="terminal-output" style={{ color: 'var(--accent-secondary)' }}>[SYSTEM]</span>
               <span className="terminal-output">Allocating GitHub Repository... Done.</span>
             </div>
             <div className="terminal-line">
-              <span className="terminal-output" style={{ color: 'var(--accent-primary-light)' }}>[SYSTEM]</span>
+              <span className="terminal-output" style={{ color: 'var(--accent-primary)' }}>[SYSTEM]</span>
               <span className="terminal-output">Provisioning Vercel Cloud & Supabase DB...</span>
             </div>
             <div className="terminal-line">
-              <span className="terminal-output" style={{ color: 'var(--accent-emerald-light)' }}>[SYSTEM]</span>
+              <span className="terminal-output" style={{ color: 'var(--accent-emerald)' }}>[SYSTEM]</span>
               <span className="terminal-output">Injecting Autonomous Agent Rules (Phase 23)...</span>
             </div>
             <div className="terminal-line">
               <span className="terminal-prompt">$</span>
-              <span className="terminal-output" style={{ color: 'var(--accent-amber-light)', fontWeight: 'bold' }}>READY: https://analytics-dash.initra.ai</span>
+              <span className="terminal-output" style={{ color: 'var(--accent-amber)', fontWeight: 'bold' }}>READY: https://analytics-dash.initra.ai</span>
             </div>
           </div>
 
@@ -162,13 +162,13 @@ export default function HomePage() {
       <section className="features-section" style={{ padding: '8rem 0' }}>
         <div className="container">
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '5rem', alignItems: 'center' }}>
-            <div className="card" style={{ padding: '3rem', borderLeft: '4px solid var(--accent-amber)', background: 'linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%)' }}>
-              <div className="hero-badge" style={{ marginBottom: '1.5rem', background: 'rgba(245, 158, 11, 0.1)', borderColor: 'rgba(245, 158, 11, 0.3)' }}>
-                <span className="badge-dot" style={{ background: 'var(--accent-amber)' }}></span>
+            <div className="card idea-card">
+              <div className="hero-badge hairline-border" style={{ marginBottom: '1.5rem' }}>
+                <span className="badge-dot" style={{ background: 'var(--accent-primary)' }}></span>
                 Claude Opus 4.6 Blueprints
               </div>
-              <h2 style={{ fontSize: 'var(--text-4xl)', marginBottom: 'var(--space-md)', textAlign: 'left', lineHeight: 1.1 }}>
-                The Autonomous <span className="gradient-text" style={{ background: 'var(--gradient-sovereign)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Idea Fabric.</span>
+              <h2 className="text-gradient" style={{ textAlign: 'left', lineHeight: 1.1 }}>
+                The Autonomous Idea Fabric.
               </h2>
               <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem', lineHeight: 1.7 }}>
                 Every 24 hours, our Idea Fabric autonomously generates high-fidelity venture blueprints.
@@ -176,25 +176,25 @@ export default function HomePage() {
                 of autonomous ventures.
               </p>
               <div style={{ display: 'flex', gap: '1rem' }}>
-                <Link href="/community" className="btn btn-primary" style={{ background: 'var(--gradient-sovereign)' }}>Visit the Marketplace →</Link>
+                <Link href="/community" className="btn btn-primary">Visit the Marketplace →</Link>
               </div>
             </div>
 
             <div style={{ position: 'relative' }}>
-              <div className="glass-panel" style={{ padding: '2rem', background: 'rgba(0,0,0,0.4)', borderRadius: '24px', position: 'relative', zIndex: 2 }}>
+              <div className="glass-panel-themed">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
                   <div style={{ display: 'flex', gap: '8px' }}>
                     <div className="stat-number" style={{ fontSize: '1rem' }}>💡 Top Idea</div>
                   </div>
-                  <span className="badge-outline" style={{ fontSize: '0.7rem', borderColor: 'var(--accent-amber)', color: 'var(--accent-amber)' }}>VOTING OPEN</span>
+                  <span className="badge-outline" style={{ fontSize: '0.7rem', borderColor: 'var(--accent-primary)', color: 'var(--accent-primary)' }}>VOTING OPEN</span>
                 </div>
                 <h3 style={{ fontSize: '1.25rem', marginBottom: '1rem' }}>Peer-to-Peer AI Energy Grid</h3>
                 <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>An autonomous billing and distribution network for localized renewable energy clusters.</p>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div style={{ display: 'flex', WebkitMaskImage: 'linear-gradient(to right, black 50%, transparent 100%)' }}>
-                    {[1, 2, 3, 4].map(i => <div key={i} style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'var(--bg-tertiary)', border: '2px solid var(--bg-primary)', marginLeft: i === 1 ? 0 : '-8px' }}></div>)}
+                    {[1, 2, 3, 4].map(i => <div key={i} style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'var(--surface-3)', border: '2px solid var(--bg-primary)', marginLeft: i === 1 ? 0 : '-8px' }}></div>)}
                   </div>
-                  <span style={{ fontSize: '0.8rem', color: 'var(--accent-amber)', fontWeight: 700 }}>2,841 UPVOTES</span>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--accent-primary)', fontWeight: 700 }}>2,841 UPVOTES</span>
                 </div>
               </div>
               <div style={{ position: 'absolute', top: '10%', left: '10%', right: '-5%', bottom: '-5%', background: 'var(--accent-primary)', opacity: 0.1, filter: 'blur(100px)', borderRadius: '50%', zIndex: 1 }}></div>

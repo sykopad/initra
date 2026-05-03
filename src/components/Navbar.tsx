@@ -191,11 +191,11 @@ export default function Navbar() {
 
         .navbar-links li a,
         .navbar-links li a:visited {
-          color: var(--text-secondary);
+          color: var(--text-secondary) !important;
           text-decoration: none;
           font-size: 0.9375rem;
           font-weight: 500;
-          font-family: var(--font-heading);
+          font-family: var(--font-display);
           transition: all var(--transition-base);
         }
 
