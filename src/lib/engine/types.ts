@@ -145,6 +145,19 @@ export interface ProjectTemplate {
   boilerplateFiles?: BoilerplateFile[];
   /** Optional: specialized instructions for the IDE agent for this template */
   agentInstructions?: string;
+  /** Optional: specialized design guidelines for this template */
+  designPreset?: string;
+}
+
+/** Design Preset definition */
+export interface DesignPreset {
+  slug: string;
+  name: string;
+  description: string;
+  colors?: Record<string, string>;
+  typography?: Record<string, any>;
+  components?: Record<string, any>;
+  content: string; // The full markdown content
 }
 
 /** Dynamic form field for stack configuration */
@@ -184,6 +197,7 @@ export interface WizardConfig {
   includeTests?: boolean;
   webhookUrl?: string;
   isPrivate?: boolean;
+  designPreset?: string;
 }
 
 /** Boilerplate file definition */
@@ -234,6 +248,9 @@ export interface TemplateVariables {
   selectedServices: string[];
   selectedBrains?: string[];
   selectedWorkflows?: string[];
+  designPreset?: string;
+  designGuidelines?: string;
+
   [key: string]: string | boolean | string[] | undefined;
 }
 

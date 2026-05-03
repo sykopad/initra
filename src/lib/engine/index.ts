@@ -35,7 +35,8 @@ export function generateAgentFiles(config: WizardConfig): GenerationResult {
     config.experienceLevel ?? 'experienced',
     config.orchestrationMode ?? 'single-agent',
     config.selectedBrains ?? [],
-    config.selectedWorkflows ?? []
+    config.selectedWorkflows ?? [],
+    config.designPreset
   );
 
   // 3. Generate files for each selected IDE

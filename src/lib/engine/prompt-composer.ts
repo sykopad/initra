@@ -6,6 +6,7 @@
 import { TemplateVariables } from './types';
 import { getTemplate } from './templates';
 import { BRAIN_MODULES, FRAMEWORK_ADRS } from './intelligence-overlays';
+import { getDesignPreset } from './design-library';
 
 /** Check if a template variable is considered "empty" / falsy */
 function isEmpty(value: string | boolean | string[] | undefined): boolean {
@@ -80,7 +81,8 @@ export function extractVariables(
   experienceLevel: 'beginner' | 'experienced' = 'experienced',
   orchestrationMode: 'single-agent' | 'multi-agent' = 'single-agent',
   selectedBrains: string[] = [],
-  selectedWorkflows: string[] = []
+  selectedWorkflows: string[] = [],
+  designPresetSlug?: string
 ): TemplateVariables {
   const template = getTemplate(templateSlug);
   const vars: TemplateVariables = {
@@ -94,6 +96,7 @@ export function extractVariables(
     selectedWorkflows,
     templateSlug,
     templateVersion,
+    designPreset: designPresetSlug,
     framework: templateSlug,
     language: String(stackConfig.language || 'typescript'),
     styling: String(stackConfig.styling || ''),
@@ -198,6 +201,20 @@ Your primary goal is to implement: "${goal}"
   }
 
   vars.agentIntelligence = intelligenceBlock.trim();
+
+  // 4. Inject Design Guidelines
+  if (designPresetSlug) {
+    const preset = getDesignPreset(designPresetSlug);
+    if (preset) {
+      vars.designGuidelines = `
+## Design System: ${preset.name}
+${preset.description}
+
+### UI Directives
+${preset.content}
+`;
+    }
+  }
 
   return vars;
 }

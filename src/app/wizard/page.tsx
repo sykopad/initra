@@ -23,6 +23,7 @@ import { saveSharedConfig } from "@/lib/actions/shared";
 import RepoSyncModal, { RepoSettings } from "@/components/wizard/RepoSyncModal";
 import DeploymentCenter from "@/components/wizard/DeploymentCenter";
 import ModelSelector from "@/components/wizard/ModelSelector";
+import DesignPresetSelector from "@/components/wizard/DesignPresetSelector";
 import { AI_MODELS } from "@/lib/ai/models";
 
 
@@ -31,12 +32,13 @@ const STEPS = [
   { label: "Start",        number: 0 },
   { label: "Project",      number: 1 },
   { label: "Stack",        number: 2 },
-  { label: "Packages",     number: 3 },
-  { label: "Services",     number: 4 },
-  { label: "Intelligence", number: 5 },
-  { label: "IDE",          number: 6 },
-  { label: "Review",       number: 7 },
-  { label: "Export",       number: 8 },
+  { label: "Design",       number: 3 },
+  { label: "Packages",     number: 4 },
+  { label: "Services",     number: 5 },
+  { label: "Intelligence", number: 6 },
+  { label: "IDE",          number: 7 },
+  { label: "Review",       number: 8 },
+  { label: "Export",       number: 9 },
 ];
 
 function WizardContent() {
@@ -59,6 +61,7 @@ function WizardContent() {
   const [pkgCategory, setPkgCategory] = useState<string | null>(null);
   const [svcSearch, setSvcSearch] = useState("");
   const [svcCategory, setSvcCategory] = useState<string | null>(null);
+  const [designPreset, setDesignPreset] = useState<string | null>(null);
   const [generatedFiles, setGeneratedFiles] = useState<GeneratedFile[]>([]);
   const [activeFileIndex, setActiveFileIndex] = useState(0);
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -123,7 +126,7 @@ function WizardContent() {
             if (config.orchestrationMode) setOrchestrationMode(config.orchestrationMode);
             if (config.selectedBrains) setSelectedBrains(config.selectedBrains);
             if (config.selectedWorkflows) setSelectedWorkflows(config.selectedWorkflows);
-            setStep(6); // Skip straight to the IDE step since it's a fork
+            setStep(7); // Skip straight to the IDE step since it's a fork
           }
         }).catch(err => {
           console.error("Failed to load session:", err);
@@ -338,7 +341,7 @@ function WizardContent() {
         setAiExplanation(data.explanation);
         
         // Skip straight to Review if AI was thorough
-        setStep(7);
+        setStep(8);
       } else {
         setToast("AI suggested a template that doesn't exist yet.");
       }
@@ -370,12 +373,13 @@ function WizardContent() {
       selectedBrains,
       selectedWorkflows,
       modelSlug,
+      designPreset: designPreset || undefined,
     };
 
     const result = generateAgentFiles(config);
     setGeneratedFiles(result.files);
     setActiveFileIndex(0);
-    setStep(8);
+    setStep(9);
 
     // Persist session in background and store ID for potential edits
     saveWizardSession(config, result.files).then(session => {
@@ -535,7 +539,7 @@ function WizardContent() {
         setSelectedIDEs(selectedIDEs);
         
         setToast("✅ Repository detected! Reviewing configuration...");
-        setTimeout(() => setStep(6), 1500);
+        setTimeout(() => setStep(7), 1500);
       }
     } catch (err: any) {
       console.error(err);
@@ -1003,14 +1007,38 @@ function WizardContent() {
                     ← Back
                   </button>
                   <button className="btn btn-primary" onClick={() => setStep(3)}>
+                    Next: Design →
+                  </button>
+                </div>
+              </>
+            )}
+
+            {/* ── Step 3: Select Design Preset ─────────── */}
+            {step === 3 && (
+              <>
+                <h2 className="wizard-step-title">Select Design Architecture</h2>
+                <p className="wizard-step-subtitle">
+                  Choose a professional design system to guide the AI&apos;s UI generation.
+                </p>
+
+                <DesignPresetSelector 
+                  selectedPreset={designPreset}
+                  onSelect={setDesignPreset}
+                />
+
+                <div className="wizard-nav">
+                  <button className="btn btn-ghost" onClick={() => setStep(2)}>
+                    ← Back
+                  </button>
+                  <button className="btn btn-primary" onClick={() => setStep(4)}>
                     Choose Packages →
                   </button>
                 </div>
               </>
             )}
 
-            {/* ── Step 3: Select Packages ────────────────── */}
-            {step === 3 && selectedTemplate && (
+            {/* ── Step 4: Select Packages ────────────────── */}
+            {step === 4 && selectedTemplate && (
               <>
                 <h2 className="wizard-step-title">
                   {experienceLevel === 'beginner' ? 'Pre-configured Architecture' : 'Add packages & libraries'}
@@ -1191,8 +1219,8 @@ function WizardContent() {
               </>
             )}
 
-            {/* ── Step 4: APIs & Services ────────────────── */}
-            {step === 4 && (
+            {/* ── Step 5: APIs & Services ────────────────── */}
+            {step === 5 && (
               <>
                 <h2 className="wizard-step-title">APIs &amp; External Services</h2>
                 <p className="wizard-step-subtitle">
@@ -1321,18 +1349,18 @@ function WizardContent() {
                 </div>
 
                 <div className="wizard-nav">
-                  <button className="btn btn-ghost" onClick={() => setStep(3)}>
+                  <button className="btn btn-ghost" onClick={() => setStep(4)}>
                     ← Back
                   </button>
-                  <button className="btn btn-primary" onClick={() => setStep(5)}>
+                  <button className="btn btn-primary" onClick={() => setStep(6)}>
                     Continue to Intelligence →
                   </button>
                 </div>
               </>
             )}
 
-            {/* ── Step 5: Agent Intelligence ─────────── */}
-            {step === 5 && (
+            {/* ── Step 6: Agent Intelligence ─────────── */}
+            {step === 6 && (
               <>
                 <h2 className="wizard-step-title">Choose your Agent Brain</h2>
                 <p className="wizard-step-subtitle">
@@ -1368,18 +1396,18 @@ function WizardContent() {
                 </div>
 
                 <div className="wizard-nav">
-                  <button className="btn btn-ghost" onClick={() => setStep(4)}>
+                  <button className="btn btn-ghost" onClick={() => setStep(5)}>
                     ← Back
                   </button>
-                  <button className="btn btn-primary" onClick={() => setStep(6)}>
+                  <button className="btn btn-primary" onClick={() => setStep(7)}>
                     Continue to IDE Selection →
                   </button>
                 </div>
               </>
             )}
 
-            {/* ── Step 6: Select IDE & Agent ───────────── */}
-            {step === 6 && (
+            {/* ── Step 7: Select IDE & Agent ───────────── */}
+            {step === 7 && (
               <>
                 <h2 className="wizard-step-title">Which IDE(s) do you use?</h2>
                 <p className="wizard-step-subtitle">
@@ -1508,12 +1536,12 @@ function WizardContent() {
                 </div>
 
                 <div className="wizard-nav">
-                    <button className="btn btn-ghost" onClick={() => setStep(5)}>
+                    <button className="btn btn-ghost" onClick={() => setStep(6)}>
                       ← Back
                     </button>
                     <button
                       className="btn btn-primary"
-                      onClick={() => setStep(7)}
+                      onClick={() => setStep(8)}
                       disabled={selectedIDEs.length === 0}
                     style={{ opacity: selectedIDEs.length === 0 ? 0.5 : 1 }}
                   >
@@ -1523,8 +1551,8 @@ function WizardContent() {
               </>
             )}
 
-            {/* ── Step 7: Review Configuration ─────────── */}
-            {step === 7 && selectedTemplate && (
+            {/* ── Step 8: Review Configuration ─────────── */}
+            {step === 8 && selectedTemplate && (
               <>
                 <h2 className="wizard-step-title">Review your architecture</h2>
                 <p className="wizard-step-subtitle">Final check before we generate your agent files.</p>
@@ -1604,7 +1632,7 @@ function WizardContent() {
                 </div>
 
                 <div className="wizard-nav">
-                  <button className="btn btn-ghost" onClick={() => setStep(5)}>
+                  <button className="btn btn-ghost" onClick={() => setStep(7)}>
                     ← Back
                   </button>
                   <button className="btn btn-primary" onClick={handleGenerate}>
@@ -1614,8 +1642,8 @@ function WizardContent() {
               </>
             )}
 
-            {/* ── Step 8: Hatch Engine 2.0 Dashboard ────────── */}
-            {step === 8 && generatedFiles.length > 0 && (
+            {/* ── Step 9: Hatch Engine 2.0 Dashboard ────────── */}
+            {step === 9 && generatedFiles.length > 0 && (
               <>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
                   <div>
@@ -1896,7 +1924,7 @@ function WizardContent() {
                 />
 
                 <div className="wizard-nav" style={{ marginTop: "3rem", display: "flex", gap: "1rem", flexWrap: "wrap" }}>
-                  <button className="btn btn-ghost" onClick={() => setStep(7)}>
+                  <button className="btn btn-ghost" onClick={() => setStep(8)}>
                     ← Back to Review
                   </button>
                   <Link href="/knowledge" className="btn btn-secondary">

@@ -255,6 +255,16 @@ function injectIntelligence(content: string, vars: TemplateVariables): string {
 }
 
 /**
+ * Injects selected design system guidelines
+ */
+function injectDesignKnowledge(content: string, vars: TemplateVariables): string {
+  if (vars.designGuidelines) {
+    return content + `\n\n# 🎨 Design System Guidelines\n\n${vars.designGuidelines}`;
+  }
+  return content;
+}
+
+/**
  * Injects selected workflow overlays as tactical protocols
  */
 function injectOverlays(content: string, vars: TemplateVariables): string {
@@ -346,6 +356,8 @@ function formatClaudeCode(vars: TemplateVariables, _base: string): GeneratedFile
   content = injectTemplateInstructions(content, vars);
   content = injectOverlays(content, vars);
   content = injectIntelligence(content, vars);
+  content = injectDesignKnowledge(content, vars);
+
 
   // Always include guardrails
   content += `\n\n## Guardrails
@@ -523,6 +535,7 @@ alwaysApply: true
   contextContent = injectTemplateInstructions(contextContent, vars);
   contextContent = injectOverlays(contextContent, vars);
   contextContent = injectIntelligence(contextContent, vars);
+  contextContent = injectDesignKnowledge(contextContent, vars);
 
   contextContent += `\n\n## Boundaries
 - Never modify migration files without asking.
@@ -700,6 +713,8 @@ This is a {{framework}} project using {{languageLabel}}.
   content = injectServiceKnowledge(content, vars);
   content = injectOverlays(content, vars);
   content = injectIntelligence(content, vars);
+  content = injectDesignKnowledge(content, vars);
+
 
   content += `\n\n## Guardrails
 - Do not modify migration files without explicit confirmation
@@ -773,6 +788,8 @@ Write clean, production-ready code following established project patterns.
   content = injectServiceKnowledge(content, vars);
   content = injectOverlays(content, vars);
   content = injectIntelligence(content, vars);
+  content = injectDesignKnowledge(content, vars);
+
 
   content += `\n\n## Boundaries
 - Never modify migration files without asking
@@ -838,6 +855,8 @@ This is a {{framework}} application using {{languageLabel}}.
   content = injectServiceKnowledge(content, vars);
   content = injectOverlays(content, vars);
   content = injectIntelligence(content, vars);
+  content = injectDesignKnowledge(content, vars);
+
 
   content += `\n\n## Do Not
 - Modify migration files without confirmation
@@ -921,6 +940,8 @@ function formatUniversal(vars: TemplateVariables, _base: string): GeneratedFile[
   content = injectServiceKnowledge(content, vars);
   content = injectOverlays(content, vars);
   content = injectIntelligence(content, vars);
+  content = injectDesignKnowledge(content, vars);
+
 
   content += `\n\n## Guardrails
 - ❌ Never modify migration files without asking
@@ -946,6 +967,7 @@ function formatTrae(vars: TemplateVariables, _base: string): GeneratedFile[] {
   content = injectIntelligence(content, vars);
   content = injectOverlays(content, vars);
   content = injectPackageKnowledge(content, vars);
+  content = injectDesignKnowledge(content, vars);
 
   return [{
     ideTarget: 'trae',
@@ -962,6 +984,7 @@ function formatAider(vars: TemplateVariables, _base: string): GeneratedFile[] {
   let content = compose(`# Aider Instructions — {{projectName}}\n\nCompact directives for Aider autonomous sessions.\n\n`, vars);
   content = injectIntelligence(content, vars);
   content = injectPackageKnowledge(content, vars);
+  content = injectDesignKnowledge(content, vars);
   content += `\n\n## Aider Mode\n- Use --auto-test whenever possible.\n- Use --architect mode for structural changes.\n`;
 
   return [{
@@ -980,6 +1003,7 @@ function formatDevin(vars: TemplateVariables, _base: string): GeneratedFile[] {
   content = injectIntelligence(content, vars);
   content = injectOverlays(content, vars);
   content = injectServiceKnowledge(content, vars);
+  content = injectDesignKnowledge(content, vars);
 
   return [{
     ideTarget: 'devin',
@@ -995,6 +1019,8 @@ function formatDevin(vars: TemplateVariables, _base: string): GeneratedFile[] {
 function formatReplit(vars: TemplateVariables, _base: string): GeneratedFile[] {
   let content = compose(`# Replit Workspace Instructions — {{projectName}}\n\n`, vars);
   content = injectIntelligence(content, vars);
+  content = injectDesignKnowledge(content, vars);
+
   
   return [{
     ideTarget: 'replit',
@@ -1028,6 +1054,7 @@ Your objective is to maintain high-fidelity implementation of {{framework}} patt
 `, vars);
 
   geminiContent = injectIntelligence(geminiContent, vars);
+  geminiContent = injectDesignKnowledge(geminiContent, vars);
   
   files.push({
     ideTarget: 'antigravity',
@@ -1070,6 +1097,7 @@ Your objective is to maintain high-fidelity implementation of {{framework}} patt
   rulesContent = injectPackageKnowledge(rulesContent, vars);
   rulesContent = injectServiceKnowledge(rulesContent, vars);
   rulesContent = injectOverlays(rulesContent, vars);
+  rulesContent = injectDesignKnowledge(rulesContent, vars);
 
   files.push({
     ideTarget: 'antigravity',
