@@ -189,8 +189,8 @@ export default function Navbar() {
           margin: 0 0.25rem;
         }
 
-        .navbar-links li a,
-        .navbar-links li a:visited {
+        .navbar-links li a:not(.btn),
+        .navbar-links li a:visited:not(.btn) {
           color: var(--text-secondary) !important;
           text-decoration: none;
           font-size: 0.9375rem;

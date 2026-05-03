@@ -146,13 +146,15 @@ body {
 }
 
 a {
-  color: inherit;
   text-decoration: none;
+  color: var(--accent-primary);
+  transition: color var(--transition-base);
 }
 
-a:visited {
-  color: inherit;
+a:hover {
+  color: var(--accent-primary-light);
 }
+
 
 
 h1, h2, h3, h4, h5, h6 {
@@ -229,22 +231,32 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .btn-primary {
-  background: var(--text-primary); color: var(--canvas);
-  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+  background: var(--text-primary); 
+  color: var(--canvas) !important;
+  box-shadow: var(--shadow-sm);
+}
+.btn-primary:visited {
+  color: var(--canvas) !important;
 }
 .btn-primary:hover {
   transform: translateY(-1px);
-  background: #ffffff;
-  box-shadow: 0 8px 20px rgba(255, 255, 255, 0.15);
+  filter: brightness(1.1);
+  color: var(--canvas) !important;
+  box-shadow: var(--shadow-md);
 }
 
 .btn-secondary {
-  background: var(--surface-1); color: var(--text-primary);
-  border-color: var(--border-medium);
+  background: var(--surface-2); 
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-medium);
+}
+.btn-secondary:visited {
+  color: var(--text-primary) !important;
 }
 .btn-secondary:hover {
-  background: var(--surface-2);
+  background: var(--surface-3);
   border-color: var(--border-strong);
+  color: var(--text-primary) !important;
 }
 
 .btn-ghost {
