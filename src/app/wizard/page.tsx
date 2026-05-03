@@ -93,6 +93,12 @@ function WizardContent() {
   const urlSessionId = searchParams.get("sessionId");
 
   useEffect(() => {
+    if (selectedTemplate?.recommendedDesignPreset) {
+      setDesignPreset(selectedTemplate.recommendedDesignPreset);
+    }
+  }, [selectedTemplate]);
+
+  useEffect(() => {
     const supabase = createClient();
     supabase.auth.getUser().then(({ data }) => {
       setUser(data.user);
@@ -387,7 +393,7 @@ function WizardContent() {
     }).catch(err => {
       console.warn("Failed to persist wizard session:", err);
     });
-  }, [selectedTemplate, projectName, stackConfig, selectedIDEs, selectedPackages, selectedServices, templateVersion, includeBoilerplate, experienceLevel, orchestrationMode, selectedBrains, selectedWorkflows, modelSlug]);
+  }, [selectedTemplate, projectName, stackConfig, selectedIDEs, selectedPackages, selectedServices, templateVersion, includeBoilerplate, experienceLevel, orchestrationMode, selectedBrains, selectedWorkflows, modelSlug, designPreset]);
 
   // Handle saving from the editor
   const handleEditorSave = useCallback(async (newContent: string) => {
@@ -1024,6 +1030,7 @@ function WizardContent() {
                 <DesignPresetSelector 
                   selectedPreset={designPreset}
                   onSelect={setDesignPreset}
+                  recommendedPreset={selectedTemplate?.recommendedDesignPreset}
                 />
 
                 <div className="wizard-nav">

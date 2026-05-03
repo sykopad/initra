@@ -14,6 +14,7 @@ export const PROJECT_TEMPLATES: ProjectTemplate[] = [
     icon: '▲',
     description: 'Full-stack React framework with SSR, API routes, and App Router',
     language: 'typescript',
+    recommendedDesignPreset: 'vercel',
     availableVersions: [
       { id: '16.2.4', label: 'Next.js 16 (Latest)', status: 'stable', major: 16 },
       { id: '15.0.0', label: 'Next.js 15', status: 'stable', major: 15 },
@@ -242,6 +243,11 @@ export default function RootLayout({
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
   --background-end-rgb: 255, 255, 255;
+  
+  {{#if designTokensCss}}
+  {{designTokensCss}}
+  {{/if}}
+
   {{#if brandColors}}
   /* Brand Palette */
   --primary-brand: {{brandColors}};
@@ -377,6 +383,7 @@ test('has title', async ({ page }) => {
     icon: '💚',
     description: 'The Intuitive Vue Framework — SSR, automatic routing, and hybrid rendering',
     language: 'typescript',
+    recommendedDesignPreset: 'vercel',
     availableVersions: [
       { id: '4.4.2', label: 'Nuxt 4 (Stable)', status: 'stable', major: 4 },
       { id: '3.13.0', label: 'Nuxt 3', status: 'stable', major: 3 }
@@ -496,6 +503,7 @@ export default defineNuxtConfig({
     icon: '📱',
     description: 'Cross-platform mobile apps with React Native and Expo',
     language: 'typescript',
+    recommendedDesignPreset: 'apple',
     availableVersions: [
       { id: '0.85.1', label: 'v0.85 (Stable)', status: 'stable', major: 0 }
     ],
@@ -610,6 +618,7 @@ export default defineNuxtConfig({
     icon: '⚡',
     description: 'Modern Python API framework with automatic OpenAPI docs',
     language: 'python',
+    recommendedDesignPreset: 'stripe',
     availableVersions: [
       { id: '0.136.0', label: 'v0.136 (Stable)', status: 'stable', major: 0 }
     ],
@@ -1080,6 +1089,7 @@ func Setup(r *gin.Engine) {
     icon: '🧠',
     description: 'Machine learning project with Python, standard ML/DL frameworks',
     language: 'python',
+    recommendedDesignPreset: 'anthropic',
     availableVersions: [
       { id: '1.0.0', label: 'Custom', status: 'stable', major: 1 }
     ],
@@ -1186,6 +1196,7 @@ func Setup(r *gin.Engine) {
     icon: '🔌',
     description: 'Model Context Protocol (MCP) server to extend AI agent capabilities with custom tools',
     language: 'typescript',
+    recommendedDesignPreset: 'anthropic',
     availableVersions: [
       { id: '1.0.0', label: 'MCP SDK (TypeScript)', status: 'stable', major: 1 }
     ],

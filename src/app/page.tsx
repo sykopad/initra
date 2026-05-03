@@ -46,27 +46,25 @@ export default function HomePage() {
       <Navbar />
 
       {/* Hero Section */}
-      <section className="hero" style={{ paddingTop: '12rem', paddingBottom: '8rem' }}>
-        <div className="hero-sovereign-glow"></div>
+      <section className="hero section-glow">
         <div className="container">
-          <div className="hero-badge">
-            <span className="badge-dot" style={{ background: 'var(--accent-amber)' }}></span>
+          <div className="hero-badge hairline-border">
+            <span className="badge-dot" style={{ background: 'var(--accent-primary)' }}></span>
             Now Live: Hatch Engine 2.0
           </div>
-          <h1 style={{ maxWidth: '900px', margin: '0 auto var(--space-xl)' }}>
-            The Autonomous SaaS Builder for <span className="gradient-text" style={{ background: 'var(--gradient-sovereign)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Sovereign Developers.</span>
+          <h1 className="text-gradient">
+            The Autonomous SaaS Builder for Sovereign Developers.
           </h1>
-          <p className="hero-subtitle" style={{ maxWidth: '750px' }}>
+          <p className="hero-subtitle">
             Build, deploy, and manage production applications on your own Git infrastructure.
-            Initra orchestrates your entire stack—from repository creation to cloud deployment—while
-            ensuring you own every single line of code.
+            Initra orchestrates your entire stack while ensuring you own every single line of code.
           </p>
 
           <div className="hero-actions">
-            <Link href="/wizard" className="btn btn-primary btn-lg" style={{ background: 'var(--gradient-sovereign)' }}>
+            <Link href="/wizard" className="btn btn-primary">
               🚀 Hatch a New Venture
             </Link>
-            <Link href="/community" className="btn btn-secondary btn-lg">
+            <Link href="/community" className="btn btn-secondary">
               🌍 Browse Blueprints
             </Link>
           </div>
@@ -118,14 +116,14 @@ export default function HomePage() {
       </section>
 
       {/* Value Propositions */}
-      <section className="features-section" style={{ background: 'rgba(0,0,0,0.2)' }}>
+      <section className="features-section" style={{ background: 'var(--surface-1)' }}>
         <div className="container">
-          <h2 style={{ fontSize: 'var(--text-4xl)', marginBottom: '4rem' }}>
-            A Developer-First Alternative to <span className="gradient-text">Vendor Lock-in.</span>
+          <h2 className="text-gradient" style={{ textAlign: 'center', marginBottom: '4rem' }}>
+            A Developer-First Alternative to Vendor Lock-in.
           </h2>
           <div className="features-grid">
             <div className="card feature-card">
-              <div className="feature-icon" style={{ borderColor: 'var(--accent-amber)' }}>🐙</div>
+              <div className="feature-icon" style={{ borderColor: 'var(--accent-primary)' }}>🐙</div>
               <h3>100% Repository Ownership</h3>
               <p>
                 Unlike closed-door app builders, Initra pushes every change directly to your own GitHub infrastructure.
@@ -139,7 +137,7 @@ export default function HomePage() {
                 Scan existing repositories to automatically identify UI landmarks, logic blocks, and
                 architecture patterns for instant AI-driven modification.
               </p>
-              <div className="scanner-container">
+              <div className="scanner-container hairline-border">
                 <div className="scanner-line"></div>
                 <div className={`scan-landmark ${scannerActive ? 'active' : ''}`} style={{ top: '20%', left: '10%', width: '80%', height: '30px' }}></div>
                 <div className={`scan-landmark ${!scannerActive ? 'active' : ''}`} style={{ top: '60%', left: '20%', width: '40%', height: '50px' }}></div>
@@ -149,7 +147,7 @@ export default function HomePage() {
               </div>
             </div>
             <div className="card feature-card">
-              <div className="feature-icon" style={{ borderColor: 'var(--accent-primary)' }}>🧠</div>
+              <div className="feature-icon" style={{ borderColor: 'var(--accent-blue)' }}>🧠</div>
               <h3>Multi-Agent Orchestration</h3>
               <p>
                 Synthesis of complex business objectives into high-fidelity IDE rules.

@@ -202,7 +202,7 @@ Your primary goal is to implement: "${goal}"
 
   vars.agentIntelligence = intelligenceBlock.trim();
 
-  // 4. Inject Design Guidelines
+  // 4. Inject Design Guidelines & Tokens
   if (designPresetSlug) {
     const preset = getDesignPreset(designPresetSlug);
     if (preset) {
@@ -213,10 +213,39 @@ ${preset.description}
 ### UI Directives
 ${preset.content}
 `;
+      vars.designTokensCss = synthesizeDesignTokens(preset);
     }
   }
 
   return vars;
+}
+
+/** 
+ * Translates design library JSON into ready-to-inject CSS variables 
+ */
+function synthesizeDesignTokens(preset: import('./types').DesignPreset): string {
+  let css = `/* Design Tokens: ${preset.name} */\n`;
+  
+  if (preset.colors) {
+    css += '  /* Colors */\n';
+    for (const [key, value] of Object.entries(preset.colors)) {
+      // Convert "on-primary" to "--on-primary" etc
+      const safeKey = key.replace(/[^a-zA-Z0-9-]/g, '-').toLowerCase();
+      css += `  --${safeKey}: ${value};\n`;
+    }
+  }
+  
+  if (preset.typography) {
+    css += '\n  /* Typography (Base Tokens) */\n';
+    // Just inject some core typography identifiers if they exist
+    if (preset.typography['body-md']) {
+      const body = preset.typography['body-md'];
+      if (body.fontFamily) css += `  --font-primary: ${body.fontFamily};\n`;
+      if (body.fontSize) css += `  --font-size-base: ${body.fontSize};\n`;
+    }
+  }
+  
+  return css;
 }
 
 function deriveDevCommand(template: string, pm: string): string {

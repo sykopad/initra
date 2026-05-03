@@ -147,6 +147,8 @@ export interface ProjectTemplate {
   agentInstructions?: string;
   /** Optional: specialized design guidelines for this template */
   designPreset?: string;
+  /** Optional: recommended design preset for this template */
+  recommendedDesignPreset?: string;
 }
 
 /** Design Preset definition */
@@ -250,6 +252,7 @@ export interface TemplateVariables {
   selectedWorkflows?: string[];
   designPreset?: string;
   designGuidelines?: string;
+  designTokensCss?: string;
 
   [key: string]: string | boolean | string[] | undefined;
 }

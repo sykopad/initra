@@ -1,7 +1,8 @@
-import { WizardConfig, BoilerplateFile, GeneratedFile, IDETarget } from './types';
+import { WizardConfig, BoilerplateFile, GeneratedFile, IDETarget, TemplateVariables } from './types';
 import { getTemplate } from './templates';
 import { getPackageDefinition } from './package-library';
 import { getServiceDefinition } from './service-library';
+import { extractVariables, compose } from './prompt-composer';
 
 /**
  * Boilerplate Engine
@@ -96,13 +97,32 @@ function resolveFileConflicts(files: BoilerplateFile[], config: WizardConfig): G
     fileMap['package.json'] = mergePackageJsons(packageJsons, config);
   }
 
-  // Perform interpolation on all files
-  const variables = collectInterpolationVariables(config);
+  // Perform interpolation on all files using the shared composer
+  const variables = extractVariables(
+    config.templateSlug,
+    config.templateVersion,
+    config.projectName,
+    config.stackConfig,
+    config.selectedPackages ?? [],
+    config.selectedServices ?? [],
+    config.experienceLevel ?? 'experienced',
+    config.orchestrationMode ?? 'single-agent',
+    config.selectedBrains ?? [],
+    config.selectedWorkflows ?? [],
+    config.designPreset
+  );
+
+  // Add projectSlug manually if not in TemplateVariables
+  const varsWithSlug = {
+    ...variables,
+    projectSlug: config.projectName.toLowerCase().replace(/\s+/g, '-')
+  } as any;
+
   return Object.values(fileMap).map(file => ({
     ...file,
-    filePath: interpolate(file.filePath, variables),
-    filename: interpolate(file.filename, variables),
-    content: interpolate(file.content, variables)
+    filePath: interpolateSimple(file.filePath, varsWithSlug),
+    filename: interpolateSimple(file.filename, varsWithSlug),
+    content: compose(file.content, varsWithSlug)
   }));
 }
 
@@ -146,25 +166,15 @@ function mergePackageJsons(fragments: BoilerplateFile[], config: WizardConfig): 
 }
 
 /**
- * Simple string interpolation for boilerplate
+ * Simple string interpolation for non-logic fields (paths)
  */
-export function interpolate(content: string, variables: Record<string, string>): string {
+export function interpolateSimple(content: string, variables: Record<string, any>): string {
   let result = content;
   for (const [key, value] of Object.entries(variables)) {
-    const regex = new RegExp(`{{${key}}}`, 'g');
-    result = result.replace(regex, value);
+    if (typeof value === 'string' || typeof value === 'number') {
+      const regex = new RegExp(`{{${key}}}`, 'g');
+      result = result.replace(regex, String(value));
+    }
   }
   return result;
-}
-
-function collectInterpolationVariables(config: WizardConfig): Record<string, string> {
-  return {
-    projectName: config.projectName,
-    projectSlug: config.projectName.toLowerCase().replace(/\s+/g, '-'),
-    templateSlug: config.templateSlug,
-    templateVersion: config.templateVersion,
-    packageManager: (config.stackConfig.packageManager as string) || 'npm',
-    middlewareFilename: config.templateVersion === '16.2.4' ? 'proxy' : 'middleware',
-    middlewareExport: config.templateVersion === '16.2.4' ? 'export function proxy' : 'export default',
-  };
 }

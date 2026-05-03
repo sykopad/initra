@@ -7,9 +7,14 @@ import { DesignPreset } from '@/lib/engine/types';
 interface DesignPresetSelectorProps {
   selectedPreset: string | null;
   onSelect: (preset: string | null) => void;
+  recommendedPreset?: string;
 }
 
-export default function DesignPresetSelector({ selectedPreset, onSelect }: DesignPresetSelectorProps) {
+export default function DesignPresetSelector({ 
+  selectedPreset, 
+  onSelect, 
+  recommendedPreset 
+}: DesignPresetSelectorProps) {
   const presets = getAllDesignPresets();
 
   return (
@@ -54,10 +59,25 @@ export default function DesignPresetSelector({ selectedPreset, onSelect }: Desig
                   border: '1px solid rgba(124, 58, 237, 0.2)'
                 }}
               >
-                Preset
+                {preset.slug === recommendedPreset ? 'Recommended' : 'Preset'}
               </span>
             </div>
-            <h3 style={{ marginBottom: '0.5rem' }}>{preset.name}</h3>
+            <h3 style={{ marginBottom: '0.5rem', display: 'flex', alignItems: 'center' }}>
+              {preset.name}
+              {preset.slug === recommendedPreset && (
+                <span 
+                  style={{ 
+                    marginLeft: 'auto',
+                    fontSize: '0.6rem',
+                    fontWeight: 'bold',
+                    textTransform: 'uppercase',
+                    color: 'var(--primary-light)'
+                  }}
+                >
+                  Best Match
+                </span>
+              )}
+            </h3>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
               {preset.description}
             </p>
