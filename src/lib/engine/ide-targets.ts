@@ -13,6 +13,7 @@ export const IDE_TARGETS: IDETargetConfig[] = [
     configPath: 'CLAUDE.md',
     description: 'Claude Code agent context file. Supports persistent context via CLAUDE.md and extensible Agent Skills.',
     supportsMultiFile: false,
+    supportsAgentTeam: true,
   },
   {
     slug: 'cursor',
@@ -22,6 +23,7 @@ export const IDE_TARGETS: IDETargetConfig[] = [
     configPath: '.cursor/rules/project-context.mdc',
     description: 'Cursor AI rules, skills, and subagents. Supports persistent context, specialized workflows, and parallel task delegation.',
     supportsMultiFile: true,
+    supportsAgentTeam: true,
   },
   {
     slug: 'windsurf',
@@ -31,6 +33,7 @@ export const IDE_TARGETS: IDETargetConfig[] = [
     configPath: '.windsurf/rules/project-context.md',
     description: 'Windsurf Cascade agent. Supports persistent context via Memories, Rules, and AGENTS.md.',
     supportsMultiFile: true,
+    supportsAgentTeam: true,
   },
   {
     slug: 'gemini',
@@ -40,6 +43,7 @@ export const IDE_TARGETS: IDETargetConfig[] = [
     configPath: 'GEMINI.md',
     description: 'Gemini CLI/IDE agent instructions. Hierarchical loading from root.',
     supportsMultiFile: false,
+    supportsAgentTeam: false,
   },
   {
     slug: 'copilot',
@@ -49,6 +53,7 @@ export const IDE_TARGETS: IDETargetConfig[] = [
     configPath: '.github/copilot-instructions.md',
     description: 'GitHub Copilot agent instructions. Supports persistent context via Instructions, Custom Agents, and Agent Skills.',
     supportsMultiFile: false,
+    supportsAgentTeam: true,
   },
   {
     slug: 'trae',
@@ -58,6 +63,7 @@ export const IDE_TARGETS: IDETargetConfig[] = [
     configPath: '.traerules',
     description: 'ByteDance Trae IDE rules. Supports adaptive project rules, global user rules, and on-demand Agent Skills.',
     supportsMultiFile: false,
+    supportsAgentTeam: false,
   },
   {
     slug: 'aider',
@@ -67,6 +73,7 @@ export const IDE_TARGETS: IDETargetConfig[] = [
     configPath: '.aider.instructions.md',
     description: 'Aider CLI agent instructions for persistent project context.',
     supportsMultiFile: false,
+    supportsAgentTeam: false,
   },
   {
     slug: 'devin',
@@ -76,6 +83,7 @@ export const IDE_TARGETS: IDETargetConfig[] = [
     configPath: '.devin/instructions.md',
     description: 'Autonomous Devin AI instruction set for complex engineering.',
     supportsMultiFile: false,
+    supportsAgentTeam: false,
   },
   {
     slug: 'replit',
@@ -85,6 +93,7 @@ export const IDE_TARGETS: IDETargetConfig[] = [
     configPath: '.replit',
     description: 'Replit Agent specialized environment and build rules.',
     supportsMultiFile: false,
+    supportsAgentTeam: false,
   },
   {
     slug: 'universal',
@@ -94,6 +103,7 @@ export const IDE_TARGETS: IDETargetConfig[] = [
     configPath: 'AGENTS.md',
     description: 'Tool-agnostic open standard. Works across multiple AI coding agents.',
     supportsMultiFile: false,
+    supportsAgentTeam: false,
   },
   {
     slug: 'antigravity',
@@ -103,6 +113,7 @@ export const IDE_TARGETS: IDETargetConfig[] = [
     configPath: '.agents/rules/project-rules.md',
     description: 'Advanced agent orchestration with Rules, Workflows, and Skills.',
     supportsMultiFile: true,
+    supportsAgentTeam: false,
   },
   {
     slug: 'codex',
@@ -112,6 +123,7 @@ export const IDE_TARGETS: IDETargetConfig[] = [
     configPath: '.codex/config.toml',
     description: 'Codex orchestration agent. Supports parallel subagents and CSV batch processing.',
     supportsMultiFile: true,
+    supportsAgentTeam: true,
   },
   {
     slug: 'junie',
@@ -121,6 +133,7 @@ export const IDE_TARGETS: IDETargetConfig[] = [
     configPath: '.junie/AGENTS.md',
     description: 'Junie CLI and JetBrains agent. Supports Agent Skills, custom subagents, and AGENTS.md guidelines.',
     supportsMultiFile: true,
+    supportsAgentTeam: true,
   },
   {
     slug: 'mistral-vibe',
@@ -130,6 +143,7 @@ export const IDE_TARGETS: IDETargetConfig[] = [
     configPath: '.vibe/config.toml',
     description: 'Conversational CLI agent by Mistral AI. Supports subagents, skills, and interactive user questions.',
     supportsMultiFile: true,
+    supportsAgentTeam: false,
   },
   {
     slug: 'factory',
@@ -139,6 +153,7 @@ export const IDE_TARGETS: IDETargetConfig[] = [
     configPath: '.factory/config.toml',
     description: 'AI-native software development platform. Supports Droids, Skills, and custom slash commands.',
     supportsMultiFile: true,
+    supportsAgentTeam: true,
   },
   {
     slug: 'ona',
@@ -148,6 +163,7 @@ export const IDE_TARGETS: IDETargetConfig[] = [
     configPath: 'AGENTS.md',
     description: 'Cloud-based background agents for teams. Supports repository skills, organization skills, and AGENTS.md.',
     supportsMultiFile: true,
+    supportsAgentTeam: false,
   },
   {
     slug: 'autohand',
@@ -157,6 +173,7 @@ export const IDE_TARGETS: IDETargetConfig[] = [
     configPath: 'autohand.json',
     description: 'Autonomous software evolution platform. Supports Level 5 programming autonomy, self-evolving code, and CLI-based orchestration.',
     supportsMultiFile: true,
+    supportsAgentTeam: false,
   },
   {
     slug: 'databricks-genie',
@@ -166,6 +183,7 @@ export const IDE_TARGETS: IDETargetConfig[] = [
     configPath: 'AGENTS.md',
     description: 'Autonomous AI partner for data engineering, analytics, and ML. Supports AGENTS.md auto-discovery, custom instructions, and Agent Skills.',
     supportsMultiFile: true,
+    supportsAgentTeam: false,
   },
   {
     slug: 'laravel-boost',
@@ -175,6 +193,7 @@ export const IDE_TARGETS: IDETargetConfig[] = [
     configPath: 'composer.json',
     description: 'Guidelines and agent skills for writing high-quality Laravel applications. Supports on-demand activation via .ai/ directory.',
     supportsMultiFile: true,
+    supportsAgentTeam: false,
   },
 ];
 

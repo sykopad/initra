@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useEffect, useRef } from "react";
 import { GeneratedFile } from "@/lib/engine/types";
 
 interface DeploymentCenterProps {
@@ -10,7 +10,7 @@ interface DeploymentCenterProps {
   syncResult: { url: string; repoFullName: string } | null;
   isPushing: boolean;
   hatchStatus?: {
-    provisioningStatus: Record<string, string>;
+    provisioningStatus: Record<string, any>;
     vercelStatus: string;
     liveUrl: string;
     isHatched: boolean;
@@ -25,6 +25,14 @@ export default function DeploymentCenter({
   isPushing,
   hatchStatus
 }: DeploymentCenterProps) {
+  const logRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll telemetry logs
+  useEffect(() => {
+    if (logRef.current) {
+      logRef.current.scrollTop = logRef.current.scrollHeight;
+    }
+  }, [hatchStatus?.provisioningStatus.logs]);
 
   const pillars = [
     { id: 'github',   label: 'Code Repository',   icon: '🐙', key: 'github' },
@@ -85,6 +93,29 @@ export default function DeploymentCenter({
             </div>
           );
         })}
+      </div>
+
+      {/* Telemetry Stream */}
+      <div className="telemetry-stream">
+        <div className="stream-header">
+          <span className="label">Event Log</span>
+          <span className="live-badge">Live Telemetry</span>
+        </div>
+        <div className="stream-content" ref={logRef}>
+          {hatchStatus?.provisioningStatus.logs?.map((log: any, idx: number) => (
+            <div key={idx} className={`log-entry ${log.status}`}>
+              <span className="timestamp">[{new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}]</span>
+              <span className="dot"></span>
+              <span className="message">{log.message}</span>
+            </div>
+          ))}
+          {!hatchStatus?.provisioningStatus.logs?.length && !isPushing && (
+             <div className="log-placeholder">Awaiting command...</div>
+          )}
+          {isPushing && !hatchStatus?.provisioningStatus.logs?.length && (
+             <div className="log-entry info pulse">Synchronizing with Git & Cloud pillars...</div>
+          )}
+        </div>
       </div>
 
       {!syncResult && !isPushing && (
@@ -243,6 +274,124 @@ export default function DeploymentCenter({
         .action-link.live {
            background: var(--success);
            color: white;
+        }
+
+        .telemetry-stream {
+          margin-top: 1.5rem;
+          background: rgba(0, 0, 0, 0.3);
+          border: 1px solid rgba(255, 255, 255, 0.05);
+          border-radius: 12px;
+          overflow: hidden;
+        }
+
+        .stream-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 0.5rem 1rem;
+          background: rgba(255, 255, 255, 0.03);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .stream-header .label {
+          font-size: 0.65rem;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.1em;
+          color: var(--text-muted);
+        }
+
+        .live-badge {
+          font-size: 0.55rem;
+          font-weight: 800;
+          color: var(--primary-light);
+          display: flex;
+          align-items: center;
+          gap: 4px;
+        }
+
+        .live-badge::before {
+          content: "";
+          width: 4px;
+          height: 4px;
+          background: var(--primary);
+          border-radius: 50%;
+          animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+          50% { opacity: 0; }
+        }
+
+        .stream-content {
+          height: 160px;
+          overflow-y: auto;
+          padding: 0.75rem;
+          font-family: 'JetBrains Mono', 'Fira Code', monospace;
+          font-size: 0.75rem;
+          display: flex;
+          flex-direction: column;
+          gap: 0.4rem;
+          scroll-behavior: smooth;
+        }
+
+        .log-entry {
+          display: flex;
+          align-items: flex-start;
+          gap: 0.75rem;
+          color: var(--text-secondary);
+          line-height: 1.4;
+        }
+
+        .log-entry.success { color: var(--success-light); }
+        .log-entry.error { color: #ef4444; }
+        .log-entry.warning { color: #f59e0b; }
+
+        .timestamp {
+          color: var(--text-muted);
+          font-size: 0.65rem;
+          flex-shrink: 0;
+          width: 65px;
+        }
+
+        .dot {
+          width: 4px;
+          height: 4px;
+          border-radius: 50%;
+          background: currentColor;
+          margin-top: 0.45rem;
+          flex-shrink: 0;
+          opacity: 0.5;
+        }
+
+        .log-placeholder {
+          height: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: var(--text-muted);
+          font-style: italic;
+          font-size: 0.7rem;
+        }
+
+        .pulse {
+          animation: textPulse 2s infinite;
+        }
+
+        @keyframes textPulse {
+          50% { opacity: 0.5; }
+        }
+
+        /* Custom scrollbar */
+        .stream-content::-webkit-scrollbar {
+          width: 4px;
+        }
+        .stream-content::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .stream-content::-webkit-scrollbar-thumb {
+          background: rgba(255, 255, 255, 0.1);
+          border-radius: 2px;
         }
       `}</style>
     </div>

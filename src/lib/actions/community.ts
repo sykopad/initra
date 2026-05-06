@@ -287,9 +287,10 @@ export async function getUserVotes() {
 export async function publishSkillAction(skill: {
   name: string;
   description: string;
-  prompt_template: string;
+  content: string;
   category: string;
-  target_framework: string;
+  ide_targets: string[];
+  slug: string;
 }) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -297,11 +298,13 @@ export async function publishSkillAction(skill: {
   if (!user) throw new Error("You must be logged in to publish a skill.");
 
   const { data, error } = await supabase
-    .from("agent_skills")
+    .from("community_skills")
     .insert({
       ...skill,
-      user_id: user.id,
-      vote_score: 1 // Self upvote
+      creator_id: user.id,
+      vote_score: 1, // Self upvote
+      is_published: true,
+      version: '1.0.0'
     })
     .select()
     .single();
@@ -310,4 +313,36 @@ export async function publishSkillAction(skill: {
 
   revalidatePath("/community");
   return data;
+}
+
+export async function getCommunitySkills() {
+  const supabase = await createClient();
+  
+  const { data, error } = await supabase
+    .from("community_skills")
+    .select("*")
+    .eq("is_published", true)
+    .order("vote_score", { ascending: false });
+
+  if (error) {
+    console.error("Error fetching community skills:", error);
+    return [];
+  }
+  
+  return data;
+}
+
+export async function voteSkillAction(skillId: string, direction: number) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) throw new Error("You must be signed in to vote");
+
+  const { error } = await supabase.rpc('vote_community_skill', {
+    target_id: skillId,
+    vote_delta: direction
+  });
+
+  if (error) throw error;
+  revalidatePath("/community");
 }

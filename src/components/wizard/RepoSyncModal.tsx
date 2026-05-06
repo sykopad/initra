@@ -29,6 +29,7 @@ export default function RepoSyncModal({
   const [name, setName] = useState("");
   const [description, setDescription] = useState("Project bootstrapped with Initra AI (https://initra.app)");
   const [isPrivate, setIsPrivate] = useState(true);
+  const [webhookUrl, setWebhookUrl] = useState("");
 
   useEffect(() => {
     if (isOpen) {
@@ -91,6 +92,18 @@ export default function RepoSyncModal({
             </p>
           </div>
 
+          <div className="form-group">
+            <label>Automation Webhook (Zapier / Make)</label>
+            <input 
+              type="url" 
+              value={webhookUrl} 
+              onChange={(e) => setWebhookUrl(e.target.value)} 
+              placeholder="https://hooks.zapier.com/..."
+              disabled={isPushing}
+            />
+            <p className="input-hint">Triggered automatically upon successful venture hatching.</p>
+          </div>
+
           {hatchWarning && (
             <div className="warning-box animate-in">
               <span className="warning-icon">🛡️</span>
@@ -108,7 +121,7 @@ export default function RepoSyncModal({
           </button>
           <button 
             className={`btn btn-primary ${isPushing ? "loading" : ""}`} 
-            onClick={() => onConfirm({ name, description, isPrivate })}
+            onClick={() => onConfirm({ name, description, isPrivate, webhookUrl })}
             disabled={isPushing || !name || !!hatchWarning}
           >
             {isPushing ? "Creating Repository..." : "🚀 Create & Push"}

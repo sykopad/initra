@@ -161,6 +161,57 @@ export const LAYMAN_PROJECTS: LaymanProject[] = [
       'slack': 'Internal notifications to alert support agents instantly.',
       'supabase': 'Secure database for storing customer profiles and internal notes.'
     }
+  },
+  {
+    slug: 'multi-tenant-saas',
+    name: 'Enterprise Multi-Tenant SaaS',
+    description: 'A robust B2B platform with organization-scoped routing, team-scoped data isolation, and tenant management.',
+    difficulty: 'hard',
+    icon: '🏗️',
+    category: 'web-app',
+    recommendedTemplate: 'nextjs',
+    recommendedPackages: ['zustand', 'lucide-react', 'zod'],
+    recommendedServices: ['supabase', 'stripe', 'resend', 'sentry'],
+    reasoning: {
+      'supabase': 'Core infrastructure with RLS for ironclad team-scoped data isolation.',
+      'nextjs': 'Enterprise routing using [orgSlug] patterns for clear tenant separation.',
+      'stripe': 'Multi-tenant subscription management at the organization level.',
+      'resend': 'Team invitation workflows and organization-wide notifications.'
+    }
+  },
+  {
+    slug: 'global-platform',
+    name: 'Global Scale-First Platform',
+    description: 'A worldwide application with ultra-low latency, multi-region deployment, and global edge network optimizations.',
+    difficulty: 'hard',
+    icon: '🌐',
+    category: 'web-app',
+    recommendedTemplate: 'nextjs',
+    recommendedPackages: ['framer-motion', 'lucide-react', 'zod'],
+    recommendedServices: ['vercel', 'supabase', 'algolia', 'sentry'],
+    reasoning: {
+      'vercel': 'Global Edge Network with multi-region deployment for <50ms latency worldwide.',
+      'algolia': 'Globally distributed search for instant results regardless of user location.',
+      'supabase': 'Regional database capabilities and global storage for fast media delivery.',
+      'sentry': 'Global error tracking to monitor regional performance and stability.'
+    }
+  },
+  {
+    slug: 'enterprise-data-platform',
+    name: 'Massive-Scale Enterprise Data Platform',
+    description: 'A heavy-data B2B platform with multi-region database sharding, global edge optimizations, and high-performance infrastructure.',
+    difficulty: 'hard',
+    icon: '📊',
+    category: 'web-app',
+    recommendedTemplate: 'nextjs',
+    recommendedPackages: ['zustand', 'lucide-react', 'zod'],
+    recommendedServices: ['supabase', 'vercel', 'sentry', 'stripe'],
+    reasoning: {
+      'supabase': 'Regional database sharding to handle massive datasets with local latency.',
+      'vercel': 'Global Edge Network for fast application delivery and regional routing.',
+      'sentry': 'Traceability across sharded database instances and global regions.',
+      'stripe': 'Enterprise-grade billing across multiple regional tenants.'
+    }
   }
 ];
 

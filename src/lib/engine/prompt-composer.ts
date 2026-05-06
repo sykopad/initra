@@ -7,6 +7,7 @@ import { TemplateVariables } from './types';
 import { getTemplate } from './templates';
 import { BRAIN_MODULES, FRAMEWORK_ADRS } from './intelligence-overlays';
 import { getDesignPreset } from './design-library';
+import { getDesignPresetTokens } from './design-presets';
 
 /** Check if a template variable is considered "empty" / falsy */
 function isEmpty(value: string | boolean | string[] | undefined): boolean {
@@ -82,7 +83,30 @@ export function extractVariables(
   orchestrationMode: 'single-agent' | 'multi-agent' = 'single-agent',
   selectedBrains: string[] = [],
   selectedWorkflows: string[] = [],
-  designPresetSlug?: string
+  designPresetSlug?: string,
+  swarmTopology: 'mesh' | 'hierarchical' | 'adaptive' = 'hierarchical',
+  developmentMethodology: 'standard' | 'sparc' = 'standard',
+  isMultiTenant: boolean = false,
+  isGlobalEdge: boolean = false,
+  isSharded: boolean = false,
+  isCicdEnabled: boolean = false,
+  isSecurityHardened: boolean = false,
+  isScalable: boolean = false,
+  isSelfHealing: boolean = false,
+  isContinuousAudit: boolean = false,
+  isDynamicSharding: boolean = false,
+  isScalabilityEnabled: boolean = false,
+  isChaosEnabledV2: boolean = false,
+  isAiGatewayEnabled: boolean = false,
+  isSecurityHardenedV2: boolean = false,
+  isObservabilityEnabledV2: boolean = false,
+  isEdgeV2Enabled: boolean = false,
+  isComplianceEnabledV3: boolean = false,
+  isShardingEnabledV3: boolean = false,
+  isSwarmEnabledV2: boolean = false,
+  isMarketplaceEnabled: boolean = false,
+  isGovernanceEnabled: boolean = false,
+  isResilienceEnabledV2: boolean = false
 ): TemplateVariables {
   const template = getTemplate(templateSlug);
   const vars: TemplateVariables = {
@@ -97,6 +121,30 @@ export function extractVariables(
     templateSlug,
     templateVersion,
     designPreset: designPresetSlug,
+    swarmTopology,
+    developmentMethodology,
+    isSparc: developmentMethodology === 'sparc',
+    isMultiTenant,
+    isGlobalEdge,
+    isSharded,
+    isCicdEnabled,
+    isSecurityHardened,
+    isScalable,
+    isSelfHealing,
+    isContinuousAudit,
+    isDynamicSharding,
+    isScalabilityEnabled,
+    isChaosEnabledV2,
+    isAiGatewayEnabled,
+    isSecurityHardenedV2,
+    isObservabilityEnabledV2,
+    isEdgeV2Enabled,
+    isComplianceEnabledV3,
+    isShardingEnabledV3,
+    isSwarmEnabledV2,
+    isMarketplaceEnabled,
+    isGovernanceEnabled,
+    isResilienceEnabledV2,
     framework: templateSlug,
     language: String(stackConfig.language || 'typescript'),
     styling: String(stackConfig.styling || ''),
@@ -200,6 +248,22 @@ Your primary goal is to implement: "${goal}"
 `;
   }
 
+  // Add Sovereign Orchestration context
+  if (orchestrationMode === 'multi-agent') {
+    intelligenceBlock += `
+## Sovereign Swarm Orchestration
+- **Topology**: ${swarmTopology.toUpperCase()}
+- **Methodology**: ${developmentMethodology === 'sparc' ? 'SPARC Protocol (ENFORCED)' : 'Standard Agile'}
+${developmentMethodology === 'sparc' ? `
+### SPARC Protocol Enforcements
+1. **Specification**: Must define clear goals before pseudocode.
+2. **Pseudocode**: Must draft logic in plain language.
+3. **Architecture**: Must verify against project ADRs.
+4. **Refinement**: Must iterate based on feedback.
+5. **Completion**: Must verify definition of done.` : ''}
+`;
+  }
+
   vars.agentIntelligence = intelligenceBlock.trim();
 
   // 4. Inject Design Guidelines & Tokens
@@ -214,6 +278,10 @@ ${preset.description}
 ${preset.content}
 `;
       vars.designTokensCss = synthesizeDesignTokens(preset);
+      
+      // Phase 31: Advanced Design Presets (Surface Ladder & Typographic Scales)
+      const advancedTokens = getDesignPresetTokens(designPresetSlug);
+      vars.designTokensCss += `\n\n  /* Phase 31: Advanced Aesthetics */\n  \${advancedTokens}`;
     }
   }
 

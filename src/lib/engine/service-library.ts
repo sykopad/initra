@@ -634,6 +634,55 @@ export const SERVICE_LIBRARY: ApiService[] = [
       { key: 'MAILCHIMP_SERVER_PREFIX', description: 'Mailchimp Server Prefix (e.g. us1)', required: true }
     ],
   },
+  // ── Advanced Enterprise Services ──────────────
+  {
+    slug: 'trigger-dev',
+    name: 'Trigger.dev',
+    registrationUrl: 'https://cloud.trigger.dev/',
+    description: 'The open source background jobs framework',
+    icon: '🔫',
+    category: 'automation',
+    envVars: [
+      { key: 'TRIGGER_SECRET_KEY', description: 'Trigger.dev Secret Key', required: true }
+    ],
+    boilerplateFiles: [
+      {
+        path: 'trigger.config.ts',
+        content: `import { defineConfig } from "@trigger.dev/sdk/v3";\n\nexport default defineConfig({\n  project: "proj_your_id",\n  runtime: "node",\n  logLevel: "log",\n  retries: {\n    enabled: true,\n    default: {\n      maxAttempts: 3,\n      minTimeoutInMs: 1000,\n      maxTimeoutInMs: 30000,\n      factor: 2,\n      randomize: true,\n    },\n  },\n});`
+      },
+      {
+        path: 'package.json',
+        mergeType: 'package-json',
+        content: JSON.stringify({
+          dependencies: {
+            "@trigger.dev/sdk": "^3.0.0"
+          }
+        })
+      }
+    ]
+  },
+  {
+    slug: 'plain',
+    name: 'Plain',
+    registrationUrl: 'https://app.plain.com/',
+    description: 'The support platform for modern software teams',
+    icon: '💬',
+    category: 'saas',
+    envVars: [
+      { key: 'PLAIN_API_KEY', description: 'Plain API Key', required: true }
+    ],
+  },
+  {
+    slug: 'helicone',
+    name: 'Helicone',
+    registrationUrl: 'https://www.helicone.ai/',
+    description: 'Open-source LLM observability platform',
+    icon: '🌀',
+    category: 'monitoring',
+    envVars: [
+      { key: 'HELICONE_API_KEY', description: 'Helicone API Key', required: true }
+    ],
+  },
 ];
 
 export const SERVICE_CATEGORIES = [

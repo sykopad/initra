@@ -9,6 +9,7 @@ import { formatForIDE } from './ide-formatter';
 import { getTemplate } from './templates';
 import { getServiceDefinition } from './service-library';
 import { generateProjectBoilerplate } from './boilerplate-engine';
+import { generateAgentBlueprints } from './agent-blueprints';
 
 /**
  * Main engine function: generates agent configuration files
@@ -17,7 +18,7 @@ import { generateProjectBoilerplate } from './boilerplate-engine';
  * This is a pure, deterministic function — no LLM calls.
  * All templates are handcrafted for quality and speed.
  */
-export function generateAgentFiles(config: WizardConfig): GenerationResult {
+export function generateAgentFiles(config: WizardConfig, memoryContext: string = ''): GenerationResult {
   // 1. Resolve the template
   const template = getTemplate(config.templateSlug);
   if (!template) {
@@ -36,13 +37,36 @@ export function generateAgentFiles(config: WizardConfig): GenerationResult {
     config.orchestrationMode ?? 'single-agent',
     config.selectedBrains ?? [],
     config.selectedWorkflows ?? [],
-    config.designPreset
+    config.designPreset,
+    config.swarmTopology ?? 'hierarchical',
+    config.developmentMethodology ?? 'standard',
+    config.isMultiTenant ?? false,
+    config.isGlobalEdge ?? false,
+    config.isSharded ?? false,
+    config.isCicdEnabled ?? false,
+    config.isSecurityHardened ?? false,
+    config.isScalable ?? false,
+    config.isSelfHealing ?? false,
+    config.isContinuousAudit ?? false,
+    config.isDynamicSharding ?? false,
+    config.isScalabilityEnabled ?? false,
+    config.isChaosEnabledV2 ?? false,
+    config.isAiGatewayEnabled ?? false,
+    config.isSecurityHardenedV2 ?? false,
+    config.isObservabilityEnabledV2 ?? false,
+    config.isEdgeV2Enabled ?? false,
+    config.isComplianceEnabledV3 ?? false,
+    config.isShardingEnabledV3 ?? false,
+    config.isSwarmEnabledV2 ?? false,
+    config.isMarketplaceEnabled ?? false,
+    config.isGovernanceEnabled ?? false,
+    config.isResilienceEnabledV2 ?? false
   );
 
   // 3. Generate files for each selected IDE
   const files: GeneratedFile[] = [];
   for (const ide of config.selectedIDEs) {
-    const ideFiles = formatForIDE(ide as IDETarget, variables, '');
+    const ideFiles = formatForIDE(ide as IDETarget, variables, memoryContext);
     files.push(...ideFiles);
   }
 
@@ -68,7 +92,15 @@ export function generateAgentFiles(config: WizardConfig): GenerationResult {
     if (ciWorkflow) files.push(ciWorkflow);
   }
 
-  // 8. Return the complete result
+  // 8. Generate Agent Team Blueprints (multi-agent orchestration)
+  if (config.orchestrationMode === 'multi-agent') {
+    for (const ide of config.selectedIDEs) {
+      const blueprintFiles = generateAgentBlueprints(ide as IDETarget, variables);
+      files.push(...blueprintFiles);
+    }
+  }
+
+  // 9. Return the complete result
   return {
     files,
     templateUsed: template.slug,

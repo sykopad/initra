@@ -36,10 +36,25 @@ Read the relevant guide in `node_modules/next/dist/docs/` before writing any cod
 Positioned as a developer-first alternative to platforms like **Lovable** and **Base44**, Initra eliminates vendor lock-in by:
 1. **Deep Repository Analysis**: Scans existing GitHub repos to identify UI segments (Headers, Pages, Layouts).
 2. **SaaS Builder Mode (Creative Studio)**: Centralized command center to select and refine individual UI/Logic segments via high-fidelity AI prompts.
-3. **Credit-Based Economy**: Tiered model registry (Claude Opus 4.7, GPT-5 Codex) with performance-optimized pricing and structured production logging.
+3. **Credit-Based Economy**: Tiered model registry (Claude 3.7, GPT-5) with performance-optimized pricing and structured production logging.
 4. **Git Infrastructure Ownership**: All changes are pushed directly to the user's own repository, ensuring 100% code ownership.
-5. **Multi-Agent Orchestration**: Synthesis of high-fidelity objectives into specialized IDE rules and agent workflows.
-6. **Community Ecosystem**: Suggestions, voting, and agent contributions for open-source venture blueprints.
+5. **Sovereign AI Swarm 2.0**: Autonomous venture evolution, self-improving codebases, and specialized IDE rules via sovereign swarm topologies.
+6. **Autonomous Quality Audit**: Post-hatch heuristic evaluation (SEO, Security, Next.js 16, and SPARC compliance) to ensure Gold Standard compliance.
+7. **Sovereign Multi-Agent Governance**: DAO-based infrastructure management and strict SPARC enforcement for multi-pillar autonomous ventures.
+8. **Community Skill Marketplace**: Peer-to-peer sharing of agentic capabilities, architectural patterns, and voting.
+8. **Premium Design Presets**: High-fidelity typographic scales and surface-ladder architectures (Hairline Borders, Editorial Calm).
+9. **Enterprise Multi-Tenant Scaffolding**: Organization-scoped routing (`/[orgSlug]`) and robust team-scoped data isolation (RLS) as a standard boilerplate option.
+10. **Autonomous Performance Audit**: Post-hatch scale-readiness reporting and simulated load testing to ensure high-performance production stability.
+11. **Global Sovereign Edge Deployment 2.0**: Multi-region Vercel configurations, multi-cloud edge synchronization, and Global Edge Network optimizations.
+12. **Autonomous Chaos Engineering (Self-healing)**: Post-hatch resilience auditing and automated recovery playbooks to ensure self-healing, high-availability infrastructure.
+13. **Sovereign Resilience 2.0**: Predictive failure detection and autonomous chaos orchestration for mission-critical multi-cloud stability.
+14. **Sovereign Compliance Engine 3.0**: Autonomous regulatory patching, real-time industry-specific policy enforcement (HIPAA/GDPR), and continuous auditing.
+15. **Multi-Region Database Sharding 3.0**: Dynamic shard orchestration, automated regional rebalancing, and cross-shard transaction coordinators.
+16. **Autonomous Sovereign CI/CD**: Automated regional deployments, security scanning (SAST/DAST), and coordinated migration orchestration.
+17. **Sovereign Security Guardrails 2.0**: Continuous vulnerability auditing, automated security patching, and hardened WAF configurations.
+18. **Autonomous Sovereign Scalability**: High-performance, demand-aware infrastructure scaling for compute and database resources.
+19. **Sovereign AI Gateway**: Privacy-preserving AI orchestration, model fallbacks, and Edge-level prompt caching for enterprise ventures.
+20. **Sovereign Observability 2.0**: Distributed tracing, AI-driven performance insights, and real-time observability dashboards.
 
 ## Tech Stack
 
@@ -460,115 +475,380 @@ const supabase = createBrowserClient(url, key, {
 - `npm run build` — Production build
 - `npm run lint` — ESLint
 
+### The SPARC Methodology (Development Cycle)
+
+All agents must follow the SPARC cycle for any non-trivial task:
+1. **Specification (S)**: Define requirements, constraints, and success criteria.
+2. **Pseudocode (P)**: Plan the logic in natural language before writing code.
+3. **Architecture (A)**: Design the system structure and component interfaces.
+4. **Refinement (R)**: Implement with a test-first approach (TDD).
+5. **Completion (C)**: Finalize documentation, capture knowledge, and verify.
+
+**SPARC Mode**: When enabled, the generation engine enforces these phases via mandatory directives in all subagent instructions.
+
+### Behavioral Rules (Always Enforced)
+
+- **NEVER** leap into coding without a written **Specification** and **Pseudocode** phase.
+- **NEVER** modify migrations without explicit confirmation from the Architect agent.
+- **ALWAYS** read a file's current state before proposing an edit.
+- **ALWAYS** follow the "Progressive Disclosure" standard for skills and documentation.
+- **ALWAYS** use structured JSON logging (Pino) for any backend service implementation.
+- NEVER create files unless they are absolutely necessary for achieving the goal.
+- NEVER proactively create documentation files (*.md) or README files unless explicitly requested.
+- NEVER save working files, text/mds, or tests to the root folder — use the correct subdirectory.
+- NEVER commit secrets, credentials, `.env`, or `.env.local` files.
+
+### Code Quality
+
+- Use TypeScript strict mode. Avoid `any`.
+- Use named exports, never default exports (except page components).
+- Keep functions small and focused. Use early returns to reduce nesting.
+- Keep files under 500 lines. Split when approaching the limit.
+- Component styling uses the CSS design system in `globals.css` — no inline Tailwind.
+- Use parameterized queries. NEVER interpolate user input into SQL.
+
+### Database & Schema
+
+- All database tables are in the `initra` schema, NOT `public`.
+- Use `extensions.uuid_generate_v4()` for UUIDs in SQL (Supabase puts extensions in the `extensions` schema).
+- Never expose secrets or service keys client-side.
+- Never modify migration files without asking.
+
+### Workflow
+
+- Ask before installing new dependencies.
+- Check existing patterns before creating new abstractions.
+- All community data and wizard sessions are stored in Supabase via the `initra` schema.
+- Batch related operations together — avoid unnecessary round-trips.
+
+## Multi-Agent Orchestration
+
+Initra generates agent configurations for **all modern IDEs** — not just one. This section defines the cross-IDE orchestration philosophy that powers our generation engine.
+
+### Orchestration Philosophy
+
+Initra operates at three levels:
+
+```
+Level 1: Single Agent — One IDE agent with generated rules (CLAUDE.md, .cursor/rules/, etc.)
+Level 2: Agent Team  — Multiple specialized agents within a single IDE (subagents, skills)
+Level 3: Cross-IDE   — Agents across different IDEs collaborating on the same repository
+```
+
+### Agent Role Definitions
+
+Standard agent roles that Initra generates configurations for:
+
+| Role | Responsibility | Best IDE Match |
+|------|---------------|----------------|
+| **Architect** | System design, API contracts, schema decisions | Claude Code (deep reasoning) |
+| **Coder** | Implementation, feature building, refactoring | Cursor (fast generation) |
+| **Tester** | Test writing, coverage analysis, edge cases | Codex (bulk transforms) |
+| **Reviewer** | Code quality, security review, best practices | Claude Code (careful analysis) |
+| **Coordinator** | Task routing, progress tracking, orchestration | Any IDE with subagent support |
+| **Researcher** | Codebase analysis, dependency audit, documentation | Gemini CLI (large context) |
+
+### Task Complexity Detection
+
+**Spawn multi-agent coordination when the task involves:**
+- Multiple files (3+) or cross-module changes
+- New feature implementation with tests
+- Refactoring across modules
+- Security-related changes
+- Performance optimization
+- Database schema changes
+
+**Use single-agent mode for:**
+- Single file edits or simple bug fixes (1–2 lines)
+- Documentation updates
+- Configuration changes
+- Quick questions or exploration
+
+### Swarm Topologies
+
+1. **Mesh (Peer-to-Peer)**: Equal peers with distributed decision-making. Best for collaborative features where front-end and back-end are tightly coupled.
+2. **Hierarchical (Queen-Worker)**: A central Supervisor (Architect) delegates to specialized Workers (Coder, Tester). Best for large, complex feature builds.
+3. **Adaptive (Dynamic)**: The orchestration logic automatically switches topology based on task complexity and agent availability.
+
+**Sovereign UI**: Topologies can be configured and previewed visually in the **Project Wizard (Step 7)**.
+
+### Communication Patterns (Handovers)
+
+**Pipeline** — Sequential handoff between specialized agents:
+```
+architect → coder → tester → reviewer
+```
+Each agent completes its work and passes context to the next.
+
+**Fan-out / Fan-in** — Parallel work with synthesis:
+```
+         ┌→ researcher-1 ──→┐
+lead ────┼→ researcher-2 ──→├──→ lead synthesizes
+         └→ researcher-3 ──→┘
+```
+
+**Supervisor / Worker** — Central coordination with parallel execution:
+```
+coordinator ←→ coder-1
+coordinator ←→ coder-2
+coordinator ←→ tester-1
+```
+
+### Cross-IDE Orchestration
+
+When generating configs for multi-IDE teams, route tasks to optimal platforms:
+
+| Task Type | Optimal Platform | Reason |
+|-----------|-----------------|--------|
+| Architecture & design | Claude Code | Strong reasoning, system thinking |
+| Implementation | Cursor / Codex | Fast code generation, inline editing |
+| Security review | Claude Code | Careful analysis, threat modeling |
+| Performance tuning | Codex | Code-level optimizations |
+| Testing strategy | Claude Code / Junie | Coverage analysis, edge cases |
+| Bulk refactoring | Codex / Cursor | Mass code transforms |
+| Documentation | Windsurf / Copilot | Context-aware, memory-persistent |
+
+### Skills Catalog
+
+Initra's skills extend the prompt engine with specialized workflows:
+
+| Skill | Location | Purpose |
+|-------|----------|---------|
+| `blueprint-builder` | `.agents/skills/blueprint-builder/` | Guide for creating high-fidelity Venture Blueprints |
+| `engine-debugger` | `.agents/skills/engine-debugger/` | Debugging and expanding the deterministic prompt engine |
+| `agent-team-builder` | `.agents/skills/agent-team-builder/` | Multi-agent team blueprint generation and orchestration |
+| `skill-builder` | `.agents/skills/skill-builder/` | Create and manage Initra-compliant Agent Skills |
+
+Future skills to develop:
+- `ide-config-generator` — Cross-IDE configuration synthesis
+- `service-integration` — External API wiring and boilerplate
+- `quality-audit` — Heuristic analysis and auto-repair
+- `github-orchestration` — Repository provisioning and CI/CD
+- `template-expansion` — Adding new framework templates to the engine
+
+### Skills Development Guide
+
+To create a new Initra skill:
+
+1. Create a folder under `.agents/skills/<skill-name>/`
+2. Add a `SKILL.md` with YAML frontmatter:
+   ```markdown
+   ---
+   name: skill-name
+   description: When to invoke this skill and what it does.
+   ---
+   # Skill Instructions
+   Step-by-step guidance, examples, and procedural knowledge.
+   ```
+3. Optionally add `scripts/`, `references/`, or `assets/` subdirectories.
+4. Skills are auto-discovered by all IDEs that support the Agent Skills open standard.
+
+**Skill categories for Initra's domain:**
+- **Engine** — Prompt engine logic, template expansion, variable interpolation
+- **IDE Config** — Per-IDE rule generation, activation modes, file formatting
+- **Infrastructure** — GitHub, Vercel, Supabase orchestration and provisioning
+- **Quality** — Heuristic audits, auto-repair, ADR generation
+- **Community** — Blueprint publishing, voting, marketplace integration
+
+## Agent Team Blueprints
+
+Initra can generate **agent team configurations** alongside standard IDE rules. These blueprints define typed agent roles that IDEs with subagent support can directly consume.
+
+### Claude Code Agent (YAML)
+
+```yaml
+# .claude/agents/architect.yaml
+type: architect
+capabilities:
+  - system-design
+  - api-design
+  - schema-decisions
+  - documentation
+optimizations:
+  - context-caching
+  - memory-persistence
+```
+
+### Codex Agent (TOML)
+
+```toml
+# .codex/agents/coder.toml
+name = "coder"
+description = "Implementation-focused agent for feature building and refactoring."
+developer_instructions = """
+You are a senior TypeScript developer. Follow the project's Behavioral Rules.
+Use the CSS design system in globals.css. Never use inline Tailwind.
+Always read files before editing. Prefer editing over creating.
+"""
+
+[tools]
+enabled = ["read", "write", "edit", "bash", "glob", "grep"]
+
+[model]
+preference = "fast"
+```
+
+### Cursor Subagent (MDC)
+
+```markdown
+---
+name: reviewer
+description: Code quality reviewer and security auditor
+model: inherit
+---
+# Reviewer Agent
+Review all changes for:
+1. TypeScript strict mode compliance
+2. SQL injection prevention (parameterized queries only)
+3. Secret exposure (no client-side service keys)
+4. CSS design system adherence (no inline styles)
+5. File size limits (< 500 lines per file)
+```
+
+### Junie Subagent (Markdown)
+
+```markdown
+---
+name: tester
+description: Test writer and coverage analyzer
+tools: [Read, Write, Edit, Bash, Grep]
+---
+# Tester Agent
+Write comprehensive tests using Vitest for:
+- Prompt engine interpolation and variable resolution
+- Template version branching logic
+- Package/service library lookups
+- IDE formatter output validation
+```
+
+### Factory Droid (YAML)
+
+```yaml
+# .factory/droids/researcher.yaml
+name: researcher
+description: "Codebase explorer and dependency auditor"
+model: inherit
+tools:
+  - read-only
+  - web
+instructions: |
+  Analyze the repository structure and report:
+  - Framework detection (Next.js, Nuxt, Django, Go, Flutter)
+  - Dependency health (outdated, deprecated, vulnerable)
+  - Segment identification (layouts, pages, components, API routes)
+```
+
+## Multi-Agent Recipes
+
+Copy-paste orchestration patterns for common Initra development tasks.
+
+### Recipe 1: Full-Stack Feature (Claude Code)
+
+When building a complete feature (e.g., new wizard step):
+
+```
+1. [Architect Agent] — Design the data model, API contract, and component structure.
+   → Output: Schema SQL, API route signature, component tree diagram.
+
+2. [Coder Agent] — Implement the feature across all layers.
+   → Parallel tasks:
+     - Database migration (initra schema)
+     - API route handler (src/app/api/)
+     - React component (src/components/)
+     - Engine integration (src/lib/engine/)
+
+3. [Tester Agent] — Write Vitest unit tests and integration coverage.
+   → Focus: Engine logic, API validation, component rendering.
+
+4. [Reviewer Agent] — Audit for behavioral rule compliance.
+   → Checklist: TypeScript strict, no `any`, parameterized SQL, CSS system.
+```
+
+### Recipe 2: Cross-IDE Blueprint Generation (Cursor + Codex)
+
+When extending Initra's template engine for a new IDE target:
+
+```
+1. [Cursor: Research] — Explore the IDE's documentation and rule format.
+   → Read official docs, extract activation modes, file paths, frontmatter schemas.
+
+2. [Cursor: Architect] — Design the IDE formatter in src/lib/engine/ide-formatter.ts.
+   → Define the output structure: file name, content template, metadata format.
+
+3. [Codex: Implement] — Bulk-generate the formatter, tests, and type definitions.
+   → Files: ide-formatter.ts, ide-targets.ts, __tests__/ide-*.test.ts.
+
+4. [Cursor: Review] — Validate output against real IDE behavior.
+   → Test by generating sample configs and verifying IDE loads them correctly.
+```
+
+### Recipe 3: Venture Hatching Pipeline (Single Agent, Multi-Step)
+
+When hatching a new venture end-to-end:
+
+```
+Step 1: Blueprint Validation
+  → Verify project template, stack selections, and service integrations.
+
+Step 2: Infrastructure Provisioning (sequential)
+  → GitHub repo creation → Vercel project → Supabase database → DNS assignment.
+
+Step 3: Code Generation (parallel)
+  → Boilerplate files + IDE agent configs + GitHub Actions + .env.example.
+
+Step 4: Quality Audit
+  → Run heuristic scorecard (SEO, Security, Performance).
+  → Auto-repair any critical findings.
+
+Step 5: Deployment Verification
+  → Poll Vercel deployment status until "READY".
+  → Run health checks (SSL, uptime, 500-errors).
+```
+
+## Memory & Learning Protocols
+
+Guidelines for how AI agents should manage knowledge when working on Initra.
+
+### Pattern Storage Philosophy
+
+Initra generates configurations across **many ventures and stacks**. Agents should:
+
+1. **Learn from repairs** — When an auto-repair succeeds, record the pattern (trigger → fix) for future reference.
+2. **Cross-venture intelligence** — Patterns discovered in one venture (e.g., "Next.js 16 hydration fix") should be surfaceable when the same stack appears in another venture.
+3. **Template evolution** — Successful generated configs should feed back into the engine's template library.
+
+### Agent Memory Hierarchy
+
+```
+L1: Session Memory   — Current conversation context (ephemeral)
+L2: Project Memory   — Per-venture patterns, repairs, and decisions (persistent)
+L3: Platform Memory  — Cross-venture intelligence shared across the user's portfolio (persistent)
+L4: Community Memory — Anonymized patterns shared via the Community Blueprint Marketplace (future)
+```
+
+### Anti-Drift Protocols
+
+To prevent agents from deviating during long sessions:
+
+- **Checkpoint after every 10 tasks** — Summarize completed work and remaining objectives.
+- **Re-read Behavioral Rules** — Before any destructive operation (delete, overwrite, schema change).
+- **Validate against the generation engine** — Ensure manual edits don't conflict with engine-generated output.
+- **File-before-edit rule** — ALWAYS read the current state of a file before proposing changes.
+
 ## Roadmap
 
-### 🔴 Critical — Makes or breaks the product
+> 📋 **Completed phases (1–33)** are documented in [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
-1. **Richer generated output (Phase 1 Complete)** — We now inject:
-   - Deep package-specific knowledge for 50+ libraries.
-   - Comprehensive API/Service integration guides with registration links.
-   - Anti-patterns and best practices for common stack components.
+### Active & Planned
 
-2. **Apply migration & wire up persistence (Complete)** — Community hub and wizard sessions are now connected to the Supabase `initra` schema. (Done 2026-04-20)
+- **Webhooks & Automation Engine**: Ping user-defined webhooks (Zapier/Make) upon successful repository birth to trigger external workflows.
+- **The Community Blueprint Marketplace**: Upgrade the Community Hub to allow users to "Fork & Tweak Blueprint".
+- **Venture Economy Expansion**:
+    - Automated Monthly Stipend: Supabase Edge Function to auto-refill Pro credits on billing anniversaries.
+    - Team Subscriptions: $99/mo plans for organizations to manage shared infrastructure and credits.
+- **Multi-Venture Knowledge Sharing**: Cross-repository intelligence where agents learn from previous repairs across all projects in a user's portfolio.
 
-3. **Auth flow (Complete)** — GitHub OAuth via Supabase Auth implemented. Enables profile creation, session history, and persistent activity. (Done 2026-04-20)
-
-4. **Boilerplate Logic Engine (Complete)** — Full project structure generation, file merging, variable interpolation. Transitioned from prompt generator to bootstrapper. (Done 2026-04-20)
-
-### 🟡 High Impact — Differentiation
-
-5. **Custom rules editor (Complete)** — Users can now edit generated Markdown and reorder sections via a drag-and-drop interface in Step 6. (Done 2026-04-20)
-
-6. **GitHub push integration (Complete)** — Authorize GitHub and push generated files directly to a repo in one click. (Done 2026-04-20)
-
-7. **More templates (Complete)** — Expanded library to 9+ frameworks. Added Django 6, Nuxt 3, and Go (Gin) with full boilerplate support. (Done 2026-04-20)
-
-8. **Template versioning (Complete)** — Handled version-specific breaking changes (e.g. Next.js 16) via engine-level branching. (Done 2026-04-20)
-
-9. **AI Goal Assistant (Complete)** — Context-aware project mapping, tiered model selection, and PayPal donation integration with webhook automation. (Done 2026-04-20)
-
-### 🟢 Phase 3: Ecosystem & Scale
-
-10. **Syntax-highlighted preview (Complete)** — Replaced raw text blocks with a high-performance Shiki-powered viewer for all generated files. (Done 2026-04-20)
-
-11. **Unit tests for the engine (Complete)** — Integrated Vitest with coverage for prompt interpolation, version logic, and whitespace cleanup. (Done 2026-04-20)
-
-12. **"Import from repo" feature (Complete)** — Implemented server-side heuristic scanner to auto-detect framework and dependencies from GitHub URLs. (Done 2026-04-20)
-
-13. **Mobile responsiveness (Complete)** — Added sticky navigation, responsive grids, and fluid typography across the wizard and community pages. (Done 2026-04-20)
-
-14. **SEO + Open Graph (Complete)** — Dynamic 1200x630 OG images and per-page metadata implemented for shared configurations via Edge runtime. (Done 2026-04-20)
-
-### 🔵 Phase 5: Advanced Agentic Features (Complete)
-
-15. **Multi-Agent Orchestration (Complete)** — Transition from single-file rules to directory-based agent hierarchies (`.cursor/rules/*.mdc`).
-16. **Workflow Tailoring (Complete)** — Dynamic rule branching for "Beginner" (Educational/Safe) vs "Expert" (Architectural/Concise) levels.
-17. **Workflow Overlays (Complete)** — Selectable logic blocks for complex tasks like "Security Audit" or "Performance Optimization".
-18. **MCP Server Integration (Complete)** — Boilerplate and instructions for building MCP servers to extend IDE agent capabilities.
-
-### 🟣 Phase 6: Deployment & Intelligence Expansion (Complete)
-
-19. **Deployment Orchestration (Complete)** — Integrated GitHub push, Vercel hooks, and Supabase database branching.
-20. **IDE Library Expansion (Complete)** — Added native support for Trae AI, Aider, Devin, and Replit Agent.
-21. **Expert Brain Overlays (Complete)** — Implemented specialized behavioral modules (V0 Designer, Deep Reasoning, Security Sentinel) derived from top-tier system prompts.
-
-### 🌐 Phase 7: The Autonomous Venture Studio (Complete)
-
-22. **AI Idea Fabric (Complete)** — High-fidelity autonomous brainstorming driven by **Claude Opus 4.6** (via OpenRouter). Generates one innovative venture blueprint every 24 hours.
-23. **The "Hatch" Engine (Complete)** — End-to-end orchestration of GitHub Repo creation, Vercel project provisioning, and custom domain assignment. Support for `VERCEL_TEAM_ID` and `GITHUB_TOKEN` integrated.
-24. **Venture Marketplace (Complete)** — UI upgraded to support autonomous project discovery, community voting, and real-time hatching status.
-25. **Donation Integration (Complete)** — Homepage updated with a support rationale for scaling the Venture Studio infrastructure beyond Vercel Hobby limits.
-26. **Autonomous Worker Injection (Complete)** — Automated delivery of GitHub Action workflows that spin up coding agents (Aider) upon project birth. (Done 2026-04-20)
-
-30. **Guided Service Reasoning**: Business-friendly explanations for suggested infrastructure (e.g., "Why Supabase?"). (Done 2026-04-21)
-
-### 🚀 Phase 32: The Creative Studio & Multi-File Repairs (Complete)
-
-103. **Multi-File AI Repair Engine**: Upgraded the auto-repair pipeline to support multi-file generation (via JSON mode), enabling comprehensive fixes (e.g., both robots.txt and sitemap.ts) in a single pass. (Done 2026-04-23)
-104. **Centralized Creative Studio**: Implementation of a unified command center for UI refinement, replacing per-card buttons with a high-fidelity editor and segment selector. (Done 2026-04-23)
-105. **Context-Aware Studio**: Dynamic metadata injection into the studio (file paths, landmark roles, descriptions) to give the AI (and user) deep technical context during edits. (Done 2026-04-23)
-106. **Automated Re-validation**: Event-driven repository re-analysis and audit refresh triggered immediately upon successful GitHub push. (Done 2026-04-23)
-107. **Logic-Deep Repairs (Phase 1 Complete)**: Introduced heuristic audits and repair protocols for Hydration Resilience (error boundaries), API Fault Tolerance (centralized services), and State Hygiene (custom hooks). (Done 2026-04-23)
-
-### 🔮 Future Roadmap: Intelligence & Evolution
-
-1. **Autonomous ADR Auto-Push (Complete)**: Programmatically commit Architectural Decision Records (ADRs) alongside code fixes to maintain a verifiable AI decision trail. (Done 2026-04-23)
-2. **Venture Telemetry 2.0 (Complete - v1)**: Real-time autonomous health monitoring (SSL, Uptime, 500-errors) and Vercel deployment status tracking for birthed ventures. (Done 2026-04-23)
-3. **Community Skill Publishing (Complete - v1)**: Infrastructure to "Save as Skill" in the Command Center, allowing users to share successful AI prompt/repair templates as reusable Agent Skills. (Done 2026-04-23)
-4. **Sovereign Infrastructure Mode (Complete)**: Decentralized hosting ownership where users bring their own Vercel/GitHub tokens via secure Settings. (Done 2026-04-23)
-5. **Infrastructure Guardrails (Complete)**: Implementation of the "Sovereign-First" policy. Standard hatching requires user tokens; Managed Hatching (on Initra infra) is restricted to Pro users. (Done 2026-04-23)
-6. **Automated Billing (Complete)**: PayPal-powered $19/mo subscription engine with automated activation/revocation. (Done 2026-04-23)
-7. **Creative Studio 2.0 (Complete)**: Overhaul of the Command Center with semantic segment naming, intelligent grouping, and AI-guided prompting. (Done 2026-04-23)
-8. **Dashboard v3 (Complete)**: Separation of Command Center (Technical Monitoring) and Creative Studio (AI Lab) into distinct tabs with a universal, sticky Project Switcher for seamless multi-venture management. (Done 2026-04-23)
-9. **Studio Preview v2 (Complete)**: Enhancement of the LivePreviewModal to support "Side-by-Side" diff viewing, allowing users to review AI changes line-by-line before pushing. (Done 2026-04-24)
-10. **Venture Economy Expansion (In Progress)**: 
-    - **Automated Monthly Stipend**: Supabase Edge Function to auto-refill Pro credits on billing anniversaries.
-    - **Referral Leaderboard**: Social gamification in the Community Hub to reward top referrers. (Done 2026-04-24)
-    - **Discovery Hub v2**: Implemented "Recent-First" default view and "My Submissions" filtering to ensure AI-architected ideas are easily discoverable. (Done 2026-04-24)
-    - **Team Subscriptions**: $99/mo plans for organizations to manage shared infrastructure and credits.
-11. **Multi-Venture Knowledge Sharing**: Cross-repository intelligence where agents learn from previous repairs across all projects in a user's portfolio.
-
-### ⚡ Phase 10: Hatching 2.0 — The Fully Orchestrated Venture (Complete)
-
-35. **AI SQL Architect**: Dynamic schema generation based on project blueprints. (Done 2026-04-21)
-36. **Automatic Migration Injection**: Direct PG orchestration to provision fresh databases with tables, RLS, and functions. (Done 2026-04-21)
-37. **Edge Function Autopilot**: Automated deployment of Supabase Edge Functions during birth. (Done 2026-04-21)
-38. **Fine-Grained Feedback**: Real-time provisioning logs for the "Hatch" lifecycle. (Done 2026-04-21)
-
-### 🧩 Phase 11: Deep Heuristic Optimization (Complete)
-
-39. **Next.js 16 Landmark Detection**: Granular extraction of Hero, Footer, Sidebar, and Metadata segments. (Done 2026-04-21)
-40. **Feature-Based Grouping**: Auto-clustering of segments by domain (e.g., Auth, Dashboard, Billing). (Done 2026-04-21)
-41. **Logic Segmentation**: Identify Edge Functions, API Routes, and Middleware as editable logic blocks. (Done 2026-04-21)
-42. **Config Heuristics**: Targeted editing of Tailwind configs and framework settings. (Done 2026-04-21)
-
-### 🟢 Phase 12: Nuxt 4 (Vue.js) (Complete)
-
-43. **Nuxt 4 Heuristic Archetypes (Complete)**: Detection of `layouts/`, `pages/`, and `composables/`. (Done 2026-04-21)
-44. **Nitro Segmentation (Complete)**: Identify Nitro API routes and server middleware. (Done 2026-04-21)
-45. **Nuxt-specific Landmarks (Complete)**: Recognize `NuxtLayout` and `NuxtPage` entry points. (Done 2026-04-21)
-
-## Framework Roadmap
+### Framework Roadmap
 
 We implement frameworks **one at a time** to ensure maximum accuracy and deep heuristic analysis.
 
@@ -576,119 +856,9 @@ We implement frameworks **one at a time** to ensure maximum accuracy and deep he
 |-----------|--------|-------------|
 | **Next.js 16 (App Router)** | ✅ Deep | Full layout/page/component segmentation & targeted editing. |
 | **Nuxt 4 (Vue.js)** | ✅ Deep | Composition API heuristics and directory-based segmentation. |
-### 🟢 Phase 13: Django 6 (Python) (Complete)
-
-46. **Django 6 Heuristic Archetypes**: Detection of `models.py`, `views.py`, and `templates/`. (Done 2026-04-21)
-47. **MVT Segmentation**: Logic/UI separation for Python and HTML blocks. (Done 2026-04-21)
-48. **Landmark Detection**: Recognition of `base.html` and Django-specific layout files. (Done 2026-04-21)
-
-### 🔵 Phase 14: Go (Gin/Axum) (Complete)
-
-49. **Go Route Recognition**: Identification of Gin/Axum route handlers and middleware. (Done 2026-04-21)
-50. **Domain Clustering**: Mapping Go packages to feature domains. (Done 2026-04-21)
-51. **Template Parsing**: Heuristic detection of Go templates (`.gohtml`, `.tmpl`). (Done 2026-04-21)
-
-### 📱 Phase 15: Flutter 4 (Complete)
-
-52. **Flutter Widget Tree Analysis**: Heuristic detection of Screen vs Component vs Model in Dart. (Done 2026-04-21)
-53. **State Management Heuristics**: Detect Bloc, Provider, or Riverpod patterns. (Done 2026-04-21)
-54. **Mobile Navigation Mapping**: Identification of Router and NavRail landmarks. (Done 2026-04-21)
-
-### 📊 Phase 16: Autonomous Quality Audits (Complete)
-
-55. **Heuristic Scorecard (Complete)**: Implementation of SEO, Security, and Performance audit rules. (Done 2026-04-21)
-56. **UI Integration (Complete)**: Dynamic "Health Gauge" and check-list in the repo builder. (Done 2026-04-21)
-57. **AI Auto-Repair Engine (Complete)**: Specialized prompt sequences for autonomous fixes. (Done 2026-04-21)
-
-### ⚡ Phase 17: Hatching 3.0 (Complete)
-
-58. **Automated Testing Injection**: Programmatic addition of Vitest/Playwright suites to new projects. (Done 2026-04-21)
-59. **Pro Infrastructure**: Support for Vercel Teams and advanced deployment orchestration. (Done 2026-04-21)
-60. **GitHub Secrets Orchestration**: Automated injection of Supabase keys into GitHub Repository Secrets. (Done 2026-04-21)
-
-### 🟣 Phase 18: Expert Brain Overlays (Complete)
-
-61. **Behavioral Module Registry**: Specialized instructions for Designer, Reasoning, and Security profiles. (Done 2026-04-21)
-62. **Framework-Specific ADRs**: Automated injection of architectural decision records for Next.js 16/Nuxt 4. (Done 2026-04-21)
-63. **Spatial Awareness Injection**: Mapping heuristic "Landmarks" directly into agent instructions. (Done 2026-04-21)
-
-### ⚡ Phase 19: Deployment Orchestration Expansion (Complete)
-
-64. **GitHub Environment Provisioning**: Automated creation of "Production" and "Preview" environments with scoped secrets. (Done 2026-04-21)
-65. **Branch Protection Orchestration**: Programmatic enforcement of CI passing rules for birthed repositories. (Done 2026-04-21)
-66. **Granular Provisioning Feedback**: Real-time lifecycle status updates for the full "Hatch" sequence. (Done 2026-04-21)
-
-### 🧩 Phase 20: IDE Library Expansion (Complete)
-
-67. **Trae AI Support**: Native `.trae/rules/project_rules.md` generation with adaptive instructions. (Done 2026-04-21)
-68. **Aider & Devin Support**: Optimized instruction templates for leading AI agents. (Done 2026-04-21)
-69. **Replit Agent Orchestration**: Specialized root-level instructions for Replit Workspace birth. (Done 2026-04-21)
-
-### 🟣 Phase 21: Expert Brain Overlays — UI Integration (Complete)
-
-70. **Brain Selection Interface**: Dedicated wizard step for visual "Brain Profile" selection. (Done 2026-04-21)
-71. **Intelligence Preview**: Live preview of behavioral directives during selection. (Done 2026-04-21)
-72. **Spatial Awareness Dashboard**: Display identified repo landmarks in the project overview. (Done 2026-04-21)
-
-### 🌐 Phase 22: AI Idea Fabric (Complete)
-
-73. **Claude Opus 4.6 Migration**: Upgraded autonomous brainstorming to use the high-reasoning Opus 4.6 model. (Done 2026-04-21)
-74. **Architectural Blueprints**: Refined generation prompt to produce high-fidelity technical justifications and work orders. (Done 2026-04-21)
-75. **Persona-Aware Generation**: Daily ideas now include suggested Brain Overlays and Agent persona mappings. (Done 2026-04-21)
-
-### 🚀 Phase 23: The "Hatch" Engine 2.0 (Complete)
-
-76. **Granular Provisioning Status**: Real-time lifecycle logging for GitHub, Vercel, and Supabase. (Done 2026-04-21)
-77. **Live Preview Orchestration**: Side-by-side workspace with embedded Vercel deployment iframe. (Done 2026-04-21)
-78. **Deployment Monitoring Hook**: Automated status polling to detect when the venture is "READY". (Done 2026-04-21)
-
-### 🛸 Phase 24: Command Center & Intelligence Layering (Complete)
-
-79. **Intelligence Dual-Layering**: Decoupled Agent Brains (Behavioral Personas) from Tactical Workflows (Actionable Protocols) in the prompt engine. (Done 2026-04-21)
-80. **Command Center Dashboard**: Unified "My Ventures" management hub with project deletion and repo disconnection tools. (Done 2026-04-21)
-81. **Global Header Integration**: Standardized navigation and theme orchestration across the user dashboard. (Done 2026-04-21)
-
-### 🌐 Phase 25: Community Ecosystem & Discovery (Complete)
-
-82. **Venture Discovery Feed (Complete)**: Transformed the dashboard into a community hub. (Done 2026-04-21)
-83. **Fork & Hatch Orchestration (Complete)**: Enabled forking and instant hatching. (Done 2026-04-21)
-84. **Social Signals (Complete)**: Implemented engagement metrics (votes, forks) and trending score. (Done 2026-04-21)
-
-### 📊 Phase 26: Autonomous Quality Audits (Complete)
-
-85. **Pro Heuristic Scorecard (Complete)**: Implementation of deep SEO, Security, and Accessibility audit rules. (Done 2026-04-21)
-86. **AI Auto-Repair Engine (Complete)**: Specialized prompt sequences for autonomous fixes. (Done 2026-04-21)
-87. **Framework-Specific ADR Injection (Complete)**: Automated generation of ADRs based on audit findings. (Done 2026-04-21)
-
-### 🌐 Phase 27: API & Service Integration Expansion (Complete)
-
-88. **Layman Wizard Redesign (Complete)**: Automated backend package selection for beginners with curated architecture summaries. (Done 2026-04-22)
-89. **Enterprise Service Catalog (Complete)**: Added 14+ new platforms spanning CMS (Sanity), Search (Algolia), Automation (Zapier), and Storage (AWS S3). (Done 2026-04-22)
-90. **Strict Categorization (Complete)**: Expanded internal schema typing to support granular service categories in the Wizard UI. (Done 2026-04-22)
-
-### 🚀 Phase 28: Enterprise Infrastructure Orchestration
-
-91. **Service-Specific Boilerplate Injection (Complete)**: Auto-generate configurations (e.g., `sanity.config.ts`, Algolia client) for new SaaS platforms. (Done 2026-04-22)
-92. **Advanced Venture Blueprints (Complete)**: Introduce "Enterprise E-Commerce" and other high-end templates pre-wired with specific CMS and Search APIs. (Done 2026-04-22)
-93. **Connected Services Dashboard (Complete)**: Visual "Infrastructure Map" in the user Command Center displaying hooked-up SaaS tools per venture. (Done 2026-04-22)
-94. **Webhooks & Automation Engine**: Ping user-defined webhooks (Zapier/Make) upon successful repository birth to trigger external workflows.
-
-### 💡 Phase 29: Community Suggestions Expansion (Complete)
-
-95. **Dual-Track Suggestions (Complete)**: Added capability to propose both Initra platform features and Project ideas with unified upvoting and distinct UI sections. (Done 2026-04-22)
-
-### 🚀 Phase 30: Advanced Orchestration & Community Marketplace
-
-96. **Advanced Full-Stack Authentication Templates (Complete)**: Automatically inject fully working Login/Register UIs for Next.js configured with Supabase Auth. (Done 2026-04-23)
-97. **Deep Venture Telemetry Dashboard (Complete)**: Dedicated "Venture Detail" view in the Command Center showing live provisioning logs and health scorecards. (Done 2026-04-23)
-98. **The Community Blueprint Marketplace**: Upgrade the Community Hub to allow users to "Fork & Tweak Blueprint".
-
-### 🚀 Phase 31: Financial Transparency & Orchestration (Complete)
-
-99. **Integrated Model Selector (Complete)**: Dynamic model selection in the Command Center with real-time credit pricing indicators. (Done 2026-04-23)
-100. **Structured Production Logging (Complete)**: Implementation of Pino for request traceability and credit usage auditability. (Done 2026-04-23)
-101. **Financial Transparency Hub (Complete)**: Billing & Usage section in Account Settings for credit balance and transaction history. (Done 2026-04-23)
-102. **Enhanced Repo Orchestration (Complete)**: Custom modal-based repo management and high-fidelity project switcher. (Done 2026-04-23)
+| **Django 6** | ✅ Deep | MVT segmentation and template landmark detection. |
+| **Go (Gin/Axum)** | ✅ Deep | Route recognition, domain clustering, template parsing. |
+| **Flutter 4** | ✅ Deep | Widget tree analysis, state management heuristics. |
 
 
 ## Autohand — Adaptive Continuous Engineering
@@ -783,10 +953,11 @@ Laravel Boost skills are lightweight, targeted knowledge modules that reduce con
 
 ### Core Concept: Progressive Disclosure
 
-Skills manage context efficiently by only loading detailed information when it's actually needed:
-1. **Discovery**: Agents load only the `name` and `description` of available skills at startup.
-2. **Activation**: When a task matches a skill's description, the agent reads the full `SKILL.md` instructions.
-3. **Execution**: The agent follows the instructions, loading referenced files (scripts, references, assets) as required.
+Claude Code uses a **3-level progressive disclosure system** to scale to 100+ skills without context penalty:
+
+1. **Level 1: Metadata (Name + Description)**: Always loaded. Enables autonomous skill matching with minimal token usage.
+2. **Level 2: SKILL.md Body**: Loaded only when a task matches the skill's description. Contains primary instructions and procedures.
+3. **Level 3: Referenced Assets**: Loaded on-demand as the agent navigates. Includes deep docs (`docs/`), examples (`examples/`), and scripts (`scripts/`).
 
 ### SKILL.md Specification
 
@@ -812,22 +983,6 @@ my-skill/
 └── assets/           # Optional: templates, resources
 ```
 
-## Conventions
 
-- Use TypeScript strict mode. Avoid `any`.
-- Use named exports, never default exports (except page components).
-- Keep functions small and focused.
-- Use early returns to reduce nesting.
-- All database tables are in the `initra` schema, NOT `public`.
-- Use `extensions.uuid_generate_v4()` for UUIDs in SQL (Supabase puts extensions in the `extensions` schema).
-- Never expose secrets or service keys client-side.
-- Use parameterized queries. Never interpolate user input into SQL.
-- Component styling uses the CSS design system in `globals.css` — no inline Tailwind.
+> **Note:** Coding conventions and project boundaries are defined in the [Behavioral Rules](#behavioral-rules-always-enforced) section above.
 
-## Boundaries
-
-- Never modify migration files without asking.
-- Never commit `.env.local` or `.env` files.
-- Ask before installing new dependencies.
-- Check existing patterns before creating new abstractions.
-- All community data and wizard sessions are stored in Supabase via the `initra` schema.

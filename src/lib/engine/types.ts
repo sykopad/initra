@@ -186,6 +186,8 @@ export interface WizardConfig {
   includeBoilerplate?: boolean;
   experienceLevel?: 'beginner' | 'experienced';
   orchestrationMode?: 'single-agent' | 'multi-agent';
+  swarmTopology?: 'mesh' | 'hierarchical' | 'adaptive';
+  developmentMethodology?: 'standard' | 'sparc';
   selectedBrains?: string[];
   selectedWorkflows?: string[];
   selectedOverlays?: string[]; // Deprecated, keep for compatibility
@@ -200,6 +202,23 @@ export interface WizardConfig {
   webhookUrl?: string;
   isPrivate?: boolean;
   designPreset?: string;
+  isMultiTenant?: boolean;
+  isGlobalEdge?: boolean;
+  isSharded?: boolean;
+  isCicdEnabled?: boolean;
+  isSecurityHardened?: boolean;
+  isScalabilityEnabled?: boolean;
+  isChaosEnabledV2?: boolean;
+  isAiGatewayEnabled?: boolean;
+  isSecurityHardenedV2?: boolean;
+  isObservabilityEnabledV2?: boolean;
+  isEdgeV2Enabled?: boolean;
+  isComplianceEnabledV3?: boolean;
+  isShardingEnabledV3?: boolean;
+  isSwarmEnabledV2?: boolean;
+  isMarketplaceEnabled?: boolean;
+  isGovernanceEnabled?: boolean;
+  isResilienceEnabledV2?: boolean;
 }
 
 /** Boilerplate file definition */
@@ -250,12 +269,39 @@ export interface TemplateVariables {
   selectedServices: string[];
   selectedBrains?: string[];
   selectedWorkflows?: string[];
+  orchestrationMode?: 'single-agent' | 'multi-agent';
+  swarmTopology?: 'mesh' | 'hierarchical' | 'adaptive';
+  developmentMethodology?: 'standard' | 'sparc';
   designPreset?: string;
   designGuidelines?: string;
   designTokensCss?: string;
+  isMultiTenant: boolean;
+  isGlobalEdge: boolean;
+  isSharded: boolean;
+  isCicdEnabled: boolean;
+  isSecurityHardened: boolean;
+  isScalable: boolean;
+  isSelfHealing: boolean;
+  isContinuousAudit: boolean;
+  isDynamicSharding: boolean;
+  isScalabilityEnabled: boolean;
+  isChaosEnabledV2: boolean;
+  isAiGatewayEnabled: boolean;
+  isSecurityHardenedV2: boolean;
+  isObservabilityEnabledV2: boolean;
+  isEdgeV2Enabled: boolean;
+  isComplianceEnabledV3: boolean;
+  isShardingEnabledV3: boolean;
+  isSwarmEnabledV2: boolean;
+  isMarketplaceEnabled: boolean;
+  isGovernanceEnabled: boolean;
+  isResilienceEnabledV2: boolean;
 
   [key: string]: string | boolean | string[] | undefined;
 }
+
+/** Agent role archetypes for blueprint generation */
+export type AgentRole = 'architect' | 'coder' | 'tester' | 'reviewer' | 'researcher';
 
 /** IDE target configuration */
 export interface IDETargetConfig {
@@ -266,6 +312,8 @@ export interface IDETargetConfig {
   configPath: string;
   description: string;
   supportsMultiFile: boolean;
+  /** Whether this IDE supports agent team blueprints (subagents, droids, etc.) */
+  supportsAgentTeam: boolean;
 }
 
 /** Prompt template stored in DB (or hardcoded) */
@@ -328,4 +376,22 @@ export interface AuditCheck {
   message: string;
   category: 'SEO' | 'Security' | 'Performance' | 'Accessibility';
   actionable_repair?: string;
+}
+
+/** Community Skill definition (Phase 30) */
+export interface CommunitySkill {
+  id?: string;
+  creator_id: string;
+  name: string;
+  slug: string;
+  description: string;
+  category: ProjectCategory | 'logic' | 'utility';
+  version: string;
+  ide_targets: IDETarget[];
+  content: string; // The markdown instructions or SPARC protocols
+  is_published: boolean;
+  vote_score?: number;
+  created_at?: string;
+  updated_at?: string;
+  tags?: string[];
 }

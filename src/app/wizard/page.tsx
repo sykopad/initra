@@ -22,9 +22,11 @@ import CodeViewer from "@/components/wizard/CodeViewer";
 import { saveSharedConfig } from "@/lib/actions/shared";
 import RepoSyncModal, { RepoSettings } from "@/components/wizard/RepoSyncModal";
 import DeploymentCenter from "@/components/wizard/DeploymentCenter";
-import ModelSelector from "@/components/wizard/ModelSelector";
+import { QualityAudit } from "@/components/wizard/QualityAudit";
 import DesignPresetSelector from "@/components/wizard/DesignPresetSelector";
 import { AI_MODELS } from "@/lib/ai/models";
+import OrchestrationSelector from "@/components/wizard/OrchestrationSelector";
+import SovereignInfrastructureSelector from "@/components/wizard/SovereignInfrastructureSelector";
 
 
 
@@ -76,6 +78,8 @@ function WizardContent() {
   const [isImporting, setIsImporting] = useState(false);
   const [selectionMethod, setSelectionMethod] = useState<'browse' | 'import'>('browse');
   const [orchestrationMode, setOrchestrationMode] = useState<'single-agent' | 'multi-agent'>('single-agent');
+  const [swarmTopology, setSwarmTopology] = useState<'mesh' | 'hierarchical' | 'adaptive'>('hierarchical');
+  const [developmentMethodology, setDevelopmentMethodology] = useState<'standard' | 'sparc'>('standard');
   const [selectedBrains, setSelectedBrains] = useState<string[]>([]);
   const [selectedWorkflows, setSelectedWorkflows] = useState<string[]>([]);
   const [isSharing, setIsSharing] = useState(false);
@@ -88,6 +92,20 @@ function WizardContent() {
   const [userCredits, setUserCredits] = useState(0);
   const [isPro, setIsPro] = useState(false);
   const [hasVercelToken, setHasVercelToken] = useState(false);
+  
+  // Sovereign Infrastructure Flags (Phase 40-51)
+  const [isScalabilityEnabled, setIsScalabilityEnabled] = useState(false);
+  const [isChaosEnabledV2, setIsChaosEnabledV2] = useState(false);
+  const [isAiGatewayEnabled, setIsAiGatewayEnabled] = useState(false);
+  const [isSecurityHardenedV2, setIsSecurityHardenedV2] = useState(false);
+  const [isObservabilityEnabledV2, setIsObservabilityEnabledV2] = useState(false);
+  const [isEdgeV2Enabled, setIsEdgeV2Enabled] = useState(false);
+  const [isComplianceEnabledV3, setIsComplianceEnabledV3] = useState(false);
+  const [isShardingEnabledV3, setIsShardingEnabledV3] = useState(false);
+  const [isSwarmEnabledV2, setIsSwarmEnabledV2] = useState(false);
+  const [isMarketplaceEnabled, setIsMarketplaceEnabled] = useState(false);
+  const [isGovernanceEnabled, setIsGovernanceEnabled] = useState(false);
+  const [isResilienceEnabledV2, setIsResilienceEnabledV2] = useState(false);
 
   const searchParams = useSearchParams();
   const urlSessionId = searchParams.get("sessionId");
@@ -130,6 +148,8 @@ function WizardContent() {
             setSelectedServices(config.selectedServices);
             if (config.experienceLevel) setExperienceLevel(config.experienceLevel);
             if (config.orchestrationMode) setOrchestrationMode(config.orchestrationMode);
+            if (config.swarmTopology) setSwarmTopology(config.swarmTopology);
+            if (config.developmentMethodology) setDevelopmentMethodology(config.developmentMethodology);
             if (config.selectedBrains) setSelectedBrains(config.selectedBrains);
             if (config.selectedWorkflows) setSelectedWorkflows(config.selectedWorkflows);
             setStep(7); // Skip straight to the IDE step since it's a fork
@@ -376,10 +396,24 @@ function WizardContent() {
       includeBoilerplate,
       experienceLevel,
       orchestrationMode,
+      swarmTopology,
+      developmentMethodology,
       selectedBrains,
       selectedWorkflows,
       modelSlug,
       designPreset: designPreset || undefined,
+      isScalabilityEnabled,
+      isChaosEnabledV2,
+      isAiGatewayEnabled,
+      isSecurityHardenedV2,
+      isObservabilityEnabledV2,
+      isEdgeV2Enabled,
+      isComplianceEnabledV3,
+      isShardingEnabledV3,
+      isSwarmEnabledV2,
+      isMarketplaceEnabled,
+      isGovernanceEnabled,
+      isResilienceEnabledV2,
     };
 
     const result = generateAgentFiles(config);
@@ -393,7 +427,7 @@ function WizardContent() {
     }).catch(err => {
       console.warn("Failed to persist wizard session:", err);
     });
-  }, [selectedTemplate, projectName, stackConfig, selectedIDEs, selectedPackages, selectedServices, templateVersion, includeBoilerplate, experienceLevel, orchestrationMode, selectedBrains, selectedWorkflows, modelSlug, designPreset]);
+  }, [selectedTemplate, projectName, stackConfig, selectedIDEs, selectedPackages, selectedServices, templateVersion, includeBoilerplate, experienceLevel, orchestrationMode, swarmTopology, developmentMethodology, selectedBrains, selectedWorkflows, modelSlug, designPreset, isScalabilityEnabled, isChaosEnabledV2, isAiGatewayEnabled, isSecurityHardenedV2, isObservabilityEnabledV2, isEdgeV2Enabled, isComplianceEnabledV3, isShardingEnabledV3, isSwarmEnabledV2, isMarketplaceEnabled, isGovernanceEnabled, isResilienceEnabledV2]);
 
   // Handle saving from the editor
   const handleEditorSave = useCallback(async (newContent: string) => {
@@ -481,11 +515,25 @@ function WizardContent() {
         includeBoilerplate,
         experienceLevel,
         orchestrationMode,
+        swarmTopology,
+        developmentMethodology,
         selectedBrains,
         selectedWorkflows,
         modelSlug,
         webhookUrl: settings.webhookUrl,
         isPrivate: settings.isPrivate,
+        isScalabilityEnabled,
+        isChaosEnabledV2,
+        isAiGatewayEnabled,
+        isSecurityHardenedV2,
+        isObservabilityEnabledV2,
+        isEdgeV2Enabled,
+        isComplianceEnabledV3,
+        isShardingEnabledV3,
+        isSwarmEnabledV2,
+        isMarketplaceEnabled,
+        isGovernanceEnabled,
+        isResilienceEnabledV2,
       };
 
       const id = await createHatchProject(settings.name, settings.description || "", config);
@@ -504,7 +552,7 @@ function WizardContent() {
       setToast(`❌ Error: ${err.message}`);
       setIsPushing(false);
     }
-  }, [projectName, generatedFiles, selectedTemplate, stackConfig, selectedIDEs, selectedPackages, selectedServices, templateVersion, includeBoilerplate, experienceLevel, orchestrationMode, selectedBrains, selectedWorkflows, modelSlug]);
+  }, [projectName, generatedFiles, selectedTemplate, stackConfig, selectedIDEs, selectedPackages, selectedServices, templateVersion, includeBoilerplate, experienceLevel, orchestrationMode, swarmTopology, developmentMethodology, selectedBrains, selectedWorkflows, modelSlug, isScalabilityEnabled, isChaosEnabledV2, isAiGatewayEnabled, isSecurityHardenedV2, isObservabilityEnabledV2, isEdgeV2Enabled, isComplianceEnabledV3, isShardingEnabledV3, isSwarmEnabledV2, isMarketplaceEnabled, isGovernanceEnabled, isResilienceEnabledV2]);
 
   // Handle GitHub Import
   const handleRepoImport = useCallback(async () => {
@@ -1487,31 +1535,17 @@ function WizardContent() {
                   </h3>
                   
                   <div className="glass-panel" style={{ padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-                    {/* Orchestration Mode */}
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1.5rem" }}>
-                      <div style={{ flex: 1 }}>
-                        <h4 style={{ fontSize: "0.95rem", marginBottom: "0.25rem" }}>Orchestration Mode</h4>
-                        <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", margin: 0 }}>
-                          {orchestrationMode === 'multi-agent' 
-                            ? "Hierarchical rules (Architect, Frontend, Backend) for better focus." 
-                            : "Single monolithic rule file for simpler projects."}
-                        </p>
-                      </div>
-                      <div style={{ display: "flex", background: "var(--bg-glass)", borderRadius: "8px", padding: "4px" }}>
-                        <button 
-                          className={`btn btn-sm ${orchestrationMode === 'single-agent' ? 'btn-primary' : 'btn-ghost'}`}
-                          onClick={() => setOrchestrationMode('single-agent')}
-                        >
-                          Single
-                        </button>
-                        <button 
-                          className={`btn btn-sm ${orchestrationMode === 'multi-agent' ? 'btn-primary' : 'btn-ghost'}`}
-                          onClick={() => setOrchestrationMode('multi-agent')}
-                        >
-                          Multi
-                        </button>
-                      </div>
-                    </div>
+                    {/* Orchestration & Topology */}
+                    <OrchestrationSelector 
+                      mode={orchestrationMode}
+                      topology={swarmTopology}
+                      methodology={developmentMethodology}
+                      onUpdate={(updates) => {
+                        if (updates.orchestrationMode) setOrchestrationMode(updates.orchestrationMode);
+                        if (updates.swarmTopology) setSwarmTopology(updates.swarmTopology);
+                        if (updates.developmentMethodology) setDevelopmentMethodology(updates.developmentMethodology);
+                      }}
+                    />
 
                     <div style={{ height: "1px", background: "rgba(255,255,255,0.1)" }} />
 
@@ -1538,6 +1572,43 @@ function WizardContent() {
                             )
                         )}
                       </div>
+                    </div>
+
+                    <div style={{ height: "1px", background: "rgba(255,255,255,0.1)" }} />
+
+                    {/* Sovereign Infrastructure (Phases 40-51) */}
+                    <div>
+                      <h4 style={{ fontSize: "0.95rem", marginBottom: "0.75rem" }}>Sovereign Infrastructure</h4>
+                      <SovereignInfrastructureSelector 
+                        config={{
+                          isScalabilityEnabled,
+                          isChaosEnabledV2,
+                          isAiGatewayEnabled,
+                          isSecurityHardenedV2,
+                          isObservabilityEnabledV2,
+                          isEdgeV2Enabled,
+                          isComplianceEnabledV3,
+                          isShardingEnabledV3,
+                          isSwarmEnabledV2,
+                          isMarketplaceEnabled,
+                          isGovernanceEnabled,
+                          isResilienceEnabledV2
+                        }}
+                        onChange={(field, value) => {
+                          if (field === 'isScalabilityEnabled') setIsScalabilityEnabled(value);
+                          if (field === 'isChaosEnabledV2') setIsChaosEnabledV2(value);
+                          if (field === 'isAiGatewayEnabled') setIsAiGatewayEnabled(value);
+                          if (field === 'isSecurityHardenedV2') setIsSecurityHardenedV2(value);
+                          if (field === 'isObservabilityEnabledV2') setIsObservabilityEnabledV2(value);
+                          if (field === 'isEdgeV2Enabled') setIsEdgeV2Enabled(value);
+                          if (field === 'isComplianceEnabledV3') setIsComplianceEnabledV3(value);
+                          if (field === 'isShardingEnabledV3') setIsShardingEnabledV3(value);
+                          if (field === 'isSwarmEnabledV2') setIsSwarmEnabledV2(value);
+                          if (field === 'isMarketplaceEnabled') setIsMarketplaceEnabled(value);
+                          if (field === 'isGovernanceEnabled') setIsGovernanceEnabled(value);
+                          if (field === 'isResilienceEnabledV2') setIsResilienceEnabledV2(value);
+                        }}
+                      />
                     </div>
                   </div>
                 </div>
@@ -1617,11 +1688,37 @@ function WizardContent() {
                       </div>
                     </div>
 
+                    <div style={{ marginBottom: "1.5rem" }}>
+                      <p style={{ fontWeight: 600, fontSize: "0.85rem", marginBottom: "0.75rem", color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Sovereign Infrastructure</p>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
+                        {isScalabilityEnabled && <span className="badge-outline" style={{ background: "rgba(16,185,129,0.1)", borderColor: "var(--success)", color: "var(--success)", padding: "0.25rem 0.75rem", borderRadius: "99px", fontSize: "0.75rem" }}>🚀 Scalability</span>}
+                        {isChaosEnabledV2 && <span className="badge-outline" style={{ background: "rgba(16,185,129,0.1)", borderColor: "var(--success)", color: "var(--success)", padding: "0.25rem 0.75rem", borderRadius: "99px", fontSize: "0.75rem" }}>🧪 Chaos 2.0</span>}
+                        {isResilienceEnabledV2 && <span className="badge-outline" style={{ background: "rgba(16,185,129,0.1)", borderColor: "var(--success)", color: "var(--success)", padding: "0.25rem 0.75rem", borderRadius: "99px", fontSize: "0.75rem" }}>♻️ Resilience 2.0</span>}
+                        {isAiGatewayEnabled && <span className="badge-outline" style={{ background: "rgba(16,185,129,0.1)", borderColor: "var(--success)", color: "var(--success)", padding: "0.25rem 0.75rem", borderRadius: "99px", fontSize: "0.75rem" }}>🧠 AI Gateway</span>}
+                        {isSecurityHardenedV2 && <span className="badge-outline" style={{ background: "rgba(16,185,129,0.1)", borderColor: "var(--success)", color: "var(--success)", padding: "0.25rem 0.75rem", borderRadius: "99px", fontSize: "0.75rem" }}>🛡️ Security 2.0</span>}
+                        {isObservabilityEnabledV2 && <span className="badge-outline" style={{ background: "rgba(16,185,129,0.1)", borderColor: "var(--success)", color: "var(--success)", padding: "0.25rem 0.75rem", borderRadius: "99px", fontSize: "0.75rem" }}>📊 Observability 2.0</span>}
+                        {isEdgeV2Enabled && <span className="badge-outline" style={{ background: "rgba(16,185,129,0.1)", borderColor: "var(--success)", color: "var(--success)", padding: "0.25rem 0.75rem", borderRadius: "99px", fontSize: "0.75rem" }}>🌐 Edge 2.0</span>}
+                        {isComplianceEnabledV3 && <span className="badge-outline" style={{ background: "rgba(16,185,129,0.1)", borderColor: "var(--success)", color: "var(--success)", padding: "0.25rem 0.75rem", borderRadius: "99px", fontSize: "0.75rem" }}>⚖️ Compliance 3.0</span>}
+                        {isShardingEnabledV3 && <span className="badge-outline" style={{ background: "rgba(16,185,129,0.1)", borderColor: "var(--success)", color: "var(--success)", padding: "0.25rem 0.75rem", borderRadius: "99px", fontSize: "0.75rem" }}>💎 Sharding 3.0</span>}
+                        {isSwarmEnabledV2 && <span className="badge-outline" style={{ background: "rgba(16,185,129,0.1)", borderColor: "var(--success)", color: "var(--success)", padding: "0.25rem 0.75rem", borderRadius: "99px", fontSize: "0.75rem" }}>🐝 Swarm 2.0</span>}
+                        {isMarketplaceEnabled && <span className="badge-outline" style={{ background: "rgba(16,185,129,0.1)", borderColor: "var(--success)", color: "var(--success)", padding: "0.25rem 0.75rem", borderRadius: "99px", fontSize: "0.75rem" }}>🏪 Marketplace</span>}
+                        {isGovernanceEnabled && <span className="badge-outline" style={{ background: "rgba(16,185,129,0.1)", borderColor: "var(--success)", color: "var(--success)", padding: "0.25rem 0.75rem", borderRadius: "99px", fontSize: "0.75rem" }}>🏛️ Governance</span>}
+                      </div>
+                    </div>
+
                     <div>
-                      <p style={{ fontWeight: 600, fontSize: "0.85rem", marginBottom: "0.75rem", color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Architect Modes</p>
+                      <p style={{ fontWeight: 600, fontSize: "0.85rem", marginBottom: "0.75rem", color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Architect & Agent Modes</p>
                       <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
                         <span className="badge-outline" style={{ borderColor: 'var(--accent-primary)', background: "rgba(124, 58, 237, 0.1)", padding: "0.25rem 0.75rem", borderRadius: "99px", fontSize: "0.75rem", color: "var(--accent-primary-light)" }}>
-                          {orchestrationMode === 'multi-agent' ? '🚀 Hierarchical Multi-Agent' : '📄 Single Agent'}
+                          {orchestrationMode === 'multi-agent' ? '🚀 Team Swarm' : '📄 Single Agent'}
+                        </span>
+                        {orchestrationMode === 'multi-agent' && (
+                          <span className="badge-outline" style={{ borderColor: 'var(--accent-secondary)', background: "rgba(6, 182, 212, 0.1)", padding: "0.25rem 0.75rem", borderRadius: "99px", fontSize: "0.75rem", color: "var(--accent-secondary-light)" }}>
+                            🕸️ {swarmTopology.charAt(0).toUpperCase() + swarmTopology.slice(1)} Topology
+                          </span>
+                        )}
+                        <span className="badge-outline" style={{ borderColor: 'var(--accent-emerald)', background: "rgba(16, 185, 129, 0.1)", padding: "0.25rem 0.75rem", borderRadius: "99px", fontSize: "0.75rem", color: "var(--accent-emerald-light)" }}>
+                          ⚡ {developmentMethodology === 'sparc' ? 'SPARC Protocol' : 'Standard Method'}
                         </span>
                         {selectedBrains.map(id => (
                           <span key={id} className="badge-outline" style={{ borderColor: 'var(--accent-secondary)', background: "rgba(6, 182, 212, 0.1)", padding: "0.25rem 0.75rem", borderRadius: "99px", fontSize: "0.75rem", color: "var(--accent-secondary-light)" }}>
@@ -1888,6 +1985,11 @@ function WizardContent() {
                       isPushing={isPushing}
                       hatchStatus={hatchStatus}
                     />
+
+                    {/* Step 1.5: Quality Audit Results */}
+                    {hatchStatus?.qualityAudit && (
+                      <QualityAudit audit={hatchStatus.qualityAudit} />
+                    )}
 
                     {/* Step 2: Live Preview Iframe */}
                     <div className="glass-panel" style={{ flex: 1, minHeight: "400px", display: "flex", flexDirection: "column", padding: "1rem", position: "relative" }}>
